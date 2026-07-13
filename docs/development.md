@@ -102,6 +102,18 @@ The CI job installs `.[api,test]` so API tests run, but it does not install the
 renderer optional dependency or Chromium. The browser-backed renderer smoke test
 remains opt-in with `EMAIL_VAULT_RUN_RENDERER_SMOKE=1`.
 
+## Gmail Add-on Shell
+
+The preview-only Workspace Add-on shell lives in:
+
+```text
+services/gmail_addon/
+```
+
+It includes an Apps Script manifest, Gmail contextual card code, and local tests.
+The shell can collect archive preferences, but it does not call the backend or
+mutate Gmail yet.
+
 ## Run the API
 
 ```powershell
