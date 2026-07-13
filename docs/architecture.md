@@ -102,10 +102,11 @@ The route now generates metadata JSON and manifest JSON alongside the rendered
 PDF. These artifacts use the trusted filenames planned before rendering and are
 staged through the same storage verification boundary.
 
-Permitted attachment copy remains descriptor-only because the current archive
-request contains attachment descriptors but not attachment bytes. Later add-on
-or backend fetcher work must supply trusted bytes before attachment copies can
-be stored.
+Permitted attachment copy now runs behind an attachment content provider. When
+trusted bytes are supplied, the copy is checksum verified, stored with a
+server-generated name, and reported in metadata and manifest JSON. The default
+provider supplies no bytes, so local route behavior remains descriptor-only
+until add-on or backend fetcher work is wired.
 
 ## Verified Storage State Boundary
 
@@ -127,10 +128,10 @@ so the public POC can prove preservation completion before mutating Gmail.
 ## Archive Route Preservation Boundary
 
 `POST /archive/thread` now calls the backend preservation path for generated
-PDF, metadata JSON, and manifest JSON output. It validates ownership, checks
-duplicates, prepares sanitized renderer input, renders the PDF through the
-configured adapter, stages and verifies storage, appends `COMPLETED`, and
-returns `PRESERVED`.
+PDF, metadata JSON, manifest JSON, and trusted permitted attachment-copy output.
+It validates ownership, checks duplicates, prepares sanitized renderer input,
+renders the PDF through the configured adapter, stages and verifies storage,
+appends `COMPLETED`, and returns `PRESERVED`.
 
 The route still returns Gmail finalization disabled. Finalization instructions
 remain a separate owner-scoped call after completion.
