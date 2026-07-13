@@ -70,11 +70,13 @@ Script files with tests for the contextual trigger, minimal current-message
 scopes, expected entry points, and absence of Gmail mutation calls. Docker
 runtime packaging now exists for the API, with CI building the image to keep
 the runtime boundary from drifting. The archive route now calls the completed
-backend preservation path for generated PDF output and returns `PRESERVED` after
-verified storage plus `COMPLETED`, while Gmail finalization remains disabled.
+backend preservation path for generated PDF, metadata JSON, and manifest JSON
+output and returns `PRESERVED` after verified storage plus `COMPLETED`, while
+Gmail finalization remains disabled. Permitted attachment copy remains
+descriptor-only until trusted bytes are available.
 
 ## Later Phases
 
-- P6: add permitted attachment copy plus metadata and manifest artifact output.
+- P6: add trusted permitted attachment fetch/copy support.
 - P7: add-on-to-backend request wiring, HTTPS deployment choice, and private
   OAuth validation.
