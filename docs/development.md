@@ -134,6 +134,7 @@ credential must be a Google ID token for the configured OAuth client ID.
 ## Current Limits
 
 The archive route can render the generated PDF path, generate metadata and
-manifest JSON artifacts, stage and verify local storage, and record a completed
+manifest JSON artifacts, copy permitted attachments when a trusted content
+provider supplies bytes, stage and verify local storage, and record a completed
 backend revision. It still does not label Gmail, mark messages read, archive
-Gmail, or copy permitted attachment bytes.
+Gmail, or fetch Gmail attachment bytes by default.
