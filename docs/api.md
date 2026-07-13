@@ -50,9 +50,10 @@ Current P2 behavior:
 - Keeps Gmail finalization disabled. Gmail label, mark-read, and archive
   instructions remain behind the separate post-completion finalization boundary.
 
-The current route stores the generated PDF path only. Metadata JSON, manifest
-JSON, permitted attachment copy, and add-on-to-backend request wiring remain
-future work.
+The current route stores generated PDF, metadata JSON, and manifest JSON
+artifacts. Permitted attachment copy remains descriptor-only until the add-on or
+backend provides trusted attachment bytes. Add-on-to-backend request wiring also
+remains future work.
 
 The service layer now has the Gmail finalization boundary used by future API
 routes: instructions can be requested only after `COMPLETED`, and callback
@@ -93,7 +94,7 @@ New-snapshot preserved response shape:
   },
   "verification": {
     "verified": true,
-    "artifact_count": 1,
+    "artifact_count": 3,
     "total_bytes": 12345,
     "verified_at": "2026-07-13T19:00:00Z"
   },
@@ -119,5 +120,5 @@ unexpected internal errors.
 - Google Marketplace packaging and live add-on authentication.
 - Add-on-to-backend archive request execution.
 - Private-environment validation against a real Google OAuth project.
-- Metadata JSON, manifest JSON, and permitted attachment copy artifacts.
+- Trusted permitted attachment fetch/copy support.
 - Gmail Workspace Add-on label, mark-read, archive, or undo behavior.
