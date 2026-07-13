@@ -59,10 +59,12 @@ Done:
 - Gmail Workspace Add-on shell with homepage/contextual cards, current-message
   preview behavior, preference capture, and tests proving it does not mutate
   Gmail.
+- Docker runtime packaging for the API with non-root execution, `/health`
+  healthcheck, persistent `/data` paths, and CI build validation.
 
 Next:
 
-1. Add deployment hardening and runtime packaging.
+1. Wire the archive route to the completed preservation pipeline.
 2. Wire the add-on to the backend archive route once route orchestration is
    ready.
 3. Validate a real Google OAuth client ID in a private environment before any
@@ -122,5 +124,6 @@ Key docs:
 - `docs/development.md`
 - `docs/api.md`
 - `docs/addon.md`
+- `docs/deployment.md`
 - `docs/data-model.md`
 - `docs/security-and-privacy.md`
