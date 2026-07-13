@@ -134,7 +134,7 @@ paths.
 
 The plan does not create files, stage storage, or mark a revision completed. It
 exists so rendering and storage can be connected later without guessing artifact
-ames at the last moment.
+names at the last moment.
 
 ## Rendered PDF Artifact
 
@@ -175,8 +175,9 @@ The current coordinator can:
 - return a verification summary with artifact count, total bytes, and verified
   time.
 
-It does not append `COMPLETED`, return Gmail finalization instructions, or make
-the public API report a completed preservation flow yet.
+The archive route can now use this outcome as part of the generated PDF
+preservation path before recording `COMPLETED`. It still does not return Gmail
+finalization instructions from the archive route.
 
 ## Archive Completion Outcome
 
@@ -187,6 +188,9 @@ The current coordinator can append `COMPLETED` when the audit history permits a
 safe transition from `VERIFIED`. It does not append
 `GMAIL_FINALIZATION_PENDING`, return Gmail finalization instructions, or mutate
 Gmail.
+
+The archive route can now return `PRESERVED` after this completed backend state
+exists for the generated PDF path.
 
 ## Gmail Finalization Outcome
 
