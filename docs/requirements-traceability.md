@@ -48,3 +48,6 @@
 | Gmail finalization callback records only after pending state | P6 | `test_gmail_finalization_callback_records_success_after_pending_state`, `test_gmail_finalization_callback_rejects_without_pending_state` |
 | Gmail finalization uses owner-scoped record lookup | P6 | `test_find_by_record_id_is_owner_scoped` |
 | Stable test suite runs in CI | P6 | `.github/workflows/ci.yml` runs `python -m unittest discover -s tests` |
+| Gmail Add-on shell has contextual entry point | P6 | `test_manifest_declares_gmail_contextual_trigger`, `services/gmail_addon/appsscript.json` |
+| Gmail Add-on shell avoids broad mailbox scopes | P6 | `test_manifest_uses_minimal_current_message_scopes` |
+| Gmail Add-on shell does not mutate Gmail | P6 | `test_shell_does_not_mutate_gmail` |
