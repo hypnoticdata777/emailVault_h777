@@ -20,6 +20,19 @@ ID token issued for the configured OAuth client ID.
 Backend ownership must come from the verified Google identity, never from a
 request body field.
 
+Archive requests may also require add-on request signing. When
+`EMAIL_VAULT_ADDON_SIGNING_SECRET` is configured, `POST /archive/thread` expects
+these headers:
+
+```text
+X-Email-Vault-Timestamp: <unix-seconds>
+X-Email-Vault-Signature: <hmac-sha256-hex>
+```
+
+The signature covers the HTTP method, path, timestamp, and SHA-256 hash of the
+raw request body. This is dormant by default for local development until the
+add-on-to-backend flow is wired.
+
 ## `GET /health`
 
 Returns basic service status.
@@ -121,6 +134,5 @@ unexpected internal errors.
 - Google Marketplace packaging and live add-on authentication.
 - Add-on-to-backend archive request execution.
 - Private-environment validation against a real Google OAuth project.
-- Add-on-to-backend request signing and execution.
 - Gmail attachment fetch integration for the trusted attachment content provider.
 - Gmail Workspace Add-on label, mark-read, archive, or undo behavior.
