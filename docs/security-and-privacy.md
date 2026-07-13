@@ -7,10 +7,11 @@ storage integration.
 ## Current Position
 
 The current backend uses synthetic fixtures and defaults to a synthetic local
-identity token. It can be configured to verify Google ID tokens. The repository
-also includes a preview-only Gmail Add-on shell, but the project does not deploy
-publicly, call the backend from the add-on, render PDFs from the API route, mark
-messages read, apply labels, archive Gmail, or delete Gmail.
+identity token. It can be configured to verify Google ID tokens. The archive
+route can render and preserve the generated PDF path, and the repository also
+includes a preview-only Gmail Add-on shell. The project does not deploy
+publicly, call the backend from the add-on, mark messages read, apply labels,
+archive Gmail, or delete Gmail.
 
 ## Data That Must Not Enter Logs
 
@@ -46,7 +47,8 @@ Gmail must remain unchanged until backend storage verification succeeds.
 
 The add-on may apply the `EmailVault/Vaulted` label, mark read, or archive only
 after the backend returns finalization instructions from a verified preservation
-flow. The current archive route still does not enable those instructions.
+flow. The current archive route can complete backend preservation, but it still
+does not enable those Gmail instructions.
 
 ## Storage Boundary
 
