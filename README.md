@@ -55,6 +55,9 @@ Done:
 - Archive route can run the backend preservation path for generated PDFs:
   sanitize, render, stage storage, verify checksums, persist the revision, append
   `COMPLETED`, and still leave Gmail finalization disabled.
+- Archive route now stores generated PDF, metadata JSON, and manifest JSON
+  artifacts together. Permitted attachment copy is still descriptor-only until
+  the add-on or backend provides trusted attachment bytes.
 - GitHub Actions CI runs the stable Python 3.12 test suite with API/test
   dependencies on push and pull request.
 - Production identity blocker reduced to configuration and real Google OAuth
@@ -69,7 +72,7 @@ Next:
 
 1. Wire the add-on to the backend archive route once request signing and
    deployment configuration are ready.
-2. Add permitted attachment copy and metadata/manifest artifact output.
+2. Add trusted permitted attachment fetch/copy support.
 3. Validate a real Google OAuth client ID in a private environment before any
    real-data demo.
 
@@ -117,9 +120,9 @@ python -m unittest tests.test_playwright_renderer_smoke
 Remove-Item Env:\EMAIL_VAULT_RUN_RENDERER_SMOKE
 ```
 
-The archive route can preserve the generated PDF path when API and renderer
-dependencies are installed. It still does not label Gmail, mark Gmail read, or
-archive Gmail messages.
+The archive route can preserve generated PDF, metadata JSON, and manifest JSON
+artifacts when API and renderer dependencies are installed. It still does not
+label Gmail, mark Gmail read, archive Gmail messages, or copy attachment bytes.
 
 Key docs:
 
