@@ -165,7 +165,8 @@ class _PlainTextParser(HTMLParser):
 
 def _has_safe_scheme(value: str, safe_schemes: frozenset[str]) -> bool:
     parsed = urlparse(value.strip())
+    if not parsed.scheme and value.strip().lower().startswith("javascript:"):
+        return False
     if not parsed.scheme:
         return True
     return parsed.scheme.lower() in safe_schemes
-

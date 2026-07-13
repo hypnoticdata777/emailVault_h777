@@ -95,3 +95,16 @@ manifest, sanitized PDF, or an allowed attachment copy.
 
 Storage paths use trusted server-generated names. Original attachment filenames
 remain metadata only and must never become directory names or storage paths.
+
+## Sanitized Body Representation
+
+A sanitized body representation is a safe body output prepared from an accessible
+message body.
+
+Rules:
+
+- `text/html` bodies are sanitized before downstream rendering.
+- Remote image sources are blocked.
+- Script/style content and event handlers are removed.
+- A `text/plain` fallback is always available.
+- Original `text/plain` bodies are preserved as plain text.

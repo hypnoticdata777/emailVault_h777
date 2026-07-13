@@ -64,6 +64,9 @@ HTML sanitization must:
 Future rendering must avoid remote network fetches and must consume sanitized
 content, not raw email HTML.
 
+P3 now includes normalized sanitized body output so downstream rendering can use
+safe HTML and guaranteed plain text instead of raw message bodies.
+
 ## Fixtures and Demo Data
 
 The repository and public demo must use synthetic data only. Fixture addresses

@@ -24,13 +24,15 @@ Done:
 - Security and privacy boundaries documented for public-ready development.
 - First P3 sanitizer pass for hostile HTML, remote image blocking, and
   plain-text fallback.
+- Normalized sanitized message-body output for safe HTML and guaranteed plain
+  text.
 - Archive coordinator that validates, fingerprints, checks duplicates, and keeps
   Gmail finalization disabled until storage verification exists.
 
 Next:
 
-1. Expand sanitizer coverage and normalize sanitized message bodies.
-2. Add sanitizer tests for more edge cases and attachment-adjacent HTML.
+1. Expand sanitizer tests for attachment-adjacent HTML and table-heavy emails.
+2. Prepare renderer-safe message snapshots.
 3. Add renderer/storage integration only after sanitization tests are stable.
 
 ## Thread vs Email
