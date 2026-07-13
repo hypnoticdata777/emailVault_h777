@@ -31,3 +31,6 @@ jobs:
 
       - name: Run stable test suite
         run: python -m unittest discover -s tests
+
+      - name: Validate Dockerfile can build
+        run: docker build -t email-vault-api:ci .
