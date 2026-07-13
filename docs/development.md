@@ -71,6 +71,19 @@ python -m unittest discover -s tests
 Both commands are expected to pass. A FastAPI/Starlette test-client deprecation
 warning may appear; it does not currently indicate a project failure.
 
+## Continuous Integration
+
+GitHub Actions runs the stable test suite on push to `main` and on pull
+requests:
+
+```powershell
+python -m unittest discover -s tests
+```
+
+The CI job installs `.[api,test]` so API tests run, but it does not install the
+renderer optional dependency or Chromium. The browser-backed renderer smoke test
+remains opt-in with `EMAIL_VAULT_RUN_RENDERER_SMOKE=1`.
+
 ## Run the API
 
 ```powershell

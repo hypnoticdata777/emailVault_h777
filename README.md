@@ -50,12 +50,14 @@ Done:
 - Archive coordinator that validates, fingerprints, checks duplicates, and keeps
   Gmail finalization disabled on the archive route until the end-to-end add-on
   flow exists.
+- GitHub Actions CI runs the stable Python 3.12 test suite with API/test
+  dependencies on push and pull request.
 
 Next:
 
-1. Add CI once dependency and smoke-test commands are stable.
-2. Add production Google identity verification before any public real-data demo.
-3. Add Gmail Workspace Add-on shell around the proven backend boundaries.
+1. Add production Google identity verification before any public real-data demo.
+2. Add Gmail Workspace Add-on shell around the proven backend boundaries.
+3. Add deployment hardening and runtime packaging.
 
 ## Thread vs Email
 

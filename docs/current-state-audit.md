@@ -68,6 +68,8 @@ scaffold, and a Playwright/Chromium adapter boundary.
   `GMAIL_FINALIZATION_PENDING`.
 - Local API runs can bootstrap the configured SQLite schema with
   `python -m services.api.app.cli init-db`.
+- GitHub Actions CI runs the stable Python 3.12 unit test suite with API/test
+  dependencies on push and pull request.
 - Developer setup, current API behavior, and data model notes are documented in
   `docs/development.md`, `docs/api.md`, and `docs/data-model.md`.
 - Security and privacy boundaries are documented in
@@ -93,7 +95,6 @@ The API skeleton requires optional dependencies.
 - Browser-backed PDF smoke test is opt-in and not part of default CI yet.
 - No attachment fetcher or permitted attachment copy flow exists yet.
 - No end-to-end API route returns Gmail finalization instructions yet.
-- No CI workflow exists yet.
 - No Docker runtime exists yet.
 
 ## Risky or Conflicting Code
@@ -105,6 +106,6 @@ current API tests intentionally keep Gmail finalization disabled.
 
 ## Recommended Minimal Changes
 
-1. Add CI once package dependencies and command choices are stable.
-2. Replace synthetic Google identity verification before any real-data demo.
-3. Add the Gmail Workspace Add-on shell around the proven backend boundaries.
+1. Replace synthetic Google identity verification before any real-data demo.
+2. Add the Gmail Workspace Add-on shell around the proven backend boundaries.
+3. Add Docker/runtime packaging once route orchestration is ready.

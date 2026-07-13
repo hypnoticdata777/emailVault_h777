@@ -60,9 +60,11 @@ without enabling Gmail finalization. It can also append `COMPLETED` after the
 verified storage state transition, still without enabling Gmail finalization.
 The coordinator can now request Gmail finalization only from a completed
 owner-scoped record and record callback success or failure only after
-`GMAIL_FINALIZATION_PENDING`.
+`GMAIL_FINALIZATION_PENDING`. GitHub Actions CI now runs the stable Python 3.12
+test suite with API/test dependencies on push and pull request while keeping the
+browser-backed renderer smoke test opt-in.
 
 ## Later Phases
 
-- P6: CI and production identity hardening for public demo use.
+- P6: production identity hardening for public demo use.
 - P7: Gmail Add-on shell and deployment hardening.

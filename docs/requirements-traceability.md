@@ -44,3 +44,4 @@
 | Gmail finalization starts only after completed preservation | P6 | `test_gmail_finalization_request_requires_completed_archive_and_returns_instructions`, `test_gmail_finalization_request_rejects_before_completed_without_writes` |
 | Gmail finalization callback records only after pending state | P6 | `test_gmail_finalization_callback_records_success_after_pending_state`, `test_gmail_finalization_callback_rejects_without_pending_state` |
 | Gmail finalization uses owner-scoped record lookup | P6 | `test_find_by_record_id_is_owner_scoped` |
+| Stable test suite runs in CI | P6 | `.github/workflows/ci.yml` runs `python -m unittest discover -s tests` |
