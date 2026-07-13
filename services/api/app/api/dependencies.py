@@ -12,6 +12,7 @@ from services.api.app.repositories.interfaces import RevisionRepository
 from services.api.app.repositories.sqlite import SqliteRevisionRepository, sqlite_path_from_database_url
 from services.api.app.services.rendering.playwright_adapter import PlaywrightPdfRendererAdapter
 from services.api.app.services.rendering.pdf import PdfRendererAdapter
+from services.api.app.services.storage.attachments import AttachmentContentProvider, NullAttachmentContentProvider
 from services.api.app.services.storage.provider import LocalFilesystemStorageProvider, StorageProvider
 
 
@@ -40,6 +41,10 @@ def get_pdf_renderer_adapter() -> PdfRendererAdapter:
 def get_storage_provider() -> StorageProvider:
     settings = load_settings()
     return LocalFilesystemStorageProvider(settings.storage_root)
+
+
+def get_attachment_content_provider() -> AttachmentContentProvider:
+    return NullAttachmentContentProvider()
 
 
 @dataclass(frozen=True)
