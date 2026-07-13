@@ -66,7 +66,7 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(body["status"], "PRESERVED")
         self.assertIsNotNone(body["record"])
         self.assertTrue(body["verification"]["verified"])
-        self.assertEqual(body["verification"]["artifact_count"], 1)
+        self.assertEqual(body["verification"]["artifact_count"], 3)
         self.assertFalse(body["gmail_finalization"]["enabled"])
         self.assertIsNone(body["error"])
 
