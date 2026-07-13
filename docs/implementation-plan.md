@@ -65,9 +65,12 @@ test suite with API/test dependencies on push and pull request while keeping the
 browser-backed renderer smoke test opt-in. The identity boundary now supports
 selectable local synthetic verification or Google ID-token verification for a
 configured OAuth client ID, with tests covering the verifier without calling
-Google.
+Google. The first Gmail Workspace Add-on shell now exists as preview-only Apps
+Script files with tests for the contextual trigger, minimal current-message
+scopes, expected entry points, and absence of Gmail mutation calls.
 
 ## Later Phases
 
-- P6: Gmail Add-on shell around the proven backend boundaries.
+- P6: add-on-to-backend archive request wiring after route orchestration is
+  safe.
 - P7: deployment hardening, runtime packaging, and private OAuth validation.
