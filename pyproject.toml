@@ -1,13 +1,14 @@
 [project]
 name = "email-vault-poc"
 version = "0.1.0"
-description = "P0/P1 foundation for a Gmail thread preservation POC."
+description = "Foundation for a Gmail thread preservation proof of concept."
 requires-python = ">=3.12"
 dependencies = []
 
 [project.optional-dependencies]
 api = [
     "fastapi>=0.116.0",
+    "google-auth[requests]>=2.30.0",
     "pydantic>=2.10.0",
     "uvicorn[standard]>=0.35.0",
 ]
