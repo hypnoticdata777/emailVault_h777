@@ -27,6 +27,11 @@ from services.api.app.services.rendering.manifest import plan_artifact_manifest
 from services.api.app.services.rendering.pdf import PdfRendererAdapter, render_pdf_from_safe_thread
 from services.api.app.services.rendering.snapshot import prepare_renderer_safe_thread
 from services.api.app.services.revision_planner import RevisionPlanner, RevisionPlanStatus
+from services.api.app.services.storage.attachments import (
+    AttachmentContentProvider,
+    NullAttachmentContentProvider,
+    build_attachment_copy_artifacts,
+)
 from services.api.app.services.storage.rendered_artifacts import stage_and_verify_generated_artifacts
 from services.api.app.services.storage.provider import StageAndVerifyResult
 from services.api.app.services.storage.provider import StorageProvider
@@ -96,6 +101,7 @@ class ArchiveCoordinator:
         identity: GoogleIdentity,
         pdf_renderer: PdfRendererAdapter,
         storage_provider: StorageProvider,
+        attachment_content_provider: AttachmentContentProvider | None = None,
     ) -> ArchiveResult:
         """Run the preservation pipeline through completion without mutating Gmail."""
 
@@ -116,13 +122,19 @@ class ArchiveCoordinator:
             )
 
         safe_thread = prepare_renderer_safe_thread(request.thread)
-        manifest = plan_artifact_manifest(plan.reference, safe_thread)
+        active_attachment_provider = attachment_content_provider or NullAttachmentContentProvider()
+        manifest = plan_artifact_manifest(plan.reference, safe_thread, attachment_source=request.thread)
         rendered_pdf = render_pdf_from_safe_thread(safe_thread, manifest, pdf_renderer)
-        metadata_json = build_metadata_json_artifact(request, safe_thread, manifest)
-        manifest_json = build_manifest_json_artifact(manifest, (rendered_pdf, metadata_json))
+        attachment_copies = build_attachment_copy_artifacts(request.thread, manifest, active_attachment_provider)
+        metadata_json = build_metadata_json_artifact(request, safe_thread, manifest, attachment_copies)
+        manifest_json = build_manifest_json_artifact(
+            manifest,
+            (rendered_pdf, *attachment_copies.artifacts, metadata_json),
+            attachment_copies,
+        )
         storage_result = stage_and_verify_generated_artifacts(
             plan.reference.record_id,
-            (rendered_pdf, metadata_json, manifest_json),
+            (rendered_pdf, *attachment_copies.artifacts, metadata_json, manifest_json),
             storage_provider,
         )
         verified = self.record_verified_storage(identity, plan.gmail_thread_id, plan.reference, storage_result)
