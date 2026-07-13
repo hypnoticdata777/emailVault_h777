@@ -46,6 +46,8 @@
 | Coordinator completes only after verified storage | P5 | `test_completed_preservation_appends_completed_after_verified_storage`, `test_completed_preservation_requires_verified_state_without_writes` |
 | Archive route can complete backend preservation without Gmail mutation | P6 | `test_preserve_new_snapshot_records_completed_archive_without_gmail_finalization`, `test_archive_preserves_snapshot_and_keeps_gmail_finalization_disabled` |
 | Duplicate archive route requests return before rendering/storage | P6 | `test_preserve_duplicate_snapshot_returns_existing_record_without_rendering`, `test_archive_returns_duplicate_when_snapshot_already_exists` |
+| Metadata and manifest artifacts are generated and staged with the PDF | P6 | `test_metadata_json_artifact_records_sanitized_thread_and_attachment_boundary`, `test_manifest_json_artifact_lists_generated_outputs_without_claiming_attachment_copy`, `test_stage_and_verify_generated_artifacts_writes_multiple_outputs` |
+| Permitted attachment copy does not claim bytes before a trusted source exists | P6 | `test_metadata_json_artifact_records_sanitized_thread_and_attachment_boundary`, `test_manifest_json_artifact_lists_generated_outputs_without_claiming_attachment_copy` |
 | Gmail finalization starts only after completed preservation | P6 | `test_gmail_finalization_request_requires_completed_archive_and_returns_instructions`, `test_gmail_finalization_request_rejects_before_completed_without_writes` |
 | Gmail finalization callback records only after pending state | P6 | `test_gmail_finalization_callback_records_success_after_pending_state`, `test_gmail_finalization_callback_rejects_without_pending_state` |
 | Gmail finalization uses owner-scoped record lookup | P6 | `test_find_by_record_id_is_owner_scoped` |
