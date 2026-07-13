@@ -38,6 +38,8 @@ FastAPI/Pydantic modules behind optional dependencies.
   `python -m services.api.app.cli init-db`.
 - Developer setup, current API behavior, and data model notes are documented in
   `docs/development.md`, `docs/api.md`, and `docs/data-model.md`.
+- Security and privacy boundaries are documented in
+  `docs/security-and-privacy.md`.
 
 ## Setup and Run Commands
 
@@ -55,8 +57,8 @@ The API skeleton requires optional dependencies.
 - No Gmail Workspace Add-on exists yet.
 - No HTTPS API entry point exists yet.
 - No Google identity verification exists yet.
-- No sanitizer, renderer, attachment fetcher, storage provider, PDF generation,
-  audit event store, or Gmail finalization callback exists yet.
+- No sanitizer, renderer, attachment fetcher, PDF generation, production audit
+  event service, or Gmail finalization callback exists yet.
 - No CI workflow exists yet; the project has no remote commit history to extend.
 - No Docker runtime exists yet.
 
@@ -67,7 +69,6 @@ to be translated to Pydantic models when FastAPI is introduced.
 
 ## Recommended Minimal Changes
 
-1. Keep this P0/P1 foundation focused and avoid implementing Gmail mutation.
-2. Add FastAPI and Pydantic v2 in P2 when the first API route is created.
-3. Add a SQLite-backed repository interface before any renderer or storage work.
-4. Add CI once package dependencies and command choices are stable.
+1. Start P3 with sanitizer tests for malicious HTML and remote resources.
+2. Keep renderer/storage integration behind sanitizer and verification tests.
+3. Add CI once package dependencies and command choices are stable.

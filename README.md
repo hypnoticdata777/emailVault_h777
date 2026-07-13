@@ -21,13 +21,14 @@ Done:
 - Safe revision planner for duplicate, new-thread, and updated-thread decisions.
 - Local storage provider boundary that stages generated artifacts and verifies
   checksums without marking revisions completed.
+- Security and privacy boundaries documented for public-ready development.
 - Archive coordinator that validates, fingerprints, checks duplicates, and keeps
   Gmail finalization disabled until storage verification exists.
 
 Next:
 
-1. Add a security/privacy documentation pass.
-2. Start P3 sanitization and remote-resource blocking.
+1. Start P3 sanitization and remote-resource blocking.
+2. Add sanitizer tests for malicious HTML, tracking pixels, and plain-text fallback.
 3. Add renderer/storage integration only after sanitization tests are stable.
 
 ## Thread vs Email
@@ -62,3 +63,10 @@ The archive route is intentionally not a real preservation endpoint yet. In P2,
 it validates input and checks duplicate state, but it does not render PDFs, stage
 storage, write completed revisions, label Gmail, mark Gmail read, or archive
 Gmail messages.
+
+Key docs:
+
+- `docs/development.md`
+- `docs/api.md`
+- `docs/data-model.md`
+- `docs/security-and-privacy.md`

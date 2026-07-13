@@ -44,6 +44,8 @@ docs/adr/                       Architecture decision records
   and tokens.
 - Rendering must not execute email JavaScript or fetch remote resources.
 
+See `docs/security-and-privacy.md` for the fuller public-ready safety model.
+
 ## Storage Boundary
 
 The storage provider boundary stages generated artifacts and verifies checksums.

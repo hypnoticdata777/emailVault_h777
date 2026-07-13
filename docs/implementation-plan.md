@@ -38,12 +38,13 @@ updated Gmail threads and generates server-owned IDs for new vault threads.
 The first explicit storage provider boundary now stages generated artifacts and
 verifies checksums in local development without marking revisions completed.
 
-Remaining P2 work is to add a small security/privacy documentation pass before
-moving into P3 sanitization and remote-resource blocking.
+Security and privacy boundaries are documented for public-ready development.
+
+P2 is now ready to hand off into P3 sanitization and remote-resource blocking.
 
 ## Later Phases
 
-- P3: sanitizer and remote resource blocking.
+- P3: sanitizer, remote resource blocking, and plain-text fallback.
 - P4: storage provider staging and verification.
 - P5: PDF renderer with ADR-backed implementation.
 - P6: Gmail Add-on flow and finalization callbacks.
