@@ -1,0 +1,33 @@
+{
+  "timeZone": "Etc/UTC",
+  "runtimeVersion": "V8",
+  "exceptionLogging": "STACKDRIVER",
+  "oauthScopes": [
+    "https://www.googleapis.com/auth/gmail.addons.current.message.metadata",
+    "https://www.googleapis.com/auth/gmail.addons.current.message.readonly",
+    "https://www.googleapis.com/auth/script.external_request",
+    "openid",
+    "email"
+  ],
+  "addOns": {
+    "common": {
+      "name": "Email Vault",
+      "logoUrl": "https://example.com/email-vault-logo.png",
+      "layoutProperties": {
+        "primaryColor": "#174EA6",
+        "secondaryColor": "#185ABC"
+      },
+      "homepageTrigger": {
+        "runFunction": "onHomepage"
+      }
+    },
+    "gmail": {
+      "contextualTriggers": [
+        {
+          "unconditional": {},
+          "onTriggerFunction": "onGmailMessageOpen"
+        }
+      ]
+    }
+  }
+}
