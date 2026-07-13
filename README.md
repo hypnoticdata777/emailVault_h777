@@ -52,6 +52,9 @@ Done:
 - Archive coordinator that validates, fingerprints, checks duplicates, and keeps
   Gmail finalization disabled on the archive route until the end-to-end add-on
   flow exists.
+- Archive route can run the backend preservation path for generated PDFs:
+  sanitize, render, stage storage, verify checksums, persist the revision, append
+  `COMPLETED`, and still leave Gmail finalization disabled.
 - GitHub Actions CI runs the stable Python 3.12 test suite with API/test
   dependencies on push and pull request.
 - Production identity blocker reduced to configuration and real Google OAuth
@@ -64,9 +67,9 @@ Done:
 
 Next:
 
-1. Wire the archive route to the completed preservation pipeline.
-2. Wire the add-on to the backend archive route once route orchestration is
-   ready.
+1. Wire the add-on to the backend archive route once request signing and
+   deployment configuration are ready.
+2. Add permitted attachment copy and metadata/manifest artifact output.
 3. Validate a real Google OAuth client ID in a private environment before any
    real-data demo.
 
@@ -114,10 +117,9 @@ python -m unittest tests.test_playwright_renderer_smoke
 Remove-Item Env:\EMAIL_VAULT_RUN_RENDERER_SMOKE
 ```
 
-The archive route is intentionally not a real preservation endpoint yet. In P2,
-it validates input and checks duplicate state, but it does not render PDFs, stage
-storage, write completed revisions, label Gmail, mark Gmail read, or archive
-Gmail messages.
+The archive route can preserve the generated PDF path when API and renderer
+dependencies are installed. It still does not label Gmail, mark Gmail read, or
+archive Gmail messages.
 
 Key docs:
 
