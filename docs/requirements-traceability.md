@@ -4,7 +4,7 @@
 | --- | --- | --- |
 | Gmail unchanged before storage verification | P1/P6 | `test_state_policy_rejects_gmail_finalization_before_verified` |
 | No completed partial archive | P2/P4 | State policy and ADR 0001 |
-| Duplicate submissions reuse record | P1/P2 | `test_duplicate_fingerprint_is_deterministic_for_same_ordered_thread_snapshot_and_changes_for_revision` |
+| Duplicate submissions reuse record | P1/P2 | `test_duplicate_fingerprint_is_deterministic_and_changes_for_revision` |
 | Updated thread creates revision | P1/P2 | `updated_thread.json` and fingerprint test |
 | Completed revisions immutable | P2 | Repository interface planned |
 | Ownership from verified Google identity | P2 | Architecture doc |
@@ -31,3 +31,4 @@
 | Sanitizer removes scripts and blocks remote tracking pixels | P3 | `test_malicious_html_removes_script_content_and_keeps_safe_text`, `test_tracking_pixel_blocks_remote_image_source` |
 | Plain-text fallback is available for sanitized HTML | P3 | `test_plain_text_fallback_collapses_blocks` |
 | Sanitized message bodies preserve safe text and produce fallback output | P3 | `test_html_message_normalization_adds_plain_text_fallback`, `test_plain_text_message_normalization_preserves_original_text` |
+| Renderer input consumes sanitized bodies only | P3/P5 | `test_renderer_safe_snapshot_uses_sanitized_html_and_plain_text_fallback`, `test_renderer_safe_snapshot_preserves_plain_text_without_html` |

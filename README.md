@@ -26,13 +26,15 @@ Done:
   plain-text fallback.
 - Normalized sanitized message-body output for safe HTML and guaranteed plain
   text.
+- Renderer-safe snapshot preparation that keeps raw email HTML out of future PDF
+  inputs.
 - Archive coordinator that validates, fingerprints, checks duplicates, and keeps
   Gmail finalization disabled until storage verification exists.
 
 Next:
 
 1. Expand sanitizer tests for attachment-adjacent HTML and table-heavy emails.
-2. Prepare renderer-safe message snapshots.
+2. Add artifact manifest planning after renderer-safe snapshots are stable.
 3. Add renderer/storage integration only after sanitization tests are stable.
 
 ## Thread vs Email

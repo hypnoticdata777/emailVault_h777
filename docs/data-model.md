@@ -108,3 +108,12 @@ Rules:
 - Script/style content and event handlers are removed.
 - A `text/plain` fallback is always available.
 - Original `text/plain` bodies are preserved as plain text.
+
+## Renderer-Safe Snapshot
+
+A renderer-safe snapshot is the sanitized input shape for future PDF rendering.
+It includes message metadata plus safe HTML when available and guaranteed plain
+text for every message.
+
+The renderer-safe snapshot must not contain raw email HTML. It is a boundary
+between sanitization and future rendering work.
