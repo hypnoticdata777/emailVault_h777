@@ -67,10 +67,18 @@ class ContractTests(unittest.TestCase):
         self.assertNotIn("UNIQUE_FIXTURE_SECRET_PHRASE", output)
         self.assertNotIn("sender@example.com", output)
 
-    def test_state_policy_rejects_gmail_finalization_before_verified(self) -> None:
+    def test_state_policy_rejects_gmail_finalization_before_completed(self) -> None:
         with self.assertRaises(ApiError):
             assert_transition_allowed(ArchiveState.RENDERED, ArchiveState.GMAIL_FINALIZATION_PENDING)
-        assert_transition_allowed(ArchiveState.VERIFIED, ArchiveState.GMAIL_FINALIZATION_PENDING)
+        with self.assertRaises(ApiError):
+            assert_transition_allowed(ArchiveState.VERIFIED, ArchiveState.GMAIL_FINALIZATION_PENDING)
+        assert_transition_allowed(ArchiveState.VERIFIED, ArchiveState.COMPLETED)
+        assert_transition_allowed(ArchiveState.COMPLETED, ArchiveState.GMAIL_FINALIZATION_PENDING)
+        assert_transition_allowed(ArchiveState.GMAIL_FINALIZATION_PENDING, ArchiveState.GMAIL_FINALIZED)
+        assert_transition_allowed(
+            ArchiveState.GMAIL_FINALIZATION_PENDING,
+            ArchiveState.PRESERVED_GMAIL_FINALIZATION_FAILED,
+        )
 
     def test_duplicate_fingerprint_is_deterministic_and_changes_for_revision(self) -> None:
         original = load_fixture("duplicate_snapshot").thread
@@ -98,4 +106,3 @@ class ContractTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

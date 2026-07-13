@@ -187,3 +187,19 @@ The current coordinator can append `COMPLETED` when the audit history permits a
 safe transition from `VERIFIED`. It does not append
 `GMAIL_FINALIZATION_PENDING`, return Gmail finalization instructions, or mutate
 Gmail.
+
+## Gmail Finalization Outcome
+
+Gmail finalization is the post-preservation Gmail mutation boundary. It may
+label the thread, mark it read, or archive it, but only after the backend record
+has reached `COMPLETED`.
+
+The coordinator records two pieces:
+
+- `GMAIL_FINALIZATION_PENDING` when it returns explicit finalization
+  instructions for a completed owner-scoped record;
+- `GMAIL_FINALIZED` or `PRESERVED_GMAIL_FINALIZATION_FAILED` when the add-on
+  reports the callback result.
+
+The owner lookup uses the verified Google subject plus server-generated record
+id. A client-supplied record id alone is not trusted.

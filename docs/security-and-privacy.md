@@ -41,7 +41,7 @@ Gmail must remain unchanged until backend storage verification succeeds.
 
 The add-on may apply the `EmailVault/Vaulted` label, mark read, or archive only
 after the backend returns finalization instructions from a verified preservation
-flow. P2 never enables those instructions.
+flow. The current archive route still does not enable those instructions.
 
 ## Storage Boundary
 
@@ -88,8 +88,13 @@ enabled from `VERIFIED` alone.
 
 Coordinator audit may now record `COMPLETED` after the verified storage state
 transition. `COMPLETED` means the backend preservation record is finished; it
-still does not grant permission to mutate Gmail until a later explicit
-finalization callback is implemented and tested.
+grants permission to request finalization instructions only through the
+owner-scoped coordinator boundary.
+
+Gmail finalization instructions may now be requested only for a completed record
+owned by the verified Google subject. The callback result may be recorded only
+after `GMAIL_FINALIZATION_PENDING`, and the callback records success as
+`GMAIL_FINALIZED` or failure as `PRESERVED_GMAIL_FINALIZATION_FAILED`.
 
 ## Fixtures and Demo Data
 

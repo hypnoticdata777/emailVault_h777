@@ -45,14 +45,17 @@ Done:
   `RENDERED`, `STAGED`, and `VERIFIED` without completing or finalizing Gmail.
 - Archive coordinator can append `COMPLETED` only after the verified storage
   audit boundary, still without enabling Gmail finalization.
+- Gmail finalization instructions can be requested only after `COMPLETED`, and
+  callback results can be recorded only after finalization is pending.
 - Archive coordinator that validates, fingerprints, checks duplicates, and keeps
-  Gmail finalization disabled until an explicit finalization callback exists.
+  Gmail finalization disabled on the archive route until the end-to-end add-on
+  flow exists.
 
 Next:
 
-1. Add Gmail finalization callback only after completed preservation exists.
-2. Add CI once dependency and smoke-test commands are stable.
-3. Add production Google identity verification before any public real-data demo.
+1. Add CI once dependency and smoke-test commands are stable.
+2. Add production Google identity verification before any public real-data demo.
+3. Add Gmail Workspace Add-on shell around the proven backend boundaries.
 
 ## Thread vs Email
 

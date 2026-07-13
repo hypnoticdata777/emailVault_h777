@@ -58,8 +58,11 @@ completed revision. The coordinator can now create the planned revision after
 verified storage and append `RENDERED`, `STAGED`, and `VERIFIED` audit events
 without enabling Gmail finalization. It can also append `COMPLETED` after the
 verified storage state transition, still without enabling Gmail finalization.
+The coordinator can now request Gmail finalization only from a completed
+owner-scoped record and record callback success or failure only after
+`GMAIL_FINALIZATION_PENDING`.
 
 ## Later Phases
 
-- P6: Gmail Add-on flow and finalization callbacks.
-- P7: production identity, CI, and deployment hardening for public demo use.
+- P6: CI and production identity hardening for public demo use.
+- P7: Gmail Add-on shell and deployment hardening.

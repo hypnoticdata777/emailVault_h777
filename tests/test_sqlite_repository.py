@@ -94,6 +94,14 @@ class SqliteRevisionRepositoryTests(unittest.TestCase):
         latest = self.repository.find_latest_for_thread("google-subject-example", "gmail-thread-example")
         self.assertEqual(latest, updated)
 
+    def test_find_by_record_id_is_owner_scoped(self) -> None:
+        reference = self._reference()
+
+        self.repository.create_revision("google-subject-example", "gmail-thread-example", reference)
+
+        self.assertEqual(self.repository.find_by_record_id("google-subject-example", reference.record_id), reference)
+        self.assertIsNone(self.repository.find_by_record_id("other-google-subject-example", reference.record_id))
+
     def test_audit_events_are_appended_in_order(self) -> None:
         reference = self._reference()
         self.repository.create_revision("google-subject-example", "gmail-thread-example", reference)

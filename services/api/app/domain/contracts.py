@@ -27,6 +27,7 @@ class ArchiveState(StrEnum):
     STAGED = "STAGED"
     VERIFIED = "VERIFIED"
     GMAIL_FINALIZATION_PENDING = "GMAIL_FINALIZATION_PENDING"
+    GMAIL_FINALIZED = "GMAIL_FINALIZED"
     COMPLETED = "COMPLETED"
     FAILED = "FAILED"
     PRESERVED_GMAIL_FINALIZATION_FAILED = "PRESERVED_GMAIL_FINALIZATION_FAILED"
@@ -240,4 +241,3 @@ def canonical_json(value: Any) -> str:
 
 def snapshot_fingerprint(thread: ThreadSnapshot) -> str:
     return hashlib.sha256(canonical_json(thread).encode("utf-8")).hexdigest()
-

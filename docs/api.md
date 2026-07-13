@@ -41,11 +41,16 @@ Current P2 behavior:
 - Returns `DUPLICATE` when the snapshot already exists for the verified owner.
 - Returns a controlled `FAILED` stub for new snapshots because rendering,
   storage verification, and durable completed revisions are not implemented yet.
-- Always keeps Gmail finalization disabled in P2.
+- Keeps Gmail finalization disabled on the current archive route until the full
+  preservation pipeline reaches `COMPLETED`.
 
 P3 sanitizer work has started, but `/archive/thread` still does not execute a
 full preservation pipeline. Sanitized rendering and storage integration remain
 future route behavior.
+
+The service layer now has the Gmail finalization boundary used by future API
+routes: instructions can be requested only after `COMPLETED`, and callback
+results can be recorded only after `GMAIL_FINALIZATION_PENDING`.
 
 Duplicate response shape:
 
@@ -100,8 +105,7 @@ unexpected internal errors.
 ## Not Yet Implemented
 
 - Production Google OAuth or Marketplace add-on authentication.
-- HTML sanitization and remote-resource blocking.
-- PDF rendering.
-- Storage provider staging and verification.
-- Completed revision writes.
-- Gmail label, mark-read, archive, or undo behavior.
+- End-to-end route execution for sanitization, rendering, and storage
+  verification.
+- End-to-end archive route orchestration.
+- Gmail Workspace Add-on label, mark-read, archive, or undo behavior.

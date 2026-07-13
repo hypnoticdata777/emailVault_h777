@@ -29,6 +29,10 @@ class NullRevisionRepository:
         del owner_subject, gmail_thread_id
         return None
 
+    def find_by_record_id(self, owner_subject: str, record_id: str) -> ArchiveRecordReference | None:
+        del owner_subject, record_id
+        return None
+
     def next_revision_for_thread(self, owner_subject: str, gmail_thread_id: str) -> int:
         del owner_subject, gmail_thread_id
         raise ApiError(ErrorCategory.STORAGE_UNAVAILABLE, "Revision persistence is not configured.")

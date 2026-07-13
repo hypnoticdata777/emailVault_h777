@@ -11,11 +11,12 @@ ALLOWED_TRANSITIONS: dict[ArchiveState, frozenset[ArchiveState]] = {
     ArchiveState.SANITIZED: frozenset({ArchiveState.RENDERED, ArchiveState.FAILED}),
     ArchiveState.RENDERED: frozenset({ArchiveState.STAGED, ArchiveState.FAILED}),
     ArchiveState.STAGED: frozenset({ArchiveState.VERIFIED, ArchiveState.FAILED}),
-    ArchiveState.VERIFIED: frozenset({ArchiveState.GMAIL_FINALIZATION_PENDING, ArchiveState.COMPLETED}),
+    ArchiveState.VERIFIED: frozenset({ArchiveState.COMPLETED}),
+    ArchiveState.COMPLETED: frozenset({ArchiveState.GMAIL_FINALIZATION_PENDING}),
     ArchiveState.GMAIL_FINALIZATION_PENDING: frozenset(
-        {ArchiveState.COMPLETED, ArchiveState.PRESERVED_GMAIL_FINALIZATION_FAILED}
+        {ArchiveState.GMAIL_FINALIZED, ArchiveState.PRESERVED_GMAIL_FINALIZATION_FAILED}
     ),
-    ArchiveState.COMPLETED: frozenset(),
+    ArchiveState.GMAIL_FINALIZED: frozenset(),
     ArchiveState.FAILED: frozenset(),
     ArchiveState.PRESERVED_GMAIL_FINALIZATION_FAILED: frozenset(),
 }
@@ -30,4 +31,3 @@ def assert_transition_allowed(current: ArchiveState, target: ArchiveState) -> No
             f"Invalid state transition from {current} to {target}.",
             "archive_state",
         )
-

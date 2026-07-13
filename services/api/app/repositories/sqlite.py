@@ -126,6 +126,18 @@ class SqliteRevisionRepository:
             ).fetchone()
         return self._reference_from_row(row) if row else None
 
+    def find_by_record_id(self, owner_subject: str, record_id: str) -> ArchiveRecordReference | None:
+        with closing(self._connect()) as connection:
+            row = connection.execute(
+                """
+                SELECT vault_thread_id, revision, record_id, snapshot_sha256
+                FROM archive_records
+                WHERE owner_subject = ? AND record_id = ?
+                """,
+                (owner_subject, record_id),
+            ).fetchone()
+        return self._reference_from_row(row) if row else None
+
     def next_revision_for_thread(self, owner_subject: str, gmail_thread_id: str) -> int:
         with closing(self._connect()) as connection:
             row = connection.execute(

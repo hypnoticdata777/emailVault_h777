@@ -26,7 +26,8 @@ scaffold, and a Playwright/Chromium adapter boundary.
   bytes.
 - Redaction helper prevents sensitive fixture values from being emitted into
   structured log extras.
-- State transition policy blocks Gmail finalization before storage verification.
+- State transition policy blocks Gmail finalization before completed
+  preservation.
 - Duplicate fingerprinting is deterministic and changes when a thread gains a
   message.
 - FastAPI application factory, `/health`, and `/archive/thread` stub route exist
@@ -62,6 +63,9 @@ scaffold, and a Playwright/Chromium adapter boundary.
   finalizing Gmail.
 - The archive coordinator can append `COMPLETED` after verified storage state
   exists, without creating Gmail finalization instructions.
+- Gmail finalization instructions can be requested only after owner-scoped
+  `COMPLETED` state, and callback success/failure can be recorded only after
+  `GMAIL_FINALIZATION_PENDING`.
 - Local API runs can bootstrap the configured SQLite schema with
   `python -m services.api.app.cli init-db`.
 - Developer setup, current API behavior, and data model notes are documented in
@@ -88,7 +92,7 @@ The API skeleton requires optional dependencies.
   synthetic.
 - Browser-backed PDF smoke test is opt-in and not part of default CI yet.
 - No attachment fetcher or permitted attachment copy flow exists yet.
-- No Gmail finalization callback exists yet.
+- No end-to-end API route returns Gmail finalization instructions yet.
 - No CI workflow exists yet.
 - No Docker runtime exists yet.
 
@@ -101,7 +105,6 @@ current API tests intentionally keep Gmail finalization disabled.
 
 ## Recommended Minimal Changes
 
-1. Keep Gmail finalization behind completed preservation and explicit callback
-   tests.
-2. Add CI once package dependencies and command choices are stable.
-3. Replace synthetic Google identity verification before any real-data demo.
+1. Add CI once package dependencies and command choices are stable.
+2. Replace synthetic Google identity verification before any real-data demo.
+3. Add the Gmail Workspace Add-on shell around the proven backend boundaries.

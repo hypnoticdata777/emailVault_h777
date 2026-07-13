@@ -36,6 +36,9 @@ class RevisionRepository(Protocol):
     def find_latest_for_thread(self, owner_subject: str, gmail_thread_id: str) -> ArchiveRecordReference | None:
         raise NotImplementedError
 
+    def find_by_record_id(self, owner_subject: str, record_id: str) -> ArchiveRecordReference | None:
+        raise NotImplementedError
+
     def next_revision_for_thread(self, owner_subject: str, gmail_thread_id: str) -> int:
         raise NotImplementedError
 

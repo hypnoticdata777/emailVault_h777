@@ -114,3 +114,16 @@ finalization instructions.
 
 Gmail labeling, mark-read, and archive actions remain a later callback boundary
 so the public POC can prove preservation completion before mutating Gmail.
+
+## Gmail Finalization Boundary
+
+The archive coordinator can now request Gmail finalization only after the owner
+scoped record has reached `COMPLETED`. Requesting finalization appends
+`GMAIL_FINALIZATION_PENDING` and returns explicit instructions for label,
+mark-read, and archive actions.
+
+The callback result is recorded only after finalization is pending. Success
+appends `GMAIL_FINALIZED`; failure appends
+`PRESERVED_GMAIL_FINALIZATION_FAILED`. The coordinator looks up records by the
+verified Google subject plus record id so a client-supplied record id cannot
+cross owner boundaries.
