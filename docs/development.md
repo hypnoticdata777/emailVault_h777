@@ -133,7 +133,7 @@ credential must be a Google ID token for the configured OAuth client ID.
 
 ## Current Limits
 
-The archive route validates input, checks duplicate state, and returns controlled
-responses. The renderer scaffold and Playwright adapter boundary exist, but the
-archive route does not yet render PDFs, stage storage, write completed
-revisions, label Gmail, mark messages read, or archive Gmail.
+The archive route can render the generated PDF path, stage and verify local
+storage, and record a completed backend revision. It still does not label Gmail,
+mark messages read, archive Gmail, copy permitted attachments, or write the
+metadata/manifest artifacts.
