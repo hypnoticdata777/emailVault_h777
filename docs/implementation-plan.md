@@ -72,11 +72,12 @@ runtime packaging now exists for the API, with CI building the image to keep
 the runtime boundary from drifting. The archive route now calls the completed
 backend preservation path for generated PDF, metadata JSON, and manifest JSON
 output and returns `PRESERVED` after verified storage plus `COMPLETED`, while
-Gmail finalization remains disabled. Permitted attachment copy remains
-descriptor-only until trusted bytes are available.
+Gmail finalization remains disabled. Trusted permitted attachment copy now
+exists behind an injectable content provider; default route behavior remains
+descriptor-only until Gmail fetch wiring supplies bytes.
 
 ## Later Phases
 
-- P6: add trusted permitted attachment fetch/copy support.
+- P6: wire Gmail attachment fetch bytes into the trusted content provider.
 - P7: add-on-to-backend request wiring, HTTPS deployment choice, and private
   OAuth validation.
