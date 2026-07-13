@@ -29,6 +29,8 @@ class Settings:
     allowed_extensions: frozenset[str] = field(default_factory=lambda: DEFAULT_ALLOWED_EXTENSIONS)
     identity_verifier: str = "synthetic"
     google_oauth_client_id: str = PLACEHOLDER_GOOGLE_CLIENT_ID
+    addon_signing_secret: str = ""
+    addon_signature_max_age_seconds: int = 300
     database_url: str = "sqlite:///./email_vault.db"
 
 
@@ -51,5 +53,7 @@ def load_settings() -> Settings:
         ),
         identity_verifier=os.getenv("EMAIL_VAULT_IDENTITY_VERIFIER", "synthetic").strip().lower(),
         google_oauth_client_id=os.getenv("GOOGLE_OAUTH_CLIENT_ID", PLACEHOLDER_GOOGLE_CLIENT_ID),
+        addon_signing_secret=os.getenv("EMAIL_VAULT_ADDON_SIGNING_SECRET", ""),
+        addon_signature_max_age_seconds=int(os.getenv("EMAIL_VAULT_ADDON_SIGNATURE_MAX_AGE_SECONDS", "300")),
         database_url=os.getenv("DATABASE_URL", "sqlite:///./email_vault.db"),
     )
