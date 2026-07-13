@@ -32,8 +32,8 @@ scaffold, and a Playwright/Chromium adapter boundary.
   message.
 - FastAPI application factory, `/health`, and `/archive/thread` stub route exist
   when optional API dependencies are installed.
-- The archive route requires a bearer identity and returns Gmail finalization
-  disabled until archive execution is implemented.
+- The archive route requires a bearer identity and keeps Gmail finalization
+  disabled while backend preservation runs.
 - Identity verification is selectable: synthetic local mode remains the default,
   and Google ID-token verifier mode can validate tokens for a configured OAuth
   client ID.
@@ -66,6 +66,10 @@ scaffold, and a Playwright/Chromium adapter boundary.
   finalizing Gmail.
 - The archive coordinator can append `COMPLETED` after verified storage state
   exists, without creating Gmail finalization instructions.
+- The archive route can now run the backend preservation path for generated PDF
+  output: sanitize, render, stage and verify storage, persist the revision,
+  append `COMPLETED`, and return `PRESERVED` while Gmail finalization remains
+  disabled.
 - Gmail finalization instructions can be requested only after owner-scoped
   `COMPLETED` state, and callback success/failure can be recorded only after
   `GMAIL_FINALIZATION_PENDING`.
@@ -103,8 +107,9 @@ The API skeleton requires optional dependencies.
   Google verifier validation still belongs in a private environment.
 - Browser-backed PDF smoke test is opt-in and not part of default CI yet.
 - No attachment fetcher or permitted attachment copy flow exists yet.
+- No metadata JSON or manifest JSON artifact writing exists yet.
 - No add-on-to-backend archive request flow exists yet.
-- No end-to-end API route returns Gmail finalization instructions yet.
+- No API route returns Gmail finalization instructions yet.
 - No HTTPS deployment target is selected yet.
 
 ## Risky or Conflicting Code
@@ -116,8 +121,8 @@ current API tests intentionally keep Gmail finalization disabled.
 
 ## Recommended Minimal Changes
 
-1. Wire the archive route to the completed preservation pipeline.
-2. Wire the add-on to the backend archive route after the route can complete
-   preservation safely.
+1. Add permitted attachment copy and metadata/manifest artifact output.
+2. Wire the add-on to the backend archive route after request signing and
+   deployment configuration are ready.
 3. Validate the Google verifier against a real OAuth client before any
    real-data demo.
