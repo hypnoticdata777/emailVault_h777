@@ -9,9 +9,9 @@ storage integration.
 The current backend uses synthetic fixtures and defaults to a synthetic local
 identity token. It can be configured to verify Google ID tokens. The archive
 route can render and preserve the generated PDF path, and the repository also
-includes a preview-only Gmail Add-on shell. The project does not deploy
-publicly, call the backend from the add-on, mark messages read, apply labels,
-archive Gmail, or delete Gmail.
+includes a preview-only Gmail Add-on shell with dormant signed-request helpers.
+The project does not deploy publicly, call the backend from the add-on, mark
+messages read, apply labels, archive Gmail, or delete Gmail.
 
 ## Data That Must Not Enter Logs
 
@@ -40,6 +40,11 @@ Local development defaults to the synthetic verifier and accepts only
 `EMAIL_VAULT_IDENTITY_VERIFIER=google` and `GOOGLE_OAUTH_CLIENT_ID` so backend
 ownership is derived from Google ID-token claims verified for that configured
 client ID.
+
+When add-on request signing is configured, the archive route also requires a
+fresh HMAC signature over the method, path, timestamp, and raw request body hash.
+This does not replace Google identity; it reduces accidental or replayed
+add-on-to-backend calls once the live add-on execution path exists.
 
 ## Gmail Mutation Boundary
 
