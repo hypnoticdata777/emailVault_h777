@@ -85,3 +85,14 @@ renderer/storage integration are still pending.
 Rendering a PDF is not enough to complete an archive. Completion still requires
 storage staging, checksum verification, persisted state, and only then Gmail
 finalization instructions.
+
+## Renderer To Storage Boundary
+
+Rendered PDF output can now be handed to the storage provider as a generated
+artifact. The bridge writes the PDF bytes to a temporary source file, calls
+`StorageProvider.stage_and_verify()`, and cleans the temporary source workspace
+on success or failure.
+
+This is still not archive completion. The bridge returns storage verification
+details only. Persisting `VERIFIED` or `COMPLETED` state remains a later
+coordinator step.

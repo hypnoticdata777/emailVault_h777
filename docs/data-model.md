@@ -153,3 +153,13 @@ The current scaffold returns:
 It does not stage storage or complete an archive. The real Playwright/Chromium
 adapter is still pending, and storage verification remains the completion
 boundary.
+
+## Rendered Artifact Storage Bridge
+
+The rendered artifact storage bridge turns generated PDF bytes into an
+`ArtifactToStore` for the storage provider.
+
+It writes the rendered PDF to a temporary source file, calls storage staging and
+checksum verification, then removes the temporary source workspace. It does not
+write archive state, expose a completed revision, or trigger Gmail
+finalization.

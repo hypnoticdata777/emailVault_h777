@@ -39,14 +39,17 @@ Done:
 - Playwright/Chromium PDF adapter boundary with tests for JavaScript-disabled
   context creation, route abort handling, PDF options, and close calls.
 - Opt-in browser-backed renderer smoke test path for local Chromium PDF checks.
+- Renderer PDF output can be staged through the storage provider and checksum
+  verified without marking revisions completed.
 - Archive coordinator that validates, fingerprints, checks duplicates, and keeps
   Gmail finalization disabled until storage verification exists.
 
 Next:
 
-1. Add renderer/storage integration after browser-backed checks pass.
-2. Add storage completion state transitions after verification is wired.
-3. Add Gmail finalization callback only after completed preservation exists.
+1. Add storage completion state transitions after verification is wired into the
+   archive coordinator.
+2. Add Gmail finalization callback only after completed preservation exists.
+3. Add CI once dependency and smoke-test commands are stable.
 
 ## Thread vs Email
 

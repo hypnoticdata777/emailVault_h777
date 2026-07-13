@@ -55,6 +55,8 @@ scaffold, and a Playwright/Chromium adapter boundary.
   browser resources.
 - An opt-in browser-backed renderer smoke test exists for local Chromium PDF
   checks when `EMAIL_VAULT_RUN_RENDERER_SMOKE=1` is set.
+- Rendered PDF bytes can be staged through the storage provider and checksum
+  verified while temporary source workspaces are cleaned.
 - Local API runs can bootstrap the configured SQLite schema with
   `python -m services.api.app.cli init-db`.
 - Developer setup, current API behavior, and data model notes are documented in
@@ -81,7 +83,7 @@ The API skeleton requires optional dependencies.
   synthetic.
 - Browser-backed PDF smoke test is opt-in and not part of default CI yet.
 - No attachment fetcher or permitted attachment copy flow exists yet.
-- No production audit event service or completion state transition exists yet.
+- No coordinator step records storage verification or completion state yet.
 - No Gmail finalization callback exists yet.
 - No CI workflow exists yet.
 - No Docker runtime exists yet.
@@ -95,8 +97,8 @@ current API tests intentionally keep Gmail finalization disabled.
 
 ## Recommended Minimal Changes
 
-1. Add renderer output to storage staging and verification behind browser-backed
-   rendering checks.
-2. Keep completion state transitions behind storage verification, cleanup,
-   and checksum-verification tests.
+1. Add coordinator-level storage verification state transitions without Gmail
+   finalization.
+2. Keep completion state transitions behind storage verification, cleanup, and
+   checksum-verification tests.
 3. Add CI once package dependencies and command choices are stable.

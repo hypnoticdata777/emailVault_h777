@@ -52,10 +52,12 @@ cleanup. The Playwright/Chromium adapter boundary is wired behind that scaffold
 with tests for JavaScript-disabled contexts, route abortion, PDF options, and
 browser resource cleanup. An opt-in browser-backed smoke test path now verifies
 local Chromium PDF rendering when renderer dependencies are installed and
-`EMAIL_VAULT_RUN_RENDERER_SMOKE=1` is set.
+`EMAIL_VAULT_RUN_RENDERER_SMOKE=1` is set. Rendered PDF output can now be
+staged through the storage provider and checksum verified without recording a
+completed revision.
 
 ## Later Phases
 
-- P4: connect renderer output to storage staging and verification.
+- P4: wire storage verification results into coordinator state transitions.
 - P5: record completion state transitions only after storage verification.
 - P6: Gmail Add-on flow and finalization callbacks.

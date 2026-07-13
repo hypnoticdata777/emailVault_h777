@@ -78,6 +78,10 @@ Artifact planning must use generated filenames for future PDF, metadata JSON,
 and manifest JSON outputs. Email-controlled fields such as subjects, Gmail
 identifiers, and original attachment filenames must not become storage paths.
 
+Rendered PDF storage staging must remain separate from archive completion. A
+verified checksum proves the local storage copy succeeded, but it does not by
+itself permit Gmail labeling, mark-read, or archive operations.
+
 ## Fixtures and Demo Data
 
 The repository and public demo must use synthetic data only. Fixture addresses
