@@ -44,14 +44,15 @@ Current P2 behavior:
 - Computes a deterministic snapshot fingerprint.
 - Checks the configured revision repository for an exact duplicate.
 - Returns `DUPLICATE` when the snapshot already exists for the verified owner.
-- Returns a controlled `FAILED` stub for new snapshots because rendering,
-  storage verification, and durable completed revisions are not implemented yet.
-- Keeps Gmail finalization disabled on the current archive route until the full
-  preservation pipeline reaches `COMPLETED`.
+- For new snapshots, prepares a renderer-safe snapshot, renders a PDF through
+  the configured renderer adapter, stages and verifies storage, records
+  `RENDERED`, `STAGED`, `VERIFIED`, and `COMPLETED`, then returns `PRESERVED`.
+- Keeps Gmail finalization disabled. Gmail label, mark-read, and archive
+  instructions remain behind the separate post-completion finalization boundary.
 
-P3 sanitizer work has started, but `/archive/thread` still does not execute a
-full preservation pipeline. Sanitized rendering and storage integration remain
-future route behavior.
+The current route stores the generated PDF path only. Metadata JSON, manifest
+JSON, permitted attachment copy, and add-on-to-backend request wiring remain
+future work.
 
 The service layer now has the Gmail finalization boundary used by future API
 routes: instructions can be requested only after `COMPLETED`, and callback
@@ -79,24 +80,30 @@ Duplicate response shape:
 }
 ```
 
-New-snapshot P2 stub response shape:
+New-snapshot preserved response shape:
 
 ```json
 {
-  "status": "FAILED",
-  "record": null,
-  "verification": null,
+  "status": "PRESERVED",
+  "record": {
+    "vault_thread_id": "vault-thread-...",
+    "revision": 1,
+    "record_id": "record-...",
+    "snapshot_sha256": "..."
+  },
+  "verification": {
+    "verified": true,
+    "artifact_count": 1,
+    "total_bytes": 12345,
+    "verified_at": "2026-07-13T19:00:00Z"
+  },
   "gmail_finalization": {
     "apply_label": "EmailVault/Vaulted",
     "mark_read": false,
     "archive": false,
     "enabled": false
   },
-  "error": {
-    "category": "unexpected_internal_error",
-    "message": "Archive execution is not implemented in P2. Gmail finalization is disabled.",
-    "field": null
-  }
+  "error": null
 }
 ```
 
@@ -112,7 +119,5 @@ unexpected internal errors.
 - Google Marketplace packaging and live add-on authentication.
 - Add-on-to-backend archive request execution.
 - Private-environment validation against a real Google OAuth project.
-- End-to-end route execution for sanitization, rendering, and storage
-  verification.
-- End-to-end archive route orchestration.
+- Metadata JSON, manifest JSON, and permitted attachment copy artifacts.
 - Gmail Workspace Add-on label, mark-read, archive, or undo behavior.
