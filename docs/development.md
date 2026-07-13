@@ -100,7 +100,8 @@ python -m unittest discover -s tests
 
 The CI job installs `.[api,test]` so API tests run, but it does not install the
 renderer optional dependency or Chromium. The browser-backed renderer smoke test
-remains opt-in with `EMAIL_VAULT_RUN_RENDERER_SMOKE=1`.
+remains opt-in with `EMAIL_VAULT_RUN_RENDERER_SMOKE=1`. CI also builds the API
+Docker image to catch runtime packaging drift.
 
 ## Gmail Add-on Shell
 
