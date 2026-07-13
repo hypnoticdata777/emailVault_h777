@@ -8,7 +8,10 @@ from pathlib import Path
 from services.api.app.domain.contracts import ApiError, ErrorCategory
 from services.api.app.services.rendering.pdf import RenderedPdfArtifact
 from services.api.app.services.storage.provider import LocalFilesystemStorageProvider, StageAndVerifyRequest
-from services.api.app.services.storage.rendered_artifacts import stage_and_verify_rendered_pdf
+from services.api.app.services.storage.rendered_artifacts import (
+    stage_and_verify_generated_artifacts,
+    stage_and_verify_rendered_pdf,
+)
 
 
 class FailingStorageProvider:
@@ -61,6 +64,29 @@ class RenderedArtifactStorageTests(unittest.TestCase):
             )
 
         self.assertEqual(context.exception.category, ErrorCategory.STORAGE_VERIFICATION)
+        self.assertEqual(tuple(self.temp_root.iterdir()), ())
+
+    def test_stage_and_verify_generated_artifacts_writes_multiple_outputs(self) -> None:
+        provider = LocalFilesystemStorageProvider(self.storage_root)
+        rendered_pdf = self._rendered_pdf()
+        metadata = RenderedPdfArtifact(
+            trusted_name="00000000-0000-0000-0000-000000000302.metadata.json",
+            content_type="application/json",
+            content=b"{\"schema_version\":\"email-vault.metadata.v1\"}\n",
+            sha256=hashlib.sha256(b"{\"schema_version\":\"email-vault.metadata.v1\"}\n").hexdigest(),
+            size_bytes=len(b"{\"schema_version\":\"email-vault.metadata.v1\"}\n"),
+        )
+
+        result = stage_and_verify_generated_artifacts(
+            "record-rendered",
+            (rendered_pdf, metadata),
+            provider,
+            temp_root=self.temp_root,
+        )
+
+        self.assertTrue(result.verified)
+        self.assertEqual([artifact.trusted_name for artifact in result.artifacts], [rendered_pdf.trusted_name, metadata.trusted_name])
+        self.assertEqual((self.storage_root / "record-rendered" / metadata.trusted_name).read_bytes(), metadata.content)
         self.assertEqual(tuple(self.temp_root.iterdir()), ())
 
 
