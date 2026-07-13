@@ -64,6 +64,14 @@ GOOGLE_OAUTH_CLIENT_ID=<your-google-oauth-client-id>
 Do not commit real OAuth client IDs, tokens, or exported email data. The test
 suite uses fake verifier functions and does not call Google.
 
+Add-on request signing is off by default for local development. Configure a
+private shared secret only when testing the add-on-to-backend boundary:
+
+```text
+EMAIL_VAULT_ADDON_SIGNING_SECRET=<private-shared-secret>
+EMAIL_VAULT_ADDON_SIGNATURE_MAX_AGE_SECONDS=300
+```
+
 The default local database URL is:
 
 ```text
@@ -136,5 +144,6 @@ credential must be a Google ID token for the configured OAuth client ID.
 The archive route can render the generated PDF path, generate metadata and
 manifest JSON artifacts, copy permitted attachments when a trusted content
 provider supplies bytes, stage and verify local storage, and record a completed
-backend revision. It still does not label Gmail, mark messages read, archive
-Gmail, or fetch Gmail attachment bytes by default.
+backend revision. It can require signed add-on headers when configured, but it
+still does not label Gmail, mark messages read, archive Gmail, call the backend
+from the add-on, or fetch Gmail attachment bytes by default.
