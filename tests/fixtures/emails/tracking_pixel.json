@@ -1,0 +1,23 @@
+{
+  "request_id": "req-pixel-001",
+  "client_context": {"add_on_version": "0.1.0", "locale": "en-US", "timezone": "UTC"},
+  "preferences": {"category": "Security", "mark_read_after_preserve": false, "archive_after_preserve": false},
+  "confirmed_at": "2026-07-12T18:45:00+00:00",
+  "thread": {
+    "thread_id": "thread-pixel-001",
+    "gmail_thread_id": "gmail-thread-pixel-001",
+    "subject": "Tracking pixel",
+    "date_range_start": "2026-07-12T18:44:00+00:00",
+    "date_range_end": "2026-07-12T18:44:00+00:00",
+    "messages": [{
+      "message_id": "msg-pixel-001",
+      "gmail_message_id": "gmail-msg-pixel-001",
+      "sent_at": "2026-07-12T18:44:00+00:00",
+      "from": {"email": "pixel@example.com"},
+      "to": [{"email": "owner@example.com"}],
+      "bodies": [{"mime_type": "text/html", "content": "<p>Hello</p><img src=\"https://tracker.example.com/open.png\" width=\"1\" height=\"1\">"}],
+      "attachments": []
+    }]
+  }
+}
+

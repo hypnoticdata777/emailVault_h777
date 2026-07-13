@@ -1,0 +1,10 @@
+[project]
+name = "email-vault-poc"
+version = "0.1.0"
+description = "P0/P1 foundation for a Gmail thread preservation POC."
+requires-python = ">=3.12"
+dependencies = []
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+

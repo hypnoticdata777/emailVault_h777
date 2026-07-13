@@ -1,0 +1,25 @@
+{
+  "request_id": "req-html-001",
+  "client_context": {"add_on_version": "0.1.0", "locale": "en-US", "timezone": "UTC"},
+  "preferences": {"category": "Projects", "mark_read_after_preserve": false, "archive_after_preserve": false},
+  "confirmed_at": "2026-07-12T18:05:00+00:00",
+  "thread": {
+    "thread_id": "thread-html-001",
+    "gmail_thread_id": "gmail-thread-html-001",
+    "subject": "Example project update",
+    "date_range_start": "2026-07-12T18:01:00+00:00",
+    "date_range_end": "2026-07-12T18:01:00+00:00",
+    "messages": [{
+      "message_id": "msg-html-001",
+      "gmail_message_id": "gmail-msg-html-001",
+      "sent_at": "2026-07-12T18:01:00+00:00",
+      "from": {"email": "project@example.com", "display_name": "Project Example"},
+      "to": [{"email": "owner@example.com", "display_name": "Owner Example"}],
+      "labels": ["INBOX", "STARRED"],
+      "is_read": true,
+      "bodies": [{"mime_type": "text/html", "content": "<p>Hello <strong>synthetic</strong> archive.</p>"}],
+      "attachments": []
+    }]
+  }
+}
+
