@@ -37,3 +37,4 @@
 | PDF renderer must block network and email JavaScript | P3/P5 | `docs/adr/0003-pdf-renderer-boundary.md`, `test_render_pdf_uses_blocked_network_policy_and_returns_verified_bytes` |
 | Renderer temporary workspace cleans up on failure | P3/P5 | `test_render_pdf_cleans_workspace_on_adapter_failure` |
 | Playwright adapter configures safe browser rendering | P3/P5 | `test_adapter_disables_javascript_blocks_network_and_writes_pdf`, `test_adapter_skips_route_when_network_blocking_disabled` |
+| Browser-backed PDF rendering has a local smoke-test path | P3/P5 | `test_real_playwright_adapter_renders_pdf_when_enabled` |

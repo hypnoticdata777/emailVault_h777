@@ -38,14 +38,15 @@ Done:
   network policy, disabled JavaScript, PDF bytes, and temp workspace cleanup.
 - Playwright/Chromium PDF adapter boundary with tests for JavaScript-disabled
   context creation, route abort handling, PDF options, and close calls.
+- Opt-in browser-backed renderer smoke test path for local Chromium PDF checks.
 - Archive coordinator that validates, fingerprints, checks duplicates, and keeps
   Gmail finalization disabled until storage verification exists.
 
 Next:
 
-1. Add optional local renderer setup docs and a browser-backed smoke test path.
-2. Add renderer/storage integration after browser-backed checks pass.
-3. Add storage completion state transitions after verification is wired.
+1. Add renderer/storage integration after browser-backed checks pass.
+2. Add storage completion state transitions after verification is wired.
+3. Add Gmail finalization callback only after completed preservation exists.
 
 ## Thread vs Email
 
@@ -81,6 +82,14 @@ Chromium browser runtime:
 ```powershell
 python -m pip install -e ".[renderer]"
 python -m playwright install chromium
+```
+
+Run the opt-in browser-backed renderer smoke test after installing Chromium:
+
+```powershell
+$env:EMAIL_VAULT_RUN_RENDERER_SMOKE = "1"
+python -m unittest tests.test_playwright_renderer_smoke
+Remove-Item Env:\EMAIL_VAULT_RUN_RENDERER_SMOKE
 ```
 
 The archive route is intentionally not a real preservation endpoint yet. In P2,

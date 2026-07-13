@@ -53,6 +53,8 @@ scaffold, and a Playwright/Chromium adapter boundary.
 - The Playwright adapter boundary creates JavaScript-disabled Chromium contexts,
   registers route abortion for network requests, renders PDF output, and closes
   browser resources.
+- An opt-in browser-backed renderer smoke test exists for local Chromium PDF
+  checks when `EMAIL_VAULT_RUN_RENDERER_SMOKE=1` is set.
 - Local API runs can bootstrap the configured SQLite schema with
   `python -m services.api.app.cli init-db`.
 - Developer setup, current API behavior, and data model notes are documented in
@@ -77,7 +79,7 @@ The API skeleton requires optional dependencies.
 - No HTTPS API entry point exists yet.
 - No production Google identity verification exists yet; the local verifier is
   synthetic.
-- No browser-backed PDF smoke test exists yet.
+- Browser-backed PDF smoke test is opt-in and not part of default CI yet.
 - No attachment fetcher or permitted attachment copy flow exists yet.
 - No production audit event service or completion state transition exists yet.
 - No Gmail finalization callback exists yet.
@@ -93,7 +95,8 @@ current API tests intentionally keep Gmail finalization disabled.
 
 ## Recommended Minimal Changes
 
-1. Add optional local renderer setup docs and a browser-backed PDF smoke test.
-2. Keep renderer/storage integration behind browser-backed rendering, cleanup,
+1. Add renderer output to storage staging and verification behind browser-backed
+   rendering checks.
+2. Keep completion state transitions behind storage verification, cleanup,
    and checksum-verification tests.
 3. Add CI once package dependencies and command choices are stable.

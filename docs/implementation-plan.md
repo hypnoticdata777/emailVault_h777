@@ -50,11 +50,12 @@ uses an adapter boundary so tests can verify sanitized input, disabled
 JavaScript, blocked network policy, PDF artifact bytes, and temporary workspace
 cleanup. The Playwright/Chromium adapter boundary is wired behind that scaffold
 with tests for JavaScript-disabled contexts, route abortion, PDF options, and
-browser resource cleanup.
+browser resource cleanup. An opt-in browser-backed smoke test path now verifies
+local Chromium PDF rendering when renderer dependencies are installed and
+`EMAIL_VAULT_RUN_RENDERER_SMOKE=1` is set.
 
 ## Later Phases
 
-- P3: add optional local renderer setup docs and a browser-backed smoke test.
 - P4: connect renderer output to storage staging and verification.
 - P5: record completion state transitions only after storage verification.
 - P6: Gmail Add-on flow and finalization callbacks.

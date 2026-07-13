@@ -27,6 +27,20 @@ python -m playwright install chromium
 The renderer optional dependency is not required for the standard-library unit
 suite. It is needed before running browser-backed PDF rendering locally.
 
+## Renderer Smoke Test
+
+The browser-backed renderer smoke test is opt-in because it needs the Playwright
+package and a local Chromium runtime.
+
+```powershell
+$env:EMAIL_VAULT_RUN_RENDERER_SMOKE = "1"
+python -m unittest tests.test_playwright_renderer_smoke
+Remove-Item Env:\EMAIL_VAULT_RUN_RENDERER_SMOKE
+```
+
+Without `EMAIL_VAULT_RUN_RENDERER_SMOKE=1`, the smoke test skips cleanly during
+normal test runs.
+
 ## Configure
 
 Copy `.env.example` only when you need a local environment file. Keep real
