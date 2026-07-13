@@ -72,6 +72,12 @@ JavaScript disabled and every network request blocked. The renderer must consume
 renderer-safe snapshots only, write generated outputs into a temporary
 workspace, and clean that workspace on success and failure.
 
+The current renderer scaffold keeps Playwright behind an adapter boundary. It
+builds renderer HTML from `RendererSafeThreadSnapshot`, applies a policy with
+JavaScript disabled and network blocking enabled, reads generated PDF bytes, and
+cleans the temporary workspace before returning. The real Playwright adapter is
+still pending.
+
 Rendering a PDF is not enough to complete an archive. Completion still requires
 storage staging, checksum verification, persisted state, and only then Gmail
 finalization instructions.

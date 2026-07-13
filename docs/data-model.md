@@ -136,3 +136,20 @@ paths.
 The plan does not create files, stage storage, or mark a revision completed. It
 exists so rendering and storage can be connected later without guessing artifact
 names at the last moment.
+
+## Rendered PDF Artifact
+
+A rendered PDF artifact is the renderer output prepared from a renderer-safe
+snapshot and an artifact manifest plan.
+
+The current scaffold returns:
+
+- trusted server-generated PDF name;
+- content type;
+- generated PDF bytes;
+- SHA-256 checksum;
+- byte size.
+
+It does not stage storage or complete an archive. The real Playwright/Chromium
+adapter is still pending, and storage verification remains the completion
+boundary.

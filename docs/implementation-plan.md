@@ -45,11 +45,14 @@ blocking, script/style content removal, plain-text fallback, normalized
 sanitized body output, renderer-safe snapshot preparation, coverage for
 table-heavy plus attachment-adjacent HTML, and artifact manifest planning for
 future generated outputs. The PDF renderer boundary is now recorded in ADR
-0003 before renderer implementation begins.
+0003 before renderer implementation begins. The first renderer scaffold now
+uses an adapter boundary so tests can verify sanitized input, disabled
+JavaScript, blocked network policy, PDF artifact bytes, and temporary workspace
+cleanup before Playwright/Chromium is wired in.
 
 ## Later Phases
 
-- P3: add renderer tests and a minimal PDF rendering scaffold from ADR 0003.
+- P3: add the Playwright/Chromium adapter behind the renderer scaffold.
 - P4: connect renderer output to storage staging and verification.
 - P5: record completion state transitions only after storage verification.
 - P6: Gmail Add-on flow and finalization callbacks.

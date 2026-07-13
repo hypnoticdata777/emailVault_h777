@@ -34,13 +34,15 @@ Done:
   outputs with server-generated filenames only.
 - PDF renderer boundary ADR covering Playwright/Chromium, blocked network
   requests, disabled JavaScript, and temp workspace cleanup requirements.
+- Adapter-based PDF renderer scaffold with tests for sanitized input, blocked
+  network policy, disabled JavaScript, PDF bytes, and temp workspace cleanup.
 - Archive coordinator that validates, fingerprints, checks duplicates, and keeps
   Gmail finalization disabled until storage verification exists.
 
 Next:
 
-1. Add renderer tests and a minimal PDF rendering scaffold from the accepted ADR.
-2. Add renderer/storage integration after blocked-network and cleanup tests pass.
+1. Add the Playwright/Chromium adapter behind the renderer scaffold.
+2. Add renderer/storage integration after real renderer checks pass.
 3. Add storage completion state transitions after verification is wired.
 
 ## Thread vs Email

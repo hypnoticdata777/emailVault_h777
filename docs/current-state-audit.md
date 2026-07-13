@@ -14,7 +14,8 @@ The P1 foundation uses Python standard-library modules so the core contracts and
 invariant tests can run immediately without package installation. P2 adds
 FastAPI/Pydantic modules behind optional dependencies. Early P3 work adds
 dependency-light sanitization, renderer-safe snapshot preparation, artifact
-manifest planning, and the PDF renderer boundary ADR.
+manifest planning, the PDF renderer boundary ADR, and an adapter-based renderer
+scaffold.
 
 ## What Already Works
 
@@ -46,6 +47,9 @@ manifest planning, and the PDF renderer boundary ADR.
 - Artifact manifest planning declares future PDF, metadata JSON, and manifest
   JSON outputs with server-generated trusted filenames.
 - ADR 0003 records the PDF renderer boundary before renderer implementation.
+- The first PDF renderer scaffold builds renderer HTML from sanitized snapshots,
+  applies disabled-JavaScript and blocked-network policy, reads generated PDF
+  bytes, and cleans temporary workspaces on success and failure.
 - Local API runs can bootstrap the configured SQLite schema with
   `python -m services.api.app.cli init-db`.
 - Developer setup, current API behavior, and data model notes are documented in
@@ -70,7 +74,7 @@ The API skeleton requires optional dependencies.
 - No HTTPS API entry point exists yet.
 - No production Google identity verification exists yet; the local verifier is
   synthetic.
-- No PDF renderer implementation exists yet.
+- No real Playwright/Chromium adapter exists yet.
 - No attachment fetcher or permitted attachment copy flow exists yet.
 - No production audit event service or completion state transition exists yet.
 - No Gmail finalization callback exists yet.
@@ -86,7 +90,7 @@ current API tests intentionally keep Gmail finalization disabled.
 
 ## Recommended Minimal Changes
 
-1. Add renderer tests and a minimal PDF rendering scaffold from ADR 0003.
-2. Keep renderer/storage integration behind blocked-network, cleanup, and
+1. Add the Playwright/Chromium adapter behind the renderer scaffold.
+2. Keep renderer/storage integration behind real renderer, cleanup, and
    checksum-verification tests.
 3. Add CI once package dependencies and command choices are stable.
