@@ -75,9 +75,12 @@ scaffold, and a Playwright/Chromium adapter boundary.
   dependencies on push and pull request.
 - A preview-only Gmail Workspace Add-on shell exists with homepage/contextual
   cards, preference capture, and tests that guard against Gmail mutation calls.
+- Docker runtime packaging exists for the API with non-root execution,
+  persistent `/data` paths, healthcheck, `.dockerignore`, and CI build
+  validation.
 - Developer setup, current API behavior, and data model notes are documented in
-  `docs/development.md`, `docs/api.md`, `docs/addon.md`, and
-  `docs/data-model.md`.
+  `docs/development.md`, `docs/api.md`, `docs/addon.md`,
+  `docs/deployment.md`, and `docs/data-model.md`.
 - Security and privacy boundaries are documented in
   `docs/security-and-privacy.md`.
 
@@ -102,7 +105,7 @@ The API skeleton requires optional dependencies.
 - No attachment fetcher or permitted attachment copy flow exists yet.
 - No add-on-to-backend archive request flow exists yet.
 - No end-to-end API route returns Gmail finalization instructions yet.
-- No Docker runtime exists yet.
+- No HTTPS deployment target is selected yet.
 
 ## Risky or Conflicting Code
 
@@ -113,7 +116,7 @@ current API tests intentionally keep Gmail finalization disabled.
 
 ## Recommended Minimal Changes
 
-1. Add Docker/runtime packaging once route orchestration is ready.
+1. Wire the archive route to the completed preservation pipeline.
 2. Wire the add-on to the backend archive route after the route can complete
    preservation safely.
 3. Validate the Google verifier against a real OAuth client before any
