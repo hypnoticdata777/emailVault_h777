@@ -9,6 +9,7 @@ from services.api.app.api.dependencies import (
     get_pdf_renderer_adapter,
     get_revision_repository,
     get_storage_provider,
+    require_addon_request_signature,
     require_identity,
 )
 from services.api.app.api.schemas import (
@@ -34,7 +35,12 @@ async def health() -> dict[str, str]:
     return {"status": "ok", "service": "email-vault-api"}
 
 
-@router.post("/archive/thread", response_model=ArchiveResultSchema, status_code=status.HTTP_202_ACCEPTED)
+@router.post(
+    "/archive/thread",
+    response_model=ArchiveResultSchema,
+    status_code=status.HTTP_202_ACCEPTED,
+    dependencies=[Depends(require_addon_request_signature)],
+)
 async def archive_thread(
     payload: ArchiveThreadRequestSchema,
     identity: RequestIdentity = Depends(require_identity),
