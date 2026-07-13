@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import hashlib
 import unittest
 
+from dataclasses import replace
 from datetime import UTC, datetime
 
 from services.api.app.auth.identity import GoogleIdentity
@@ -89,6 +91,15 @@ class FakeStorageProvider:
         )
 
 
+class FakeAttachmentContentProvider:
+    def __init__(self, content: bytes) -> None:
+        self.content = content
+
+    def fetch_attachment_content(self, message, attachment) -> bytes:
+        del message, attachment
+        return self.content
+
+
 class ArchiveCoordinatorTests(unittest.TestCase):
     def _identity(self, email_verified: bool = True) -> GoogleIdentity:
         return GoogleIdentity(
@@ -96,6 +107,18 @@ class ArchiveCoordinatorTests(unittest.TestCase):
             email="owner@example.com",
             email_verified=email_verified,
         )
+
+    def _request_with_attachment_content_hash(self, content: bytes):
+        request = load_fixture("plain_text")
+        message = request.thread.messages[0]
+        attachment = message.attachments[0]
+        updated_attachment = replace(
+            attachment,
+            size_bytes=len(content),
+            content_sha256=hashlib.sha256(content).hexdigest(),
+        )
+        updated_message = replace(message, attachments=(updated_attachment,))
+        return replace(request, thread=replace(request.thread, messages=(updated_message,)))
 
     def test_duplicate_snapshot_returns_existing_record_without_gmail_finalization(self) -> None:
         request = load_fixture("duplicate_snapshot")
@@ -146,6 +169,28 @@ class ArchiveCoordinatorTests(unittest.TestCase):
             [ArchiveState.RENDERED, ArchiveState.STAGED, ArchiveState.VERIFIED, ArchiveState.COMPLETED],
         )
         self.assertNotIn(ArchiveState.GMAIL_FINALIZATION_PENDING, [event.state for event in repository.audit_events])
+
+    def test_preserve_new_snapshot_copies_trusted_permitted_attachment_bytes(self) -> None:
+        repository = FakeRevisionRepository()
+        renderer = FakePdfRendererAdapter()
+        storage = FakeStorageProvider()
+        attachment_content = b"trusted attachment bytes"
+
+        result = ArchiveCoordinator(repository).preserve(
+            self._request_with_attachment_content_hash(attachment_content),
+            self._identity(),
+            renderer,
+            storage,
+            FakeAttachmentContentProvider(attachment_content),
+        )
+
+        self.assertEqual(result.status, ArchiveStatus.PRESERVED)
+        self.assertIsNotNone(result.verification)
+        self.assertEqual(result.verification.artifact_count, 4)
+        self.assertEqual(
+            [trusted_name.rsplit(".", 1)[-1] for trusted_name in storage.trusted_names],
+            ["pdf", "pdf", "json", "json"],
+        )
 
     def test_preserve_duplicate_snapshot_returns_existing_record_without_rendering(self) -> None:
         request = load_fixture("duplicate_snapshot")
