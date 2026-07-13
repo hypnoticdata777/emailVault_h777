@@ -18,3 +18,8 @@
 | Plain text and HTML fixtures validate | P1 | `test_plain_text_fixture_validates`, `test_basic_html_fixture_validates` |
 | API requires verified identity boundary | P2 | `test_archive_requires_bearer_identity` |
 | P2 route must not enable Gmail finalization | P2 | `test_archive_stub_validates_and_keeps_gmail_finalization_disabled` |
+| Duplicate lookup is owner-scoped | P2 | `test_create_and_find_revision_by_snapshot_hash`, `test_same_snapshot_hash_can_exist_for_different_verified_owner` |
+| Revision number increments per owner/thread | P2 | `test_next_revision_increments_per_owner_and_gmail_thread` |
+| Audit state history is append-only ordered | P2 | `test_audit_events_are_appended_in_order` |
+| Archive orchestration derives owner from verified identity | P2 | `test_duplicate_snapshot_returns_existing_record_without_gmail_finalization` |
+| New P2 archive requests do not create unverified records | P2 | `test_new_snapshot_returns_controlled_failed_stub_without_writes` |

@@ -3,7 +3,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import JSONResponse
 
-from services.api.app.api.dependencies import RequestIdentity, require_identity
+from services.api.app.api.dependencies import RequestIdentity, get_revision_repository, require_identity
 from services.api.app.api.schemas import (
     ApiErrorSchema,
     ArchiveResultSchema,
@@ -11,8 +11,9 @@ from services.api.app.api.schemas import (
     ArchiveThreadRequestSchema,
     GmailFinalizationInstructionsSchema,
 )
-from services.api.app.core.settings import load_settings
 from services.api.app.domain.contracts import ApiError, ErrorCategory
+from services.api.app.repositories.interfaces import RevisionRepository
+from services.api.app.services.archive import ArchiveCoordinator
 
 
 router = APIRouter()
@@ -27,25 +28,13 @@ async def health() -> dict[str, str]:
 async def archive_thread(
     payload: ArchiveThreadRequestSchema,
     identity: RequestIdentity = Depends(require_identity),
+    repository: RevisionRepository = Depends(get_revision_repository),
 ) -> ArchiveResultSchema:
     # P2 proves the HTTP boundary and contract validation only. The verified
     # Google identity is required now so later persistence cannot accidentally
     # trust a client-supplied owner id.
-    del identity
-    payload.to_domain().validate(load_settings())
-
-    # Gmail finalization must stay disabled until a later phase has staged,
-    # verified, and durably recorded the archive revision. Returning FAILED here
-    # is intentional: it lets clients exercise the route without implying that a
-    # partial archive is safe to label, mark read, or archive in Gmail.
-    return ArchiveResultSchema(
-        status=ArchiveStatusSchema.FAILED,
-        gmail_finalization=GmailFinalizationInstructionsSchema(enabled=False),
-        error=ApiErrorSchema(
-            category=ErrorCategory.UNEXPECTED_INTERNAL.value,
-            message="Archive execution is not implemented in P2. Gmail finalization is disabled.",
-        ),
-    )
+    result = ArchiveCoordinator(repository).evaluate(payload.to_domain(), identity.google_identity)
+    return ArchiveResultSchema.from_domain(result)
 
 
 async def api_error_handler(request: Request, exc: ApiError) -> JSONResponse:

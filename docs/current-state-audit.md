@@ -30,6 +30,8 @@ FastAPI/Pydantic modules behind optional dependencies.
   when optional API dependencies are installed.
 - The archive route requires a bearer identity and returns Gmail finalization
   disabled until archive execution is implemented.
+- SQLite-backed revision persistence stores owner-scoped archive references and
+  ordered audit events without storing email content.
 
 ## Setup and Run Commands
 
@@ -47,7 +49,8 @@ The API skeleton requires optional dependencies.
 - No Gmail Workspace Add-on exists yet.
 - No HTTPS API entry point exists yet.
 - No Google identity verification exists yet.
-- No persistence layer, migrations, or repository implementation exists yet.
+- No service orchestration layer wires identity, duplicate lookup, and revision
+  persistence into the archive route yet.
 - No sanitizer, renderer, attachment fetcher, storage provider, PDF generation,
   audit event store, or Gmail finalization callback exists yet.
 - No CI workflow exists yet; the project has no remote commit history to extend.

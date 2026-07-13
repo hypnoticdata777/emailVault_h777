@@ -22,6 +22,14 @@ class RevisionRepository(Protocol):
     id from the archive request payload.
     """
 
+    def create_revision(
+        self,
+        owner_subject: str,
+        gmail_thread_id: str,
+        reference: ArchiveRecordReference,
+    ) -> ArchiveRecordReference:
+        raise NotImplementedError
+
     def find_by_snapshot_hash(self, owner_subject: str, snapshot_sha256: str) -> ArchiveRecordReference | None:
         raise NotImplementedError
 
@@ -29,4 +37,7 @@ class RevisionRepository(Protocol):
         raise NotImplementedError
 
     def append_audit_event(self, event: AuditEvent) -> None:
+        raise NotImplementedError
+
+    def list_audit_events(self, record_id: str) -> tuple[AuditEvent, ...]:
         raise NotImplementedError

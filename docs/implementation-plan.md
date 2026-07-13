@@ -20,7 +20,14 @@
 - Add repository interfaces and SQLite-backed revision/audit persistence.
 
 Current P2 scope adds the API app, Pydantic schemas, identity verifier boundary,
-repository protocol boundary, and API tests. SQLite implementation remains next.
+repository protocol boundary, SQLite persistence, and API/repository tests.
+
+The P2 orchestration layer now uses verified identity, validation, fingerprinting,
+repository duplicate lookup, and controlled errors without invoking any renderer,
+storage provider, durable write, or Gmail finalization.
+
+Remaining P2 work is to replace the route-safe null repository dependency with a
+configured SQLite dependency and add a minimal migration/bootstrap command.
 
 ## Later Phases
 

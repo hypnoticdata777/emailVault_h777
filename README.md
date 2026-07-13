@@ -1,12 +1,42 @@
 # Email Vault POC
 
 Email Vault is a portfolio-quality proof of concept for preserving the accessible
-snapshot of one opened Gmail thread. This repository currently contains the P0/P1
-foundation only: product scope, architecture notes, canonical contracts,
-synthetic fixtures, and invariant tests.
+snapshot of one opened Gmail thread. The current build contains the P0/P1
+foundation plus the first P2 API and persistence boundaries.
 
 No Gmail mutation, production OAuth, cloud storage, AI, deletion, or deployment
 behavior is implemented in this phase.
+
+## Current Status
+
+Done:
+
+- Product scope, requirements, architecture notes, and ADRs.
+- Canonical archive contracts, state model, and controlled error categories.
+- Synthetic email fixtures and invariant tests.
+- FastAPI app skeleton with `/health` and `/archive/thread`.
+- Pydantic v2 request/response schemas.
+- Google identity verification boundary with a synthetic local verifier.
+- SQLite revision/audit repository for local P2 persistence tests.
+- Archive coordinator that validates, fingerprints, checks duplicates, and keeps
+  Gmail finalization disabled until storage verification exists.
+
+Next:
+
+1. Add configured SQLite dependency/bootstrap command for local API runs.
+2. Add service tests for the full duplicate/new-revision decision path.
+3. Start P3 sanitization and remote-resource blocking.
+
+## Thread vs Email
+
+In Gmail, a **thread** is the conversation container. It can include one message
+or many messages with the same conversation history.
+
+An **email message** is one individual sent or received item inside that thread.
+Email Vault targets one opened Gmail thread because preserving the whole
+conversation is safer than preserving only the currently visible message. If a
+thread gets a new message later, that should become a new immutable revision of
+the same vault thread.
 
 ## Quick Start
 
@@ -20,6 +50,11 @@ dependencies:
 
 ```powershell
 python -m pip install -e ".[api,test]"
-python -m unittest discover -s tests
+python -m pytest
 uvicorn services.api.app.main:app --reload
 ```
+
+The archive route is intentionally not a real preservation endpoint yet. In P2,
+it validates input and checks duplicate state, but it does not render PDFs, stage
+storage, write completed revisions, label Gmail, mark Gmail read, or archive
+Gmail messages.

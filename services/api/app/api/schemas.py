@@ -268,6 +268,11 @@ class ArchiveResultSchema(BaseModel):
             record=ArchiveRecordReferenceSchema.from_domain(value.record) if value.record else None,
             verification=VerificationSummarySchema.from_domain(value.verification) if value.verification else None,
             gmail_finalization=GmailFinalizationInstructionsSchema.from_domain(value.gmail_finalization),
-            error=ApiErrorSchema(**value.error.__dict__) if value.error else None,
+            error=ApiErrorSchema(
+                category=value.error.category.value,
+                message=value.error.message,
+                field=value.error.field,
+            )
+            if value.error
+            else None,
         )
-

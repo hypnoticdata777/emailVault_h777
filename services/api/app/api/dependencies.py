@@ -6,10 +6,16 @@ from typing import Annotated
 from fastapi import Depends, Header, HTTPException, status
 
 from services.api.app.auth.identity import GoogleIdentity, IdentityVerifier, StubIdentityVerifier
+from services.api.app.repositories.interfaces import RevisionRepository
+from services.api.app.repositories.null import NullRevisionRepository
 
 
 def get_identity_verifier() -> IdentityVerifier:
     return StubIdentityVerifier()
+
+
+def get_revision_repository() -> RevisionRepository:
+    return NullRevisionRepository()
 
 
 @dataclass(frozen=True)
@@ -32,4 +38,3 @@ async def require_identity(
     token = authorization.removeprefix("Bearer ").strip()
     identity = verifier.verify_id_token(token)
     return RequestIdentity(google_identity=identity)
-
