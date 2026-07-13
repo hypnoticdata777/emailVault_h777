@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 
+PLACEHOLDER_GOOGLE_CLIENT_ID = "replace-with-google-oauth-client-id"
 DEFAULT_ALLOWED_MIME_TYPES = frozenset(
     {
         "application/pdf",
@@ -26,7 +27,8 @@ class Settings:
     max_total_payload_bytes: int = 25 * 1024 * 1024
     allowed_mime_types: frozenset[str] = field(default_factory=lambda: DEFAULT_ALLOWED_MIME_TYPES)
     allowed_extensions: frozenset[str] = field(default_factory=lambda: DEFAULT_ALLOWED_EXTENSIONS)
-    google_oauth_client_id: str = "replace-with-google-oauth-client-id"
+    identity_verifier: str = "synthetic"
+    google_oauth_client_id: str = PLACEHOLDER_GOOGLE_CLIENT_ID
     database_url: str = "sqlite:///./email_vault.db"
 
 
@@ -47,7 +49,7 @@ def load_settings() -> Settings:
         allowed_extensions=_split_csv(
             os.getenv("EMAIL_VAULT_ALLOWED_ATTACHMENT_EXTENSIONS", ",".join(sorted(DEFAULT_ALLOWED_EXTENSIONS)))
         ),
-        google_oauth_client_id=os.getenv("GOOGLE_OAUTH_CLIENT_ID", "replace-with-google-oauth-client-id"),
+        identity_verifier=os.getenv("EMAIL_VAULT_IDENTITY_VERIFIER", "synthetic").strip().lower(),
+        google_oauth_client_id=os.getenv("GOOGLE_OAUTH_CLIENT_ID", PLACEHOLDER_GOOGLE_CLIENT_ID),
         database_url=os.getenv("DATABASE_URL", "sqlite:///./email_vault.db"),
     )
-
