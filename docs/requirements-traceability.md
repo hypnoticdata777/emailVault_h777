@@ -17,6 +17,9 @@
 | Unsupported attachments controlled | P1 | `test_unsupported_attachment_fails_with_controlled_error` |
 | Plain text and HTML fixtures validate | P1 | `test_plain_text_fixture_validates`, `test_basic_html_fixture_validates` |
 | API requires verified identity boundary | P2 | `test_archive_requires_bearer_identity` |
+| Local synthetic identity remains explicit | P2/P6 | `test_dependency_defaults_to_synthetic_identity_verifier` |
+| Google ID-token verifier validates configured client boundary | P6 | `test_google_verifier_accepts_verified_claims`, `test_dependency_selects_google_identity_verifier` |
+| Misconfigured identity verifier fails closed | P6 | `test_google_verifier_rejects_placeholder_client_id_before_google_call`, `test_dependency_rejects_unknown_identity_verifier_mode` |
 | P2 route must not enable Gmail finalization | P2 | `test_archive_stub_validates_and_keeps_gmail_finalization_disabled` |
 | Duplicate lookup is owner-scoped | P2 | `test_create_and_find_revision_by_snapshot_hash`, `test_same_snapshot_hash_can_exist_for_different_verified_owner` |
 | Revision number increments per owner/thread | P2 | `test_next_revision_increments_per_owner_and_gmail_thread` |
