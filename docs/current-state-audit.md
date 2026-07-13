@@ -10,10 +10,9 @@ reported: `No commits yet on main...origin/main [gone]`.
 No application architecture, dependency manifest, tests, CI, migrations, Docker
 files, README, or source entry points existed before this P0/P1 foundation.
 
-The initial foundation now uses Python standard-library modules so the contracts
-and invariant tests can run immediately without package installation. This is a
-deliberate P1 compromise because the local environment did not have Pydantic or
-pytest installed. Later API phases should introduce FastAPI and Pydantic v2.
+The P1 foundation uses Python standard-library modules so the core contracts and
+invariant tests can run immediately without package installation. P2 adds
+FastAPI/Pydantic modules behind optional dependencies.
 
 ## What Already Works
 
@@ -27,14 +26,21 @@ pytest installed. Later API phases should introduce FastAPI and Pydantic v2.
 - State transition policy blocks Gmail finalization before storage verification.
 - Duplicate fingerprinting is deterministic and changes when a thread gains a
   message.
+- FastAPI application factory, `/health`, and `/archive/thread` stub route exist
+  when optional API dependencies are installed.
+- The archive route requires a bearer identity and returns Gmail finalization
+  disabled until archive execution is implemented.
 
 ## Setup and Run Commands
 
 ```powershell
 python -m unittest discover -s tests
+python -m pip install -e ".[api,test]"
+uvicorn services.api.app.main:app --reload
 ```
 
-No dependency installation is required for the current foundation.
+No dependency installation is required for the standard-library contract tests.
+The API skeleton requires optional dependencies.
 
 ## Gaps Against Target POC
 
@@ -58,4 +64,3 @@ to be translated to Pydantic models when FastAPI is introduced.
 2. Add FastAPI and Pydantic v2 in P2 when the first API route is created.
 3. Add a SQLite-backed repository interface before any renderer or storage work.
 4. Add CI once package dependencies and command choices are stable.
-

@@ -14,7 +14,12 @@ behavior is implemented in this phase.
 python -m unittest discover -s tests
 ```
 
-The current code uses only the Python standard library so the foundational tests
-can run without installing packages. Later API phases are expected to introduce
-FastAPI and Pydantic v2.
+The foundational contract tests use only the Python standard library. To run the
+P2 FastAPI skeleton tests and local API, install the optional API/test
+dependencies:
 
+```powershell
+python -m pip install -e ".[api,test]"
+python -m unittest discover -s tests
+uvicorn services.api.app.main:app --reload
+```

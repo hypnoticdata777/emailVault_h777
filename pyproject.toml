@@ -5,6 +5,16 @@ description = "P0/P1 foundation for a Gmail thread preservation POC."
 requires-python = ">=3.12"
 dependencies = []
 
+[project.optional-dependencies]
+api = [
+    "fastapi>=0.116.0",
+    "pydantic>=2.10.0",
+    "uvicorn[standard]>=0.35.0",
+]
+test = [
+    "httpx>=0.28.0",
+    "pytest>=8.3.0",
+]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-

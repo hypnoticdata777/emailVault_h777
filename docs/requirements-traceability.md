@@ -16,4 +16,5 @@
 | Attachment limits enforced | P1 | `test_attachment_limits_are_enforced` |
 | Unsupported attachments controlled | P1 | `test_unsupported_attachment_fails_with_controlled_error` |
 | Plain text and HTML fixtures validate | P1 | `test_plain_text_fixture_validates`, `test_basic_html_fixture_validates` |
-
+| API requires verified identity boundary | P2 | `test_archive_requires_bearer_identity` |
+| P2 route must not enable Gmail finalization | P2 | `test_archive_stub_validates_and_keeps_gmail_finalization_disabled` |
