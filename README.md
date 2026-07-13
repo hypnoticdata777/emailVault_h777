@@ -2,10 +2,11 @@
 
 Email Vault is a portfolio-quality proof of concept for preserving the accessible
 snapshot of one opened Gmail thread. The current build contains the P0/P1
-foundation plus the first P2 API and persistence boundaries.
+foundation plus the first P2/P3 API, persistence, rendering, and identity
+boundaries.
 
-No Gmail mutation, production OAuth, cloud storage, AI, deletion, or deployment
-behavior is implemented in this phase.
+No Gmail mutation, cloud storage, AI, deletion, or deployment behavior is
+implemented in this phase.
 
 ## Current Status
 
@@ -16,7 +17,8 @@ Done:
 - Synthetic email fixtures and invariant tests.
 - FastAPI app skeleton with `/health` and `/archive/thread`.
 - Pydantic v2 request/response schemas.
-- Google identity verification boundary with a synthetic local verifier.
+- Google identity verification boundary with synthetic local mode and
+  configurable Google ID-token verification mode.
 - SQLite revision/audit repository for local P2 persistence tests.
 - Safe revision planner for duplicate, new-thread, and updated-thread decisions.
 - Local storage provider boundary that stages generated artifacts and verifies
@@ -52,12 +54,15 @@ Done:
   flow exists.
 - GitHub Actions CI runs the stable Python 3.12 test suite with API/test
   dependencies on push and pull request.
+- Production identity blocker reduced to configuration and real Google OAuth
+  project validation, with unit tests covering the verifier boundary.
 
 Next:
 
-1. Add production Google identity verification before any public real-data demo.
-2. Add Gmail Workspace Add-on shell around the proven backend boundaries.
-3. Add deployment hardening and runtime packaging.
+1. Add Gmail Workspace Add-on shell around the proven backend boundaries.
+2. Add deployment hardening and runtime packaging.
+3. Validate a real Google OAuth client ID in a private environment before any
+   real-data demo.
 
 ## Thread vs Email
 
