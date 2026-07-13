@@ -40,3 +40,4 @@
 | Browser-backed PDF rendering has a local smoke-test path | P3/P5 | `test_real_playwright_adapter_renders_pdf_when_enabled` |
 | Rendered PDF output stages through storage without completion | P4/P5 | `test_stage_and_verify_rendered_pdf_writes_verified_storage_without_completion_state`, `test_stage_and_verify_rendered_pdf_cleans_temp_workspace_on_storage_failure` |
 | Coordinator records verified storage without Gmail finalization | P4/P5 | `test_verified_storage_records_revision_and_verified_audit_without_gmail_finalization`, `test_unverified_storage_result_is_rejected_without_writes` |
+| Coordinator completes only after verified storage | P5 | `test_completed_preservation_appends_completed_after_verified_storage`, `test_completed_preservation_requires_verified_state_without_writes` |

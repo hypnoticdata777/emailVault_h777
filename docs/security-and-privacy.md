@@ -86,6 +86,11 @@ Coordinator audit may record `VERIFIED` after storage succeeds. Gmail
 finalization still requires a later completed-preservation step and must not be
 enabled from `VERIFIED` alone.
 
+Coordinator audit may now record `COMPLETED` after the verified storage state
+transition. `COMPLETED` means the backend preservation record is finished; it
+still does not grant permission to mutate Gmail until a later explicit
+finalization callback is implemented and tested.
+
 ## Fixtures and Demo Data
 
 The repository and public demo must use synthetic data only. Fixture addresses

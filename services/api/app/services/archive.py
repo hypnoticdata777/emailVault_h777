@@ -16,15 +16,22 @@ from services.api.app.domain.contracts import (
     VerificationSummary,
 )
 from services.api.app.domain.contracts import ArchiveThreadRequest
+from services.api.app.domain.state import assert_transition_allowed
 from services.api.app.repositories.interfaces import AuditEvent, RevisionRepository
-from services.api.app.services.storage.provider import StageAndVerifyResult
 from services.api.app.services.revision_planner import RevisionPlanner, RevisionPlanStatus
+from services.api.app.services.storage.provider import StageAndVerifyResult
 
 
 @dataclass(frozen=True)
 class StorageVerificationOutcome:
     record: ArchiveRecordReference
     verification: VerificationSummary
+
+
+@dataclass(frozen=True)
+class ArchiveCompletionOutcome:
+    record: ArchiveRecordReference
+    completed_at: datetime
 
 
 class ArchiveCoordinator:
@@ -99,3 +106,34 @@ class ArchiveCoordinator:
                 verified_at=active_verified_at,
             ),
         )
+
+    def record_completed_preservation(
+        self,
+        identity: GoogleIdentity,
+        reference: ArchiveRecordReference,
+        completed_at: datetime | None = None,
+    ) -> ArchiveCompletionOutcome:
+        """Record archive completion after the verified storage audit boundary."""
+
+        if not identity.email_verified:
+            raise ApiError(
+                ErrorCategory.AUTHENTICATION_AUTHORIZATION,
+                "Verified Google email is required.",
+                "identity.email_verified",
+            )
+
+        audit_events = self.repository.list_audit_events(reference.record_id)
+        if not audit_events:
+            raise ApiError(
+                ErrorCategory.DUPLICATE_CONFLICT,
+                "Archive completion requires prior verified storage state.",
+                "archive_state",
+            )
+
+        assert_transition_allowed(audit_events[-1].state, ArchiveState.COMPLETED)
+        active_completed_at = completed_at or datetime.now(UTC)
+        self.repository.append_audit_event(
+            AuditEvent(record_id=reference.record_id, state=ArchiveState.COMPLETED, occurred_at=active_completed_at)
+        )
+
+        return ArchiveCompletionOutcome(record=reference, completed_at=active_completed_at)

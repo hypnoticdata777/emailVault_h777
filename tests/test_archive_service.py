@@ -133,6 +133,62 @@ class ArchiveCoordinatorTests(unittest.TestCase):
         self.assertNotIn(ArchiveState.COMPLETED, [event.state for event in repository.audit_events])
         self.assertNotIn(ArchiveState.GMAIL_FINALIZATION_PENDING, [event.state for event in repository.audit_events])
 
+    def test_completed_preservation_appends_completed_after_verified_storage(self) -> None:
+        repository = FakeRevisionRepository()
+        reference = ArchiveRecordReference(
+            vault_thread_id="vault-thread-example",
+            revision=1,
+            record_id="record-completed",
+            snapshot_sha256="synthetic-sha256",
+        )
+        verified_at = datetime(2026, 7, 13, 12, 0, tzinfo=UTC)
+        completed_at = datetime(2026, 7, 13, 12, 1, tzinfo=UTC)
+        repository.audit_events.extend(
+            (
+                AuditEvent(record_id=reference.record_id, state=ArchiveState.RENDERED, occurred_at=verified_at),
+                AuditEvent(record_id=reference.record_id, state=ArchiveState.STAGED, occurred_at=verified_at),
+                AuditEvent(record_id=reference.record_id, state=ArchiveState.VERIFIED, occurred_at=verified_at),
+            )
+        )
+
+        outcome = ArchiveCoordinator(repository).record_completed_preservation(
+            self._identity(),
+            reference,
+            completed_at=completed_at,
+        )
+
+        self.assertEqual(outcome.record, reference)
+        self.assertEqual(outcome.completed_at, completed_at)
+        self.assertEqual(
+            [event.state for event in repository.audit_events],
+            [ArchiveState.RENDERED, ArchiveState.STAGED, ArchiveState.VERIFIED, ArchiveState.COMPLETED],
+        )
+        self.assertNotIn(ArchiveState.GMAIL_FINALIZATION_PENDING, [event.state for event in repository.audit_events])
+
+    def test_completed_preservation_requires_verified_state_without_writes(self) -> None:
+        repository = FakeRevisionRepository()
+        reference = ArchiveRecordReference(
+            vault_thread_id="vault-thread-example",
+            revision=1,
+            record_id="record-staged-only",
+            snapshot_sha256="synthetic-sha256",
+        )
+        staged_at = datetime(2026, 7, 13, 12, 0, tzinfo=UTC)
+        repository.audit_events.extend(
+            (
+                AuditEvent(record_id=reference.record_id, state=ArchiveState.RENDERED, occurred_at=staged_at),
+                AuditEvent(record_id=reference.record_id, state=ArchiveState.STAGED, occurred_at=staged_at),
+            )
+        )
+
+        with self.assertRaises(ApiError):
+            ArchiveCoordinator(repository).record_completed_preservation(self._identity(), reference)
+
+        self.assertEqual(
+            [event.state for event in repository.audit_events],
+            [ArchiveState.RENDERED, ArchiveState.STAGED],
+        )
+
     def test_unverified_storage_result_is_rejected_without_writes(self) -> None:
         repository = FakeRevisionRepository()
         reference = ArchiveRecordReference(

@@ -43,8 +43,7 @@ Rules:
 - Exact duplicate snapshots return the existing record.
 - Updated snapshots get `revision + 1`.
 - Completed revisions are never overwritten.
-- P2 does not write completed revisions because storage verification does not
-  exist yet.
+- Completion is recorded only after verified preservation state exists.
 
 ## Revision Plan
 
@@ -135,7 +134,7 @@ paths.
 
 The plan does not create files, stage storage, or mark a revision completed. It
 exists so rendering and storage can be connected later without guessing artifact
-names at the last moment.
+ames at the last moment.
 
 ## Rendered PDF Artifact
 
@@ -151,8 +150,8 @@ The current scaffold returns:
 - byte size.
 
 It does not stage storage or complete an archive. The real Playwright/Chromium
-adapter is still pending, and storage verification remains the completion
-boundary.
+adapter exists behind the renderer boundary, and storage verification remains
+the completion boundary.
 
 ## Rendered Artifact Storage Bridge
 
@@ -178,3 +177,13 @@ The current coordinator can:
 
 It does not append `COMPLETED`, return Gmail finalization instructions, or make
 the public API report a completed preservation flow yet.
+
+## Archive Completion Outcome
+
+An archive completion outcome records that the backend preservation flow reached
+`COMPLETED` after verified storage state exists.
+
+The current coordinator can append `COMPLETED` when the audit history permits a
+safe transition from `VERIFIED`. It does not append
+`GMAIL_FINALIZATION_PENDING`, return Gmail finalization instructions, or mutate
+Gmail.

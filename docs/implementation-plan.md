@@ -56,10 +56,10 @@ local Chromium PDF rendering when renderer dependencies are installed and
 staged through the storage provider and checksum verified without recording a
 completed revision. The coordinator can now create the planned revision after
 verified storage and append `RENDERED`, `STAGED`, and `VERIFIED` audit events
-without enabling Gmail finalization.
+without enabling Gmail finalization. It can also append `COMPLETED` after the
+verified storage state transition, still without enabling Gmail finalization.
 
 ## Later Phases
 
-- P5: record completion state transitions only after verified preservation is
-  ready.
 - P6: Gmail Add-on flow and finalization callbacks.
+- P7: production identity, CI, and deployment hardening for public demo use.

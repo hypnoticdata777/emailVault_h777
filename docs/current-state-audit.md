@@ -60,6 +60,8 @@ scaffold, and a Playwright/Chromium adapter boundary.
 - The archive coordinator can create a revision after verified storage and
   append `RENDERED`, `STAGED`, and `VERIFIED` audit events without completing or
   finalizing Gmail.
+- The archive coordinator can append `COMPLETED` after verified storage state
+  exists, without creating Gmail finalization instructions.
 - Local API runs can bootstrap the configured SQLite schema with
   `python -m services.api.app.cli init-db`.
 - Developer setup, current API behavior, and data model notes are documented in
@@ -86,7 +88,6 @@ The API skeleton requires optional dependencies.
   synthetic.
 - Browser-backed PDF smoke test is opt-in and not part of default CI yet.
 - No attachment fetcher or permitted attachment copy flow exists yet.
-- No coordinator step records `COMPLETED` state yet.
 - No Gmail finalization callback exists yet.
 - No CI workflow exists yet.
 - No Docker runtime exists yet.
@@ -100,7 +101,7 @@ current API tests intentionally keep Gmail finalization disabled.
 
 ## Recommended Minimal Changes
 
-1. Add completion state transitions only after verified preservation is ready.
-2. Keep Gmail finalization behind completed preservation and explicit callback
+1. Keep Gmail finalization behind completed preservation and explicit callback
    tests.
-3. Add CI once package dependencies and command choices are stable.
+2. Add CI once package dependencies and command choices are stable.
+3. Replace synthetic Google identity verification before any real-data demo.

@@ -104,3 +104,13 @@ planned revision and appending `RENDERED`, `STAGED`, and `VERIFIED` audit
 events. The coordinator still does not append `COMPLETED`, does not create Gmail
 finalization instructions, and does not expose partially verified work as a
 completed archive.
+
+## Completion State Boundary
+
+The archive coordinator can now append `COMPLETED` after the latest audit state
+is allowed to transition from verified preservation into completion. This marks
+the backend archive record complete, but it still does not create Gmail
+finalization instructions.
+
+Gmail labeling, mark-read, and archive actions remain a later callback boundary
+so the public POC can prove preservation completion before mutating Gmail.
