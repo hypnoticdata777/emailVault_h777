@@ -69,11 +69,12 @@ Google. The first Gmail Workspace Add-on shell now exists as preview-only Apps
 Script files with tests for the contextual trigger, minimal current-message
 scopes, expected entry points, and absence of Gmail mutation calls. Docker
 runtime packaging now exists for the API, with CI building the image to keep
-the runtime boundary from drifting.
+the runtime boundary from drifting. The archive route now calls the completed
+backend preservation path for generated PDF output and returns `PRESERVED` after
+verified storage plus `COMPLETED`, while Gmail finalization remains disabled.
 
 ## Later Phases
 
-- P6: complete archive route orchestration for rendering, storage verification,
-  and completed records.
+- P6: add permitted attachment copy plus metadata and manifest artifact output.
 - P7: add-on-to-backend request wiring, HTTPS deployment choice, and private
   OAuth validation.
