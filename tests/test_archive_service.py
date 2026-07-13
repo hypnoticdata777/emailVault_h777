@@ -69,9 +69,11 @@ class FakePdfRendererAdapter:
 class FakeStorageProvider:
     def __init__(self) -> None:
         self.record_ids: list[str] = []
+        self.trusted_names: list[str] = []
 
     def stage_and_verify(self, request) -> StageAndVerifyResult:
         self.record_ids.append(request.record_id)
+        self.trusted_names.extend(artifact.trusted_name for artifact in request.artifacts)
         return StageAndVerifyResult(
             verified=True,
             artifacts=tuple(
@@ -131,10 +133,14 @@ class ArchiveCoordinatorTests(unittest.TestCase):
         self.assertIsNotNone(result.record)
         self.assertIsNotNone(result.verification)
         self.assertTrue(result.verification.verified)
-        self.assertEqual(result.verification.artifact_count, 1)
+        self.assertEqual(result.verification.artifact_count, 3)
         self.assertFalse(result.gmail_finalization.enabled)
         self.assertIn("Plain synthetic message for Email Vault.", renderer.html_content)
         self.assertEqual(storage.record_ids, [result.record.record_id])
+        self.assertEqual(
+            [trusted_name.rsplit(".", 1)[-1] for trusted_name in storage.trusted_names],
+            ["pdf", "json", "json"],
+        )
         self.assertEqual(
             [event.state for event in repository.audit_events],
             [ArchiveState.RENDERED, ArchiveState.STAGED, ArchiveState.VERIFIED, ArchiveState.COMPLETED],
