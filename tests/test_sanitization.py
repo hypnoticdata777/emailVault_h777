@@ -96,6 +96,53 @@ class SanitizationTests(unittest.TestCase):
         self.assertEqual(normalized.blocked_remote_resources, 1)
         self.assertEqual(normalized.messages[0].blocked_remote_resources, 1)
 
+    def test_table_heavy_email_keeps_table_text_and_strips_unsafe_attributes(self) -> None:
+        result = sanitize_email_html(
+            '<table style="background:url(https://tracker.example.com/bg.png)">'
+            '<tr onclick="steal()">'
+            '<th colspan="2">Synthetic invoice</th>'
+            "</tr>"
+            "<tr><td>Item</td><td>Total</td></tr>"
+            "</table>"
+        )
+
+        self.assertIn("<table>", result.html)
+        self.assertIn('<th colspan="2">Synthetic invoice</th>', result.html)
+        self.assertNotIn("style", result.html)
+        self.assertNotIn("onclick", result.html)
+        self.assertNotIn("tracker.example.com", result.html)
+        self.assertIn("Synthetic invoice", result.plain_text)
+        self.assertIn("Total", result.plain_text)
+
+    def test_attachment_adjacent_file_link_loses_href_but_keeps_label(self) -> None:
+        result = sanitize_email_html('<a href="file:///C:/secret/invoice.pdf">invoice.pdf</a>')
+
+        self.assertNotIn("file://", result.html)
+        self.assertIn("<a>invoice.pdf</a>", result.html)
+        self.assertEqual(result.plain_text, "invoice.pdf")
+
+    def test_attachment_adjacent_data_link_loses_href_but_keeps_label(self) -> None:
+        result = sanitize_email_html('<a href="data:text/html;base64,PHNjcmlwdD4=">download report</a>')
+
+        self.assertNotIn("data:text", result.html)
+        self.assertIn("<a>download report</a>", result.html)
+        self.assertEqual(result.plain_text, "download report")
+
+    def test_form_like_controls_are_removed_but_visible_text_remains(self) -> None:
+        result = sanitize_email_html(
+            '<form action="https://example.com/collect">'
+            '<label>Approval code</label>'
+            '<input name="code" value="secret">'
+            '<button>Submit</button>'
+            "</form>"
+        )
+
+        self.assertNotIn("<form", result.html)
+        self.assertNotIn("<input", result.html)
+        self.assertNotIn("<button", result.html)
+        self.assertIn("Approval code", result.plain_text)
+        self.assertIn("Submit", result.plain_text)
+
 
 if __name__ == "__main__":
     unittest.main()

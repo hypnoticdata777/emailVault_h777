@@ -32,3 +32,4 @@
 | Plain-text fallback is available for sanitized HTML | P3 | `test_plain_text_fallback_collapses_blocks` |
 | Sanitized message bodies preserve safe text and produce fallback output | P3 | `test_html_message_normalization_adds_plain_text_fallback`, `test_plain_text_message_normalization_preserves_original_text` |
 | Renderer input consumes sanitized bodies only | P3/P5 | `test_renderer_safe_snapshot_uses_sanitized_html_and_plain_text_fallback`, `test_renderer_safe_snapshot_preserves_plain_text_without_html` |
+| Table-heavy and attachment-adjacent HTML is sanitized safely | P3 | `test_table_heavy_email_keeps_table_text_and_strips_unsafe_attributes`, `test_attachment_adjacent_file_link_loses_href_but_keeps_label`, `test_attachment_adjacent_data_link_loses_href_but_keeps_label` |

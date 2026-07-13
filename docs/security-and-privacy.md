@@ -70,6 +70,10 @@ safe HTML and guaranteed plain text instead of raw message bodies.
 Renderer-safe snapshots must consume sanitized bodies only. Raw email HTML should
 not cross into renderer inputs.
 
+Table-heavy emails and attachment-adjacent HTML links must preserve visible text
+while stripping unsafe attributes or unsafe link targets such as `file:` and
+`data:`.
+
 ## Fixtures and Demo Data
 
 The repository and public demo must use synthetic data only. Fixture addresses

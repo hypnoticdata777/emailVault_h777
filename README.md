@@ -28,14 +28,16 @@ Done:
   text.
 - Renderer-safe snapshot preparation that keeps raw email HTML out of future PDF
   inputs.
+- Expanded sanitizer coverage for table-heavy emails and attachment-adjacent
+  unsafe links.
 - Archive coordinator that validates, fingerprints, checks duplicates, and keeps
   Gmail finalization disabled until storage verification exists.
 
 Next:
 
-1. Expand sanitizer tests for attachment-adjacent HTML and table-heavy emails.
-2. Add artifact manifest planning after renderer-safe snapshots are stable.
-3. Add renderer/storage integration only after sanitization tests are stable.
+1. Add artifact manifest planning after renderer-safe snapshots are stable.
+2. Add renderer/storage integration only after sanitization tests are stable.
+3. Add PDF renderer ADR before implementing rendering.
 
 ## Thread vs Email
 

@@ -42,11 +42,12 @@ Security and privacy boundaries are documented for public-ready development.
 
 P3 has started with dependency-light HTML sanitization, remote image-source
 blocking, script/style content removal, plain-text fallback, normalized
-sanitized body output, and renderer-safe snapshot preparation.
+sanitized body output, renderer-safe snapshot preparation, and coverage for
+table-heavy plus attachment-adjacent HTML.
 
 ## Later Phases
 
-- P3: expand sanitizer coverage for table-heavy and attachment-adjacent HTML.
+- P3: plan artifact manifests from renderer-safe snapshots.
 - P4: storage provider staging and verification.
 - P5: PDF renderer with ADR-backed implementation.
 - P6: Gmail Add-on flow and finalization callbacks.
