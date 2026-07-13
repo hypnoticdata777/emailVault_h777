@@ -31,6 +31,7 @@ class ApiTests(unittest.TestCase):
     def setUp(self) -> None:
         from fastapi.testclient import TestClient
         from services.api.app.api.dependencies import (
+            get_addon_request_signature_verifier,
             get_attachment_content_provider,
             get_pdf_renderer_adapter,
             get_revision_repository,
@@ -50,6 +51,7 @@ class ApiTests(unittest.TestCase):
         self.app.dependency_overrides[get_pdf_renderer_adapter] = lambda: FakePdfRendererAdapter()
         self.app.dependency_overrides[get_storage_provider] = lambda: self.storage
         self.attachment_provider_dependency = get_attachment_content_provider
+        self.signature_verifier_dependency = get_addon_request_signature_verifier
         self.client = TestClient(self.app)
         self.fixture_root = Path(__file__).parent / "fixtures" / "emails"
         self.archive_record_type = ArchiveRecordReference
@@ -88,6 +90,48 @@ class ApiTests(unittest.TestCase):
 
         audit_states = [event.state.value for event in self.repository.list_audit_events(body["record"]["record_id"])]
         self.assertEqual(audit_states, ["RENDERED", "STAGED", "VERIFIED", "COMPLETED"])
+
+    def test_archive_accepts_matching_addon_request_signature_when_configured(self) -> None:
+        from services.api.app.auth.request_signing import AddonRequestSignatureVerifier, sign_request
+
+        payload = self._fixture("plain_text")
+        body = json.dumps(payload, separators=(",", ":")).encode("utf-8")
+        signature = sign_request("shared-secret", "POST", "/archive/thread", "1000", body)
+        self.app.dependency_overrides[self.signature_verifier_dependency] = lambda: AddonRequestSignatureVerifier(
+            "shared-secret",
+            now_factory=lambda: 1000,
+        )
+
+        response = self.client.post(
+            "/archive/thread",
+            data=body,
+            headers={
+                "Authorization": "Bearer synthetic-valid-token",
+                "Content-Type": "application/json",
+                "X-Email-Vault-Timestamp": "1000",
+                "X-Email-Vault-Signature": signature,
+            },
+        )
+
+        self.assertEqual(response.status_code, 202)
+        self.assertEqual(response.json()["status"], "PRESERVED")
+
+    def test_archive_rejects_unsigned_addon_request_when_configured(self) -> None:
+        from services.api.app.auth.request_signing import AddonRequestSignatureVerifier
+
+        self.app.dependency_overrides[self.signature_verifier_dependency] = lambda: AddonRequestSignatureVerifier(
+            "shared-secret",
+            now_factory=lambda: 1000,
+        )
+
+        response = self.client.post(
+            "/archive/thread",
+            json=self._fixture("plain_text"),
+            headers={"Authorization": "Bearer synthetic-valid-token"},
+        )
+
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.json()["error"]["category"], "authentication_authorization")
 
     def test_archive_copies_trusted_permitted_attachment_when_provider_is_available(self) -> None:
         attachment_content = b"trusted api attachment bytes"
