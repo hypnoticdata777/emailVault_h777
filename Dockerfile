@@ -15,7 +15,8 @@ COPY pyproject.toml README.md ./
 COPY services ./services
 
 RUN python -m pip install --upgrade pip \
-    && python -m pip install --no-cache-dir ".[api]" \
+    && python -m pip install --no-cache-dir ".[api,renderer]" \
+    && python -m playwright install --with-deps chromium \
     && mkdir -p /data/email-vault-storage \
     && chown -R emailvault:emailvault /app /data
 
