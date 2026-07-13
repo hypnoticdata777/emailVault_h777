@@ -65,6 +65,34 @@ class ArtifactManifestPlanningTests(unittest.TestCase):
             ],
         )
 
+    def test_plan_artifact_manifest_adds_server_owned_attachment_copy_names(self) -> None:
+        request = load_fixture("plain_text")
+        safe_thread = prepare_renderer_safe_thread(request.thread)
+        uuid_values = iter(
+            (
+                UUID("00000000-0000-0000-0000-000000000101"),
+                UUID("00000000-0000-0000-0000-000000000102"),
+                UUID("00000000-0000-0000-0000-000000000103"),
+                UUID("00000000-0000-0000-0000-000000000104"),
+            )
+        )
+
+        manifest = plan_artifact_manifest(
+            self._reference(),
+            safe_thread,
+            uuid_factory=lambda: next(uuid_values),
+            attachment_source=request.thread,
+        )
+
+        attachment_artifact = manifest.artifacts[-1]
+        self.assertEqual(attachment_artifact.kind, PlannedArtifactKind.ATTACHMENT_COPY)
+        self.assertEqual(attachment_artifact.source_stage, PlannedArtifactStage.ATTACHMENT)
+        self.assertEqual(attachment_artifact.trusted_name, "00000000-0000-0000-0000-000000000104.pdf")
+        self.assertEqual(attachment_artifact.content_type, "application/pdf")
+        self.assertEqual(attachment_artifact.source_message_id, "msg-plain-001")
+        self.assertEqual(attachment_artifact.source_attachment_id, "att-plain-001")
+        self.assertEqual(attachment_artifact.original_filename, "receipt.pdf")
+
     def test_plan_artifact_manifest_rejects_untrusted_record_id(self) -> None:
         safe_thread = prepare_renderer_safe_thread(load_fixture("plain_text").thread)
 
