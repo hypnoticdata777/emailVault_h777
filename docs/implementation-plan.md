@@ -67,10 +67,13 @@ selectable local synthetic verification or Google ID-token verification for a
 configured OAuth client ID, with tests covering the verifier without calling
 Google. The first Gmail Workspace Add-on shell now exists as preview-only Apps
 Script files with tests for the contextual trigger, minimal current-message
-scopes, expected entry points, and absence of Gmail mutation calls.
+scopes, expected entry points, and absence of Gmail mutation calls. Docker
+runtime packaging now exists for the API, with CI building the image to keep
+the runtime boundary from drifting.
 
 ## Later Phases
 
-- P6: add-on-to-backend archive request wiring after route orchestration is
-  safe.
-- P7: deployment hardening, runtime packaging, and private OAuth validation.
+- P6: complete archive route orchestration for rendering, storage verification,
+  and completed records.
+- P7: add-on-to-backend request wiring, HTTPS deployment choice, and private
+  OAuth validation.
