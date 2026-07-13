@@ -36,6 +36,14 @@ class GmailAddonShellTests(unittest.TestCase):
         self.assertIn("function archiveThreadAction(event)", self.source)
         self.assertIn("Prepare Archive", self.source)
 
+    def test_shell_contains_dormant_signed_request_helpers(self) -> None:
+        self.assertIn("function buildSignedArchiveRequestOptions_", self.source)
+        self.assertIn("function signBackendRequest_", self.source)
+        self.assertIn("X-Email-Vault-Timestamp", self.source)
+        self.assertIn("X-Email-Vault-Signature", self.source)
+        self.assertIn("Utilities.computeHmacSha256Signature", self.source)
+        self.assertNotIn("UrlFetchApp.fetch", self.source)
+
     def test_shell_does_not_mutate_gmail(self) -> None:
         forbidden_calls = [
             ".addLabel(",
