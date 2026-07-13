@@ -5,7 +5,7 @@ This document explains how to run the current Email Vault P2 build locally.
 ## Requirements
 
 - Python 3.12 or newer.
-- No real Gmail credentials are needed for the current phase.
+- No real Gmail credentials are needed for default local development.
 - No real email data should be added to the repository.
 
 ## Install
@@ -15,7 +15,7 @@ python -m pip install -e ".[api,test]"
 ```
 
 The project currently uses optional dependencies for the API and tests:
-FastAPI, Pydantic v2, Uvicorn, httpx, and pytest.
+FastAPI, Pydantic v2, Uvicorn, google-auth, httpx, and pytest.
 
 Renderer work uses a separate optional dependency so standard tests stay light:
 
@@ -45,6 +45,24 @@ normal test runs.
 
 Copy `.env.example` only when you need a local environment file. Keep real
 secrets out of Git.
+
+Local authentication defaults to the synthetic verifier:
+
+```text
+EMAIL_VAULT_IDENTITY_VERIFIER=synthetic
+Authorization: Bearer synthetic-valid-token
+```
+
+Production-like identity verification can be enabled only after installing the
+API optional dependencies and configuring a real Google OAuth client ID:
+
+```text
+EMAIL_VAULT_IDENTITY_VERIFIER=google
+GOOGLE_OAUTH_CLIENT_ID=<your-google-oauth-client-id>
+```
+
+Do not commit real OAuth client IDs, tokens, or exported email data. The test
+suite uses fake verifier functions and does not call Google.
 
 The default local database URL is:
 
@@ -90,14 +108,15 @@ remains opt-in with `EMAIL_VAULT_RUN_RENDERER_SMOKE=1`.
 python -m uvicorn services.api.app.main:app --reload
 ```
 
-Current local authentication uses a synthetic token only:
+Current local authentication uses the synthetic verifier unless
+`EMAIL_VAULT_IDENTITY_VERIFIER=google` is set:
 
 ```text
 Authorization: Bearer synthetic-valid-token
 ```
 
-This is not production authentication. Real Google ID-token verification belongs
-to a later phase.
+This token is not production authentication. In Google verifier mode, the bearer
+credential must be a Google ID token for the configured OAuth client ID.
 
 ## Current Limits
 
