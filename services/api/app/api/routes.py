@@ -3,7 +3,13 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import JSONResponse
 
-from services.api.app.api.dependencies import RequestIdentity, get_revision_repository, require_identity
+from services.api.app.api.dependencies import (
+    RequestIdentity,
+    get_pdf_renderer_adapter,
+    get_revision_repository,
+    get_storage_provider,
+    require_identity,
+)
 from services.api.app.api.schemas import (
     ApiErrorSchema,
     ArchiveResultSchema,
@@ -14,6 +20,8 @@ from services.api.app.api.schemas import (
 from services.api.app.domain.contracts import ApiError, ErrorCategory
 from services.api.app.repositories.interfaces import RevisionRepository
 from services.api.app.services.archive import ArchiveCoordinator
+from services.api.app.services.rendering.pdf import PdfRendererAdapter
+from services.api.app.services.storage.provider import StorageProvider
 
 
 router = APIRouter()
@@ -29,11 +37,18 @@ async def archive_thread(
     payload: ArchiveThreadRequestSchema,
     identity: RequestIdentity = Depends(require_identity),
     repository: RevisionRepository = Depends(get_revision_repository),
+    pdf_renderer: PdfRendererAdapter = Depends(get_pdf_renderer_adapter),
+    storage_provider: StorageProvider = Depends(get_storage_provider),
 ) -> ArchiveResultSchema:
-    # P2 proves the HTTP boundary and contract validation only. The verified
-    # Google identity is required now so later persistence cannot accidentally
-    # trust a client-supplied owner id.
-    result = ArchiveCoordinator(repository).evaluate(payload.to_domain(), identity.google_identity)
+    # Gmail mutation remains disabled here. The route may complete backend
+    # preservation, but finalization instructions stay behind the explicit
+    # post-completion boundary.
+    result = ArchiveCoordinator(repository).preserve(
+        payload.to_domain(),
+        identity.google_identity,
+        pdf_renderer,
+        storage_provider,
+    )
     return ArchiveResultSchema.from_domain(result)
 
 
@@ -45,6 +60,7 @@ async def api_error_handler(request: Request, exc: ApiError) -> JSONResponse:
     if exc.category == ErrorCategory.AUTHENTICATION_AUTHORIZATION:
         http_status = status.HTTP_401_UNAUTHORIZED
     elif exc.category in {
+        ErrorCategory.SANITIZATION_RENDERING,
         ErrorCategory.STORAGE_UNAVAILABLE,
         ErrorCategory.STORAGE_VERIFICATION,
         ErrorCategory.UNEXPECTED_INTERNAL,
