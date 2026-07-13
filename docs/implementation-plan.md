@@ -67,17 +67,20 @@ selectable local synthetic verification or Google ID-token verification for a
 configured OAuth client ID, with tests covering the verifier without calling
 Google. The first Gmail Workspace Add-on shell now exists as preview-only Apps
 Script files with tests for the contextual trigger, minimal current-message
-scopes, expected entry points, and absence of Gmail mutation calls. Docker
-runtime packaging now exists for the API, with CI building the image to keep
-the runtime boundary from drifting. The archive route now calls the completed
-backend preservation path for generated PDF, metadata JSON, and manifest JSON
-output and returns `PRESERVED` after verified storage plus `COMPLETED`, while
-Gmail finalization remains disabled. Trusted permitted attachment copy now
-exists behind an injectable content provider; default route behavior remains
-descriptor-only until Gmail fetch wiring supplies bytes.
+scopes, expected entry points, dormant request-signing helpers, and absence of
+Gmail mutation or backend fetch calls. Docker runtime packaging now exists for
+the API, with CI building the image to keep the runtime boundary from drifting.
+The archive route now calls the completed backend preservation path for
+generated PDF, metadata JSON, and manifest JSON output and returns `PRESERVED`
+after verified storage plus `COMPLETED`, while Gmail finalization remains
+disabled. Trusted permitted attachment copy now exists behind an injectable
+content provider; default route behavior remains descriptor-only until Gmail
+fetch wiring supplies bytes. The API can now verify add-on HMAC request
+signatures when `EMAIL_VAULT_ADDON_SIGNING_SECRET` is set, but the add-on still
+does not execute live backend archive requests.
 
 ## Later Phases
 
 - P6: wire Gmail attachment fetch bytes into the trusted content provider.
-- P7: add-on-to-backend request wiring, HTTPS deployment choice, and private
+- P7: add-on-to-backend request execution, HTTPS deployment choice, and private
   OAuth validation.
