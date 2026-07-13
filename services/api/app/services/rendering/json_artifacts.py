@@ -14,6 +14,7 @@ from services.api.app.services.rendering.manifest import (
 )
 from services.api.app.services.rendering.pdf import RenderedPdfArtifact
 from services.api.app.services.rendering.snapshot import RendererSafeMessageSnapshot, RendererSafeThreadSnapshot
+from services.api.app.services.storage.attachments import AttachmentCopyResult, AttachmentCopyStatus
 
 
 @dataclass(frozen=True)
@@ -29,11 +30,13 @@ def build_metadata_json_artifact(
     request: ArchiveThreadRequest,
     safe_thread: RendererSafeThreadSnapshot,
     manifest: ArtifactManifestPlan,
+    attachment_copy_result: AttachmentCopyResult | None = None,
 ) -> GeneratedJsonArtifact:
     """Build the immutable metadata artifact from sanitized archive inputs."""
 
     planned = _planned_artifact(manifest, PlannedArtifactKind.METADATA_JSON)
     original_messages = {message.message_id: message for message in request.thread.messages}
+    copy_statuses = _copy_statuses_by_source(attachment_copy_result)
     payload = {
         "schema_version": "email-vault.metadata.v1",
         "request_id": request.request_id,
@@ -58,14 +61,11 @@ def build_metadata_json_artifact(
             "message_count": len(safe_thread.messages),
             "blocked_remote_resources": safe_thread.blocked_remote_resources,
             "messages": tuple(
-                _message_payload(message, original_messages[message.message_id].attachments)
+                _message_payload(message, original_messages[message.message_id].attachments, copy_statuses)
                 for message in safe_thread.messages
             ),
         },
-        "attachment_copy": {
-            "status": "descriptor_only",
-            "reason": "ArchiveThreadRequest carries attachment descriptors but no attachment bytes yet.",
-        },
+        "attachment_copy": _attachment_copy_summary(attachment_copy_result),
     }
     return _json_artifact(planned, payload)
 
@@ -73,6 +73,7 @@ def build_metadata_json_artifact(
 def build_manifest_json_artifact(
     manifest: ArtifactManifestPlan,
     generated_artifacts: Iterable[RenderedPdfArtifact | GeneratedJsonArtifact],
+    attachment_copy_result: AttachmentCopyResult | None = None,
 ) -> GeneratedJsonArtifact:
     """Build the archive manifest after generated artifact bytes exist."""
 
@@ -88,10 +89,7 @@ def build_manifest_json_artifact(
             "blocked_remote_resources": manifest.blocked_remote_resources,
         },
         "artifacts": tuple(_manifest_artifact_payload(artifact, generated_by_name) for artifact in manifest.artifacts),
-        "attachment_copy": {
-            "status": "descriptor_only",
-            "reason": "Permitted attachment copy needs attachment bytes or a trusted fetcher in a later phase.",
-        },
+        "attachment_copy": _attachment_copy_summary(attachment_copy_result),
     }
     return _json_artifact(planned, payload)
 
@@ -118,6 +116,9 @@ def _manifest_artifact_payload(
         "content_type": planned.content_type,
         "source_stage": planned.source_stage.value,
         "required": planned.required,
+        "source_message_id": planned.source_message_id,
+        "source_attachment_id": planned.source_attachment_id,
+        "original_filename": planned.original_filename,
         "generated": generated is not None,
         "sha256": generated.sha256 if generated is not None else None,
         "size_bytes": generated.size_bytes if generated is not None else None,
@@ -127,6 +128,7 @@ def _manifest_artifact_payload(
 def _message_payload(
     message: RendererSafeMessageSnapshot,
     attachments: tuple[AttachmentDescriptor, ...],
+    copy_statuses: dict[tuple[str, str], AttachmentCopyStatus],
 ) -> dict[str, Any]:
     return {
         "message_id": message.message_id,
@@ -144,18 +146,61 @@ def _message_payload(
         "plain_text_size": len(message.plain_text.encode("utf-8")),
         "blocked_remote_resources": message.blocked_remote_resources,
         "removed_tags": message.removed_tags,
-        "attachments": tuple(_attachment_payload(attachment) for attachment in attachments),
+        "attachments": tuple(_attachment_payload(message.message_id, attachment, copy_statuses) for attachment in attachments),
     }
 
 
-def _attachment_payload(attachment: AttachmentDescriptor) -> dict[str, Any]:
-    return {
+def _attachment_payload(
+    message_id: str,
+    attachment: AttachmentDescriptor,
+    copy_statuses: dict[tuple[str, str], AttachmentCopyStatus],
+) -> dict[str, Any]:
+    status = copy_statuses.get((message_id, attachment.attachment_id))
+    payload = {
         "attachment_id": attachment.attachment_id,
         "original_filename": attachment.original_filename,
         "mime_type": attachment.mime_type,
         "size_bytes": attachment.size_bytes,
         "content_sha256": attachment.content_sha256,
-        "copy_status": "descriptor_only",
+        "copy_status": status.copy_status if status is not None else "descriptor_only",
+    }
+    if status is not None:
+        payload.update(
+            {
+                "trusted_name": status.trusted_name,
+                "sha256": status.sha256,
+                "copied_size_bytes": status.size_bytes,
+                "copy_reason": status.reason,
+            }
+        )
+    return payload
+
+
+def _attachment_copy_summary(attachment_copy_result: AttachmentCopyResult | None) -> dict[str, Any]:
+    if attachment_copy_result is None:
+        return {
+            "status": "descriptor_only",
+            "copied_count": 0,
+            "descriptor_only_count": None,
+            "reason": "ArchiveThreadRequest carries attachment descriptors but no attachment bytes yet.",
+        }
+    copied_count = sum(1 for status in attachment_copy_result.statuses if status.copy_status == "copied")
+    descriptor_only_count = sum(1 for status in attachment_copy_result.statuses if status.copy_status == "descriptor_only")
+    return {
+        "status": "copied" if copied_count and descriptor_only_count == 0 else "partial" if copied_count else "descriptor_only",
+        "copied_count": copied_count,
+        "descriptor_only_count": descriptor_only_count,
+    }
+
+
+def _copy_statuses_by_source(
+    attachment_copy_result: AttachmentCopyResult | None,
+) -> dict[tuple[str, str], AttachmentCopyStatus]:
+    if attachment_copy_result is None:
+        return {}
+    return {
+        (status.source_message_id, status.source_attachment_id): status
+        for status in attachment_copy_result.statuses
     }
 
 
