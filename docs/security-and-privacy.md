@@ -6,10 +6,11 @@ storage integration.
 
 ## Current Position
 
-The current build uses synthetic fixtures and defaults to a synthetic local
-identity token. It can be configured to verify Google ID tokens, but it does not
-connect to Gmail, fetch real messages, render PDFs from the API route, mark
-messages read, apply labels, archive Gmail, delete Gmail, or deploy publicly.
+The current backend uses synthetic fixtures and defaults to a synthetic local
+identity token. It can be configured to verify Google ID tokens. The repository
+also includes a preview-only Gmail Add-on shell, but the project does not deploy
+publicly, call the backend from the add-on, render PDFs from the API route, mark
+messages read, apply labels, archive Gmail, or delete Gmail.
 
 ## Data That Must Not Enter Logs
 
