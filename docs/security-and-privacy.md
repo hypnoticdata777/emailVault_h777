@@ -98,9 +98,11 @@ transition. `COMPLETED` means the backend preservation record is finished; it
 grants permission to request finalization instructions only through the
 owner-scoped coordinator boundary.
 
-Metadata JSON and manifest JSON may be staged with the generated PDF, but
-permitted attachment copy must remain descriptor-only until the system has
-trusted attachment bytes. Original filenames stay metadata only.
+Metadata JSON and manifest JSON may be staged with the generated PDF. Permitted
+attachments may be copied only through the trusted attachment content provider,
+with size/checksum verification and server-generated stored names. Original
+filenames stay metadata only. When trusted bytes are unavailable, attachment
+records remain descriptor-only.
 
 Gmail finalization instructions may now be requested only for a completed record
 owned by the verified Google subject. The callback result may be recorded only
