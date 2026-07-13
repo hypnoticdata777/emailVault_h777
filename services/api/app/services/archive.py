@@ -19,11 +19,15 @@ from services.api.app.domain.contracts import (
 from services.api.app.domain.contracts import ArchiveThreadRequest
 from services.api.app.domain.state import assert_transition_allowed
 from services.api.app.repositories.interfaces import AuditEvent, RevisionRepository
+from services.api.app.services.rendering.json_artifacts import (
+    build_manifest_json_artifact,
+    build_metadata_json_artifact,
+)
 from services.api.app.services.rendering.manifest import plan_artifact_manifest
 from services.api.app.services.rendering.pdf import PdfRendererAdapter, render_pdf_from_safe_thread
 from services.api.app.services.rendering.snapshot import prepare_renderer_safe_thread
 from services.api.app.services.revision_planner import RevisionPlanner, RevisionPlanStatus
-from services.api.app.services.storage.rendered_artifacts import stage_and_verify_rendered_pdf
+from services.api.app.services.storage.rendered_artifacts import stage_and_verify_generated_artifacts
 from services.api.app.services.storage.provider import StageAndVerifyResult
 from services.api.app.services.storage.provider import StorageProvider
 
@@ -114,7 +118,13 @@ class ArchiveCoordinator:
         safe_thread = prepare_renderer_safe_thread(request.thread)
         manifest = plan_artifact_manifest(plan.reference, safe_thread)
         rendered_pdf = render_pdf_from_safe_thread(safe_thread, manifest, pdf_renderer)
-        storage_result = stage_and_verify_rendered_pdf(plan.reference.record_id, rendered_pdf, storage_provider)
+        metadata_json = build_metadata_json_artifact(request, safe_thread, manifest)
+        manifest_json = build_manifest_json_artifact(manifest, (rendered_pdf, metadata_json))
+        storage_result = stage_and_verify_generated_artifacts(
+            plan.reference.record_id,
+            (rendered_pdf, metadata_json, manifest_json),
+            storage_provider,
+        )
         verified = self.record_verified_storage(identity, plan.gmail_thread_id, plan.reference, storage_result)
         completed = self.record_completed_preservation(identity, verified.record)
 
