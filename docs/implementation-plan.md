@@ -26,8 +26,13 @@ The P2 orchestration layer now uses verified identity, validation, fingerprintin
 repository duplicate lookup, and controlled errors without invoking any renderer,
 storage provider, durable write, or Gmail finalization.
 
-Remaining P2 work is to replace the route-safe null repository dependency with a
-configured SQLite dependency and add a minimal migration/bootstrap command.
+The route now uses the configured SQLite repository by default, and local setup
+has a minimal bootstrap command: `python -m services.api.app.cli init-db`.
+Companion docs now cover local development, current API behavior, and the core
+data model.
+
+Remaining P2 work is to add the first safe revision planning service that can
+prepare a new revision reference without marking it completed.
 
 ## Later Phases
 

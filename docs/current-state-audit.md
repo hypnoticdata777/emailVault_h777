@@ -32,6 +32,10 @@ FastAPI/Pydantic modules behind optional dependencies.
   disabled until archive execution is implemented.
 - SQLite-backed revision persistence stores owner-scoped archive references and
   ordered audit events without storing email content.
+- Local API runs can bootstrap the configured SQLite schema with
+  `python -m services.api.app.cli init-db`.
+- Developer setup, current API behavior, and data model notes are documented in
+  `docs/development.md`, `docs/api.md`, and `docs/data-model.md`.
 
 ## Setup and Run Commands
 

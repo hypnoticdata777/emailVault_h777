@@ -6,8 +6,9 @@ from typing import Annotated
 from fastapi import Depends, Header, HTTPException, status
 
 from services.api.app.auth.identity import GoogleIdentity, IdentityVerifier, StubIdentityVerifier
+from services.api.app.core.settings import load_settings
 from services.api.app.repositories.interfaces import RevisionRepository
-from services.api.app.repositories.null import NullRevisionRepository
+from services.api.app.repositories.sqlite import SqliteRevisionRepository, sqlite_path_from_database_url
 
 
 def get_identity_verifier() -> IdentityVerifier:
@@ -15,7 +16,8 @@ def get_identity_verifier() -> IdentityVerifier:
 
 
 def get_revision_repository() -> RevisionRepository:
-    return NullRevisionRepository()
+    settings = load_settings()
+    return SqliteRevisionRepository(sqlite_path_from_database_url(settings.database_url))
 
 
 @dataclass(frozen=True)

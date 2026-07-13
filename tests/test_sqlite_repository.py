@@ -7,7 +7,7 @@ from pathlib import Path
 
 from services.api.app.domain.contracts import ApiError, ArchiveRecordReference, ArchiveState, snapshot_fingerprint
 from services.api.app.repositories.interfaces import AuditEvent
-from services.api.app.repositories.sqlite import SqliteRevisionRepository
+from services.api.app.repositories.sqlite import SqliteRevisionRepository, sqlite_path_from_database_url
 from tests.fixture_loader import load_fixture
 
 
@@ -102,6 +102,12 @@ class SqliteRevisionRepositoryTests(unittest.TestCase):
 
         events = self.repository.list_audit_events(reference.record_id)
         self.assertEqual([event.state for event in events], [ArchiveState.REQUESTED, ArchiveState.VALIDATED])
+
+    def test_sqlite_path_is_derived_from_configured_database_url(self) -> None:
+        self.assertEqual(sqlite_path_from_database_url("sqlite:///./email_vault.db"), Path("email_vault.db"))
+
+        with self.assertRaises(ApiError):
+            sqlite_path_from_database_url("postgresql://example.invalid/email_vault")
 
 
 if __name__ == "__main__":

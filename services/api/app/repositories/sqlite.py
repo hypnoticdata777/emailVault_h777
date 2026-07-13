@@ -4,9 +4,21 @@ import sqlite3
 from contextlib import closing
 from datetime import datetime
 from pathlib import Path
+from urllib.parse import unquote
 
 from services.api.app.domain.contracts import ApiError, ArchiveRecordReference, ArchiveState, ErrorCategory
 from services.api.app.repositories.interfaces import AuditEvent
+
+
+def sqlite_path_from_database_url(database_url: str) -> Path:
+    """Translate the configured local SQLite URL into a filesystem path."""
+    prefix = "sqlite:///"
+    if not database_url.startswith(prefix):
+        raise ApiError(ErrorCategory.STORAGE_UNAVAILABLE, "Only sqlite:/// URLs are supported in local P2.")
+    raw_path = unquote(database_url.removeprefix(prefix))
+    if not raw_path:
+        raise ApiError(ErrorCategory.STORAGE_UNAVAILABLE, "SQLite database path is required.")
+    return Path(raw_path)
 
 
 SCHEMA_SQL = """

@@ -50,6 +50,7 @@ dependencies:
 
 ```powershell
 python -m pip install -e ".[api,test]"
+python -m services.api.app.cli init-db
 python -m pytest
 uvicorn services.api.app.main:app --reload
 ```
