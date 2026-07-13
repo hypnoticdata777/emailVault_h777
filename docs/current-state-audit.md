@@ -85,6 +85,9 @@ scaffold, and a Playwright/Chromium adapter boundary.
   dependencies on push and pull request.
 - A preview-only Gmail Workspace Add-on shell exists with homepage/contextual
   cards, preference capture, and tests that guard against Gmail mutation calls.
+- Add-on-to-backend HMAC request signing exists as a dormant boundary. The API
+  can enforce signature headers when configured, and the Apps Script shell can
+  build matching signed request options without calling the backend yet.
 - Docker runtime packaging exists for the API with non-root execution,
   persistent `/data` paths, healthcheck, `.dockerignore`, and CI build
   validation.
@@ -113,7 +116,7 @@ The API skeleton requires optional dependencies.
   Google verifier validation still belongs in a private environment.
 - Browser-backed PDF smoke test is opt-in and not part of default CI yet.
 - No Gmail attachment fetcher is wired into the trusted content provider yet.
-- No add-on-to-backend archive request flow exists yet.
+- No live add-on-to-backend archive request flow exists yet.
 - No API route returns Gmail finalization instructions yet.
 - No HTTPS deployment target is selected yet.
 
@@ -126,8 +129,8 @@ current API tests intentionally keep Gmail finalization disabled.
 
 ## Recommended Minimal Changes
 
-1. Wire the add-on to the backend archive route after request signing and
-   deployment configuration are ready.
+1. Wire the add-on to call the backend archive route with signed headers after
+   deployment configuration is ready.
 2. Wire Gmail attachment fetch bytes into the trusted attachment content
    provider.
 3. Validate the Google verifier against a real OAuth client before any
