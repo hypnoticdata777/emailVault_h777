@@ -36,13 +36,15 @@ Done:
   requests, disabled JavaScript, and temp workspace cleanup requirements.
 - Adapter-based PDF renderer scaffold with tests for sanitized input, blocked
   network policy, disabled JavaScript, PDF bytes, and temp workspace cleanup.
+- Playwright/Chromium PDF adapter boundary with tests for JavaScript-disabled
+  context creation, route abort handling, PDF options, and close calls.
 - Archive coordinator that validates, fingerprints, checks duplicates, and keeps
   Gmail finalization disabled until storage verification exists.
 
 Next:
 
-1. Add the Playwright/Chromium adapter behind the renderer scaffold.
-2. Add renderer/storage integration after real renderer checks pass.
+1. Add optional local renderer setup docs and a browser-backed smoke test path.
+2. Add renderer/storage integration after browser-backed checks pass.
 3. Add storage completion state transitions after verification is wired.
 
 ## Thread vs Email
@@ -71,6 +73,14 @@ python -m pip install -e ".[api,test]"
 python -m services.api.app.cli init-db
 python -m pytest
 python -m uvicorn services.api.app.main:app --reload
+```
+
+To prepare local PDF rendering, install the renderer optional dependency and
+Chromium browser runtime:
+
+```powershell
+python -m pip install -e ".[renderer]"
+python -m playwright install chromium
 ```
 
 The archive route is intentionally not a real preservation endpoint yet. In P2,

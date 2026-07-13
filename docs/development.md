@@ -17,6 +17,16 @@ python -m pip install -e ".[api,test]"
 The project currently uses optional dependencies for the API and tests:
 FastAPI, Pydantic v2, Uvicorn, httpx, and pytest.
 
+Renderer work uses a separate optional dependency so standard tests stay light:
+
+```powershell
+python -m pip install -e ".[renderer]"
+python -m playwright install chromium
+```
+
+The renderer optional dependency is not required for the standard-library unit
+suite. It is needed before running browser-backed PDF rendering locally.
+
 ## Configure
 
 Copy `.env.example` only when you need a local environment file. Keep real
@@ -65,6 +75,6 @@ to a later phase.
 ## Current Limits
 
 The archive route validates input, checks duplicate state, and returns controlled
-responses. It does not render PDFs, stage storage, write completed revisions,
-label Gmail, mark messages read, or archive Gmail.
-
+responses. The renderer scaffold and Playwright adapter boundary exist, but the
+archive route does not yet render PDFs, stage storage, write completed
+revisions, label Gmail, mark messages read, or archive Gmail.

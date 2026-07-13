@@ -14,8 +14,8 @@ The P1 foundation uses Python standard-library modules so the core contracts and
 invariant tests can run immediately without package installation. P2 adds
 FastAPI/Pydantic modules behind optional dependencies. Early P3 work adds
 dependency-light sanitization, renderer-safe snapshot preparation, artifact
-manifest planning, the PDF renderer boundary ADR, and an adapter-based renderer
-scaffold.
+manifest planning, the PDF renderer boundary ADR, an adapter-based renderer
+scaffold, and a Playwright/Chromium adapter boundary.
 
 ## What Already Works
 
@@ -50,6 +50,9 @@ scaffold.
 - The first PDF renderer scaffold builds renderer HTML from sanitized snapshots,
   applies disabled-JavaScript and blocked-network policy, reads generated PDF
   bytes, and cleans temporary workspaces on success and failure.
+- The Playwright adapter boundary creates JavaScript-disabled Chromium contexts,
+  registers route abortion for network requests, renders PDF output, and closes
+  browser resources.
 - Local API runs can bootstrap the configured SQLite schema with
   `python -m services.api.app.cli init-db`.
 - Developer setup, current API behavior, and data model notes are documented in
@@ -74,7 +77,7 @@ The API skeleton requires optional dependencies.
 - No HTTPS API entry point exists yet.
 - No production Google identity verification exists yet; the local verifier is
   synthetic.
-- No real Playwright/Chromium adapter exists yet.
+- No browser-backed PDF smoke test exists yet.
 - No attachment fetcher or permitted attachment copy flow exists yet.
 - No production audit event service or completion state transition exists yet.
 - No Gmail finalization callback exists yet.
@@ -90,7 +93,7 @@ current API tests intentionally keep Gmail finalization disabled.
 
 ## Recommended Minimal Changes
 
-1. Add the Playwright/Chromium adapter behind the renderer scaffold.
-2. Keep renderer/storage integration behind real renderer, cleanup, and
-   checksum-verification tests.
+1. Add optional local renderer setup docs and a browser-backed PDF smoke test.
+2. Keep renderer/storage integration behind browser-backed rendering, cleanup,
+   and checksum-verification tests.
 3. Add CI once package dependencies and command choices are stable.

@@ -48,11 +48,13 @@ future generated outputs. The PDF renderer boundary is now recorded in ADR
 0003 before renderer implementation begins. The first renderer scaffold now
 uses an adapter boundary so tests can verify sanitized input, disabled
 JavaScript, blocked network policy, PDF artifact bytes, and temporary workspace
-cleanup before Playwright/Chromium is wired in.
+cleanup. The Playwright/Chromium adapter boundary is wired behind that scaffold
+with tests for JavaScript-disabled contexts, route abortion, PDF options, and
+browser resource cleanup.
 
 ## Later Phases
 
-- P3: add the Playwright/Chromium adapter behind the renderer scaffold.
+- P3: add optional local renderer setup docs and a browser-backed smoke test.
 - P4: connect renderer output to storage staging and verification.
 - P5: record completion state transitions only after storage verification.
 - P6: Gmail Add-on flow and finalization callbacks.

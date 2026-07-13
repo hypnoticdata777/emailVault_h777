@@ -75,8 +75,12 @@ workspace, and clean that workspace on success and failure.
 The current renderer scaffold keeps Playwright behind an adapter boundary. It
 builds renderer HTML from `RendererSafeThreadSnapshot`, applies a policy with
 JavaScript disabled and network blocking enabled, reads generated PDF bytes, and
-cleans the temporary workspace before returning. The real Playwright adapter is
-still pending.
+cleans the temporary workspace before returning.
+
+The Playwright adapter boundary creates a Chromium context with JavaScript
+disabled, registers a route handler that aborts network requests, renders the
+safe HTML to PDF, and closes browser resources. Browser-backed smoke tests and
+renderer/storage integration are still pending.
 
 Rendering a PDF is not enough to complete an archive. Completion still requires
 storage staging, checksum verification, persisted state, and only then Gmail

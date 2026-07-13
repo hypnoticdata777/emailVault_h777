@@ -11,6 +11,9 @@ api = [
     "pydantic>=2.10.0",
     "uvicorn[standard]>=0.35.0",
 ]
+renderer = [
+    "playwright",
+]
 test = [
     "httpx>=0.28.0",
     "pytest>=8.3.0",
