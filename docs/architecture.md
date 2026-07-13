@@ -30,7 +30,7 @@ Gmail Workspace Add-on
 ```text
 services/api/app/core/          Settings and defaults
 services/api/app/domain/        Contracts, error categories, state policy
-services/api/app/services/      Storage and audit helper boundaries
+services/api/app/services/      Archive, revision planning, storage boundaries
 tests/fixtures/emails/          Synthetic canonical and security fixtures
 docs/adr/                       Architecture decision records
 ```
@@ -44,3 +44,9 @@ docs/adr/                       Architecture decision records
   and tokens.
 - Rendering must not execute email JavaScript or fetch remote resources.
 
+## Storage Boundary
+
+The storage provider boundary stages generated artifacts and verifies checksums.
+It does not decide that a revision is completed and it never triggers Gmail
+finalization. Later phases must call storage only after sanitization/rendering
+has produced safe artifacts, then persist state only after verification succeeds.

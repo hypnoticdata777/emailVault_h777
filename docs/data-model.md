@@ -87,3 +87,11 @@ The local SQLite repository stores:
 
 It must not store email subjects, bodies, addresses, filenames, PDFs,
 attachments, or tokens.
+
+## Stored Artifact
+
+A stored artifact is a generated output such as metadata JSON, attachment
+manifest, sanitized PDF, or an allowed attachment copy.
+
+Storage paths use trusted server-generated names. Original attachment filenames
+remain metadata only and must never become directory names or storage paths.

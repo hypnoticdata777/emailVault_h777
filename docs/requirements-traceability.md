@@ -26,3 +26,4 @@
 | Local API uses configured SQLite persistence | P2 | `test_archive_returns_duplicate_when_snapshot_already_exists`, `test_sqlite_path_is_derived_from_configured_database_url` |
 | Project setup and API behavior are documented | P2 | `docs/development.md`, `docs/api.md`, `docs/data-model.md` |
 | Safe revision planning does not write completed records | P2 | `test_new_gmail_thread_gets_server_generated_vault_and_record_ids`, `test_updated_thread_reuses_existing_vault_thread_and_increments_revision` |
+| Storage verifies artifacts before completion | P2/P4 | `test_stage_and_verify_copies_artifact_and_reports_verified_result`, `test_stage_and_verify_removes_partial_record_directory_on_checksum_failure` |

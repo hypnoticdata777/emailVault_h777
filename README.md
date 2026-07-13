@@ -19,14 +19,16 @@ Done:
 - Google identity verification boundary with a synthetic local verifier.
 - SQLite revision/audit repository for local P2 persistence tests.
 - Safe revision planner for duplicate, new-thread, and updated-thread decisions.
+- Local storage provider boundary that stages generated artifacts and verifies
+  checksums without marking revisions completed.
 - Archive coordinator that validates, fingerprints, checks duplicates, and keeps
   Gmail finalization disabled until storage verification exists.
 
 Next:
 
-1. Add the storage provider interface boundary for later verified storage.
-2. Add a local development storage stub that cannot mark revisions completed.
-3. Start P3 sanitization and remote-resource blocking.
+1. Add a security/privacy documentation pass.
+2. Start P3 sanitization and remote-resource blocking.
+3. Add renderer/storage integration only after sanitization tests are stable.
 
 ## Thread vs Email
 

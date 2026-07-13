@@ -35,8 +35,11 @@ The safe revision planner now prepares duplicate or new-revision decisions
 without writing completed records. It reuses the existing vault thread for
 updated Gmail threads and generates server-owned IDs for new vault threads.
 
-Remaining P2 work is to add the first explicit storage provider interface and a
-no-op/local-development implementation boundary for later P4 work.
+The first explicit storage provider boundary now stages generated artifacts and
+verifies checksums in local development without marking revisions completed.
+
+Remaining P2 work is to add a small security/privacy documentation pass before
+moving into P3 sanitization and remote-resource blocking.
 
 ## Later Phases
 
