@@ -39,3 +39,4 @@
 | Playwright adapter configures safe browser rendering | P3/P5 | `test_adapter_disables_javascript_blocks_network_and_writes_pdf`, `test_adapter_skips_route_when_network_blocking_disabled` |
 | Browser-backed PDF rendering has a local smoke-test path | P3/P5 | `test_real_playwright_adapter_renders_pdf_when_enabled` |
 | Rendered PDF output stages through storage without completion | P4/P5 | `test_stage_and_verify_rendered_pdf_writes_verified_storage_without_completion_state`, `test_stage_and_verify_rendered_pdf_cleans_temp_workspace_on_storage_failure` |
+| Coordinator records verified storage without Gmail finalization | P4/P5 | `test_verified_storage_records_revision_and_verified_audit_without_gmail_finalization`, `test_unverified_storage_result_is_rejected_without_writes` |

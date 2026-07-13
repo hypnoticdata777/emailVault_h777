@@ -96,3 +96,11 @@ on success or failure.
 This is still not archive completion. The bridge returns storage verification
 details only. Persisting `VERIFIED` or `COMPLETED` state remains a later
 coordinator step.
+
+## Verified Storage State Boundary
+
+The archive coordinator can now record a verified storage result by creating the
+planned revision and appending `RENDERED`, `STAGED`, and `VERIFIED` audit
+events. The coordinator still does not append `COMPLETED`, does not create Gmail
+finalization instructions, and does not expose partially verified work as a
+completed archive.

@@ -82,6 +82,10 @@ Rendered PDF storage staging must remain separate from archive completion. A
 verified checksum proves the local storage copy succeeded, but it does not by
 itself permit Gmail labeling, mark-read, or archive operations.
 
+Coordinator audit may record `VERIFIED` after storage succeeds. Gmail
+finalization still requires a later completed-preservation step and must not be
+enabled from `VERIFIED` alone.
+
 ## Fixtures and Demo Data
 
 The repository and public demo must use synthetic data only. Fixture addresses

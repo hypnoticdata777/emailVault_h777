@@ -1,17 +1,30 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
+from datetime import UTC, datetime
+
 from services.api.app.auth.identity import GoogleIdentity
 from services.api.app.core.settings import load_settings
 from services.api.app.domain.contracts import (
     ApiError,
+    ArchiveRecordReference,
     ArchiveResult,
+    ArchiveState,
     ArchiveStatus,
     ErrorCategory,
     GmailFinalizationInstructions,
+    VerificationSummary,
 )
 from services.api.app.domain.contracts import ArchiveThreadRequest
-from services.api.app.repositories.interfaces import RevisionRepository
+from services.api.app.repositories.interfaces import AuditEvent, RevisionRepository
+from services.api.app.services.storage.provider import StageAndVerifyResult
 from services.api.app.services.revision_planner import RevisionPlanner, RevisionPlanStatus
+
+
+@dataclass(frozen=True)
+class StorageVerificationOutcome:
+    record: ArchiveRecordReference
+    verification: VerificationSummary
 
 
 class ArchiveCoordinator:
@@ -48,5 +61,41 @@ class ArchiveCoordinator:
             error=ApiError(
                 ErrorCategory.UNEXPECTED_INTERNAL,
                 "Archive execution is not implemented in P2. Gmail finalization is disabled.",
+            ),
+        )
+
+    def record_verified_storage(
+        self,
+        identity: GoogleIdentity,
+        gmail_thread_id: str,
+        reference: ArchiveRecordReference,
+        storage_result: StageAndVerifyResult,
+        verified_at: datetime | None = None,
+    ) -> StorageVerificationOutcome:
+        """Persist verified storage state without completing or finalizing Gmail."""
+
+        if not identity.email_verified:
+            raise ApiError(
+                ErrorCategory.AUTHENTICATION_AUTHORIZATION,
+                "Verified Google email is required.",
+                "identity.email_verified",
+            )
+        if not storage_result.verified:
+            raise ApiError(ErrorCategory.STORAGE_VERIFICATION, "Storage verification did not succeed.", "storage")
+
+        active_verified_at = verified_at or datetime.now(UTC)
+        created = self.repository.create_revision(identity.subject, gmail_thread_id, reference)
+        for state in (ArchiveState.RENDERED, ArchiveState.STAGED, ArchiveState.VERIFIED):
+            self.repository.append_audit_event(
+                AuditEvent(record_id=created.record_id, state=state, occurred_at=active_verified_at)
+            )
+
+        return StorageVerificationOutcome(
+            record=created,
+            verification=VerificationSummary(
+                verified=True,
+                artifact_count=len(storage_result.artifacts),
+                total_bytes=storage_result.total_bytes,
+                verified_at=active_verified_at,
             ),
         )

@@ -41,13 +41,14 @@ Done:
 - Opt-in browser-backed renderer smoke test path for local Chromium PDF checks.
 - Renderer PDF output can be staged through the storage provider and checksum
   verified without marking revisions completed.
+- Archive coordinator can persist a verified storage revision and audit
+  `RENDERED`, `STAGED`, and `VERIFIED` without completing or finalizing Gmail.
 - Archive coordinator that validates, fingerprints, checks duplicates, and keeps
   Gmail finalization disabled until storage verification exists.
 
 Next:
 
-1. Add storage completion state transitions after verification is wired into the
-   archive coordinator.
+1. Add storage completion state transitions after verified preservation is ready.
 2. Add Gmail finalization callback only after completed preservation exists.
 3. Add CI once dependency and smoke-test commands are stable.
 

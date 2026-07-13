@@ -163,3 +163,18 @@ It writes the rendered PDF to a temporary source file, calls storage staging and
 checksum verification, then removes the temporary source workspace. It does not
 write archive state, expose a completed revision, or trigger Gmail
 finalization.
+
+## Storage Verification Outcome
+
+A storage verification outcome is the coordinator-level record that storage was
+verified for a planned revision.
+
+The current coordinator can:
+
+- create the planned revision only after storage reports `verified=True`;
+- append `RENDERED`, `STAGED`, and `VERIFIED` audit events;
+- return a verification summary with artifact count, total bytes, and verified
+  time.
+
+It does not append `COMPLETED`, return Gmail finalization instructions, or make
+the public API report a completed preservation flow yet.
