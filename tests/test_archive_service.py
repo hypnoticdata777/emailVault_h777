@@ -34,8 +34,11 @@ class FakeRevisionRepository:
             return self.duplicate
         return None
 
+    def find_latest_for_thread(self, owner_subject: str, gmail_thread_id: str) -> ArchiveRecordReference | None:
+        return None
+
     def next_revision_for_thread(self, owner_subject: str, gmail_thread_id: str) -> int:
-        raise NotImplementedError
+        return 1
 
     def append_audit_event(self, event: AuditEvent) -> None:
         raise NotImplementedError

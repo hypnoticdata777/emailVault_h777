@@ -112,6 +112,20 @@ class SqliteRevisionRepository:
             ).fetchone()
         return self._reference_from_row(row) if row else None
 
+    def find_latest_for_thread(self, owner_subject: str, gmail_thread_id: str) -> ArchiveRecordReference | None:
+        with closing(self._connect()) as connection:
+            row = connection.execute(
+                """
+                SELECT vault_thread_id, revision, record_id, snapshot_sha256
+                FROM archive_records
+                WHERE owner_subject = ? AND gmail_thread_id = ?
+                ORDER BY revision DESC
+                LIMIT 1
+                """,
+                (owner_subject, gmail_thread_id),
+            ).fetchone()
+        return self._reference_from_row(row) if row else None
+
     def next_revision_for_thread(self, owner_subject: str, gmail_thread_id: str) -> int:
         with closing(self._connect()) as connection:
             row = connection.execute(

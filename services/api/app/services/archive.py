@@ -8,10 +8,10 @@ from services.api.app.domain.contracts import (
     ArchiveStatus,
     ErrorCategory,
     GmailFinalizationInstructions,
-    snapshot_fingerprint,
 )
 from services.api.app.domain.contracts import ArchiveThreadRequest
 from services.api.app.repositories.interfaces import RevisionRepository
+from services.api.app.services.revision_planner import RevisionPlanner, RevisionPlanStatus
 
 
 class ArchiveCoordinator:
@@ -34,12 +34,11 @@ class ArchiveCoordinator:
             )
 
         request.validate(load_settings())
-        fingerprint = snapshot_fingerprint(request.thread)
-        existing_record = self.repository.find_by_snapshot_hash(identity.subject, fingerprint)
-        if existing_record:
+        plan = RevisionPlanner(self.repository).plan(identity.subject, request.thread)
+        if plan.status == RevisionPlanStatus.DUPLICATE:
             return ArchiveResult(
                 status=ArchiveStatus.DUPLICATE,
-                record=existing_record,
+                record=plan.reference,
                 gmail_finalization=GmailFinalizationInstructions(enabled=False),
             )
 

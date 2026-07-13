@@ -32,6 +32,8 @@ FastAPI/Pydantic modules behind optional dependencies.
   disabled until archive execution is implemented.
 - SQLite-backed revision persistence stores owner-scoped archive references and
   ordered audit events without storing email content.
+- The archive coordinator now uses a safe revision planner for duplicate,
+  new-thread, and updated-thread decisions without writing completed records.
 - Local API runs can bootstrap the configured SQLite schema with
   `python -m services.api.app.cli init-db`.
 - Developer setup, current API behavior, and data model notes are documented in
@@ -53,8 +55,6 @@ The API skeleton requires optional dependencies.
 - No Gmail Workspace Add-on exists yet.
 - No HTTPS API entry point exists yet.
 - No Google identity verification exists yet.
-- No service orchestration layer wires identity, duplicate lookup, and revision
-  persistence into the archive route yet.
 - No sanitizer, renderer, attachment fetcher, storage provider, PDF generation,
   audit event store, or Gmail finalization callback exists yet.
 - No CI workflow exists yet; the project has no remote commit history to extend.

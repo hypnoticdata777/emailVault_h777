@@ -25,3 +25,4 @@
 | New P2 archive requests do not create unverified records | P2 | `test_new_snapshot_returns_controlled_failed_stub_without_writes` |
 | Local API uses configured SQLite persistence | P2 | `test_archive_returns_duplicate_when_snapshot_already_exists`, `test_sqlite_path_is_derived_from_configured_database_url` |
 | Project setup and API behavior are documented | P2 | `docs/development.md`, `docs/api.md`, `docs/data-model.md` |
+| Safe revision planning does not write completed records | P2 | `test_new_gmail_thread_gets_server_generated_vault_and_record_ids`, `test_updated_thread_reuses_existing_vault_thread_and_increments_revision` |

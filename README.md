@@ -18,13 +18,14 @@ Done:
 - Pydantic v2 request/response schemas.
 - Google identity verification boundary with a synthetic local verifier.
 - SQLite revision/audit repository for local P2 persistence tests.
+- Safe revision planner for duplicate, new-thread, and updated-thread decisions.
 - Archive coordinator that validates, fingerprints, checks duplicates, and keeps
   Gmail finalization disabled until storage verification exists.
 
 Next:
 
-1. Add configured SQLite dependency/bootstrap command for local API runs.
-2. Add service tests for the full duplicate/new-revision decision path.
+1. Add the storage provider interface boundary for later verified storage.
+2. Add a local development storage stub that cannot mark revisions completed.
 3. Start P3 sanitization and remote-resource blocking.
 
 ## Thread vs Email
@@ -52,7 +53,7 @@ dependencies:
 python -m pip install -e ".[api,test]"
 python -m services.api.app.cli init-db
 python -m pytest
-uvicorn services.api.app.main:app --reload
+python -m uvicorn services.api.app.main:app --reload
 ```
 
 The archive route is intentionally not a real preservation endpoint yet. In P2,

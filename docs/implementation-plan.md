@@ -31,8 +31,12 @@ has a minimal bootstrap command: `python -m services.api.app.cli init-db`.
 Companion docs now cover local development, current API behavior, and the core
 data model.
 
-Remaining P2 work is to add the first safe revision planning service that can
-prepare a new revision reference without marking it completed.
+The safe revision planner now prepares duplicate or new-revision decisions
+without writing completed records. It reuses the existing vault thread for
+updated Gmail threads and generates server-owned IDs for new vault threads.
+
+Remaining P2 work is to add the first explicit storage provider interface and a
+no-op/local-development implementation boundary for later P4 work.
 
 ## Later Phases
 

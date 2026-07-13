@@ -46,6 +46,17 @@ Rules:
 - P2 does not write completed revisions because storage verification does not
   exist yet.
 
+## Revision Plan
+
+A revision plan is a safe P2 decision object. It can say either:
+
+- this snapshot is an exact duplicate of an existing record; or
+- this snapshot should become a new revision later.
+
+The planner may generate server-owned `vault_thread_id` and `record_id` values,
+but it does not write a completed record. That write must wait until later phases
+can stage artifacts, verify storage, and record the state transition safely.
+
 ## Snapshot Fingerprint
 
 The snapshot fingerprint is a deterministic SHA-256 hash of the canonical thread
@@ -76,4 +87,3 @@ The local SQLite repository stores:
 
 It must not store email subjects, bodies, addresses, filenames, PDFs,
 attachments, or tokens.
-

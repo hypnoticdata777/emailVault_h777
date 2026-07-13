@@ -33,6 +33,9 @@ class RevisionRepository(Protocol):
     def find_by_snapshot_hash(self, owner_subject: str, snapshot_sha256: str) -> ArchiveRecordReference | None:
         raise NotImplementedError
 
+    def find_latest_for_thread(self, owner_subject: str, gmail_thread_id: str) -> ArchiveRecordReference | None:
+        raise NotImplementedError
+
     def next_revision_for_thread(self, owner_subject: str, gmail_thread_id: str) -> int:
         raise NotImplementedError
 

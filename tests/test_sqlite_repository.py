@@ -81,6 +81,19 @@ class SqliteRevisionRepositoryTests(unittest.TestCase):
         self.assertEqual(self.repository.next_revision_for_thread("google-subject-example", "gmail-thread-example"), 3)
         self.assertEqual(self.repository.next_revision_for_thread("other-google-subject-example", "gmail-thread-example"), 1)
 
+    def test_find_latest_for_thread_returns_highest_revision(self) -> None:
+        original = self._reference(revision=1)
+        updated = self._reference(
+            revision=2,
+            fingerprint=snapshot_fingerprint(load_fixture("updated_thread").thread),
+        )
+
+        self.repository.create_revision("google-subject-example", "gmail-thread-example", original)
+        self.repository.create_revision("google-subject-example", "gmail-thread-example", updated)
+
+        latest = self.repository.find_latest_for_thread("google-subject-example", "gmail-thread-example")
+        self.assertEqual(latest, updated)
+
     def test_audit_events_are_appended_in_order(self) -> None:
         reference = self._reference()
         self.repository.create_revision("google-subject-example", "gmail-thread-example", reference)
