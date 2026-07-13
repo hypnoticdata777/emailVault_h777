@@ -10,19 +10,30 @@ from pathlib import Path
 HAS_FASTAPI = importlib.util.find_spec("fastapi") is not None and importlib.util.find_spec("httpx") is not None
 
 
+class FakePdfRendererAdapter:
+    def render_pdf(self, html_content, output_path, policy) -> None:
+        del html_content, policy
+        output_path.write_bytes(b"%PDF-1.4 synthetic api route pdf")
+
+
 @unittest.skipUnless(HAS_FASTAPI, "FastAPI/httpx are not installed")
 class ApiTests(unittest.TestCase):
     def setUp(self) -> None:
         from fastapi.testclient import TestClient
-        from services.api.app.api.dependencies import get_revision_repository
+        from services.api.app.api.dependencies import get_pdf_renderer_adapter, get_revision_repository, get_storage_provider
         from services.api.app.domain.contracts import ArchiveRecordReference, snapshot_fingerprint
         from services.api.app.main import create_app
         from services.api.app.repositories.sqlite import SqliteRevisionRepository
+        from services.api.app.services.storage.provider import LocalFilesystemStorageProvider
 
         self.temp_dir = tempfile.TemporaryDirectory()
-        self.repository = SqliteRevisionRepository(Path(self.temp_dir.name) / "api-test.db")
+        temp_path = Path(self.temp_dir.name)
+        self.repository = SqliteRevisionRepository(temp_path / "api-test.db")
+        self.storage = LocalFilesystemStorageProvider(temp_path / "storage")
         self.app = create_app()
         self.app.dependency_overrides[get_revision_repository] = lambda: self.repository
+        self.app.dependency_overrides[get_pdf_renderer_adapter] = lambda: FakePdfRendererAdapter()
+        self.app.dependency_overrides[get_storage_provider] = lambda: self.storage
         self.client = TestClient(self.app)
         self.fixture_root = Path(__file__).parent / "fixtures" / "emails"
         self.archive_record_type = ArchiveRecordReference
@@ -44,7 +55,7 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(response.status_code, 401)
         self.assertEqual(response.json()["detail"]["category"], "authentication_authorization")
 
-    def test_archive_stub_validates_and_keeps_gmail_finalization_disabled(self) -> None:
+    def test_archive_preserves_snapshot_and_keeps_gmail_finalization_disabled(self) -> None:
         response = self.client.post(
             "/archive/thread",
             json=self._fixture("plain_text"),
@@ -52,9 +63,15 @@ class ApiTests(unittest.TestCase):
         )
         self.assertEqual(response.status_code, 202)
         body = response.json()
-        self.assertEqual(body["status"], "FAILED")
+        self.assertEqual(body["status"], "PRESERVED")
+        self.assertIsNotNone(body["record"])
+        self.assertTrue(body["verification"]["verified"])
+        self.assertEqual(body["verification"]["artifact_count"], 1)
         self.assertFalse(body["gmail_finalization"]["enabled"])
-        self.assertEqual(body["error"]["category"], "unexpected_internal_error")
+        self.assertIsNone(body["error"])
+
+        audit_states = [event.state.value for event in self.repository.list_audit_events(body["record"]["record_id"])]
+        self.assertEqual(audit_states, ["RENDERED", "STAGED", "VERIFIED", "COMPLETED"])
 
     def test_archive_returns_duplicate_when_snapshot_already_exists(self) -> None:
         payload = self._fixture("duplicate_snapshot")
