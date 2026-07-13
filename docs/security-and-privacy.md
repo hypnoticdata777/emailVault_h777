@@ -81,8 +81,8 @@ Table-heavy emails and attachment-adjacent HTML links must preserve visible text
 while stripping unsafe attributes or unsafe link targets such as `file:` and
 `data:`.
 
-Artifact planning must use generated filenames for future PDF, metadata JSON,
-and manifest JSON outputs. Email-controlled fields such as subjects, Gmail
+Artifact planning must use generated filenames for PDF, metadata JSON, and
+manifest JSON outputs. Email-controlled fields such as subjects, Gmail
 identifiers, and original attachment filenames must not become storage paths.
 
 Rendered PDF storage staging must remain separate from archive completion. A
@@ -97,6 +97,10 @@ Coordinator audit may now record `COMPLETED` after the verified storage state
 transition. `COMPLETED` means the backend preservation record is finished; it
 grants permission to request finalization instructions only through the
 owner-scoped coordinator boundary.
+
+Metadata JSON and manifest JSON may be staged with the generated PDF, but
+permitted attachment copy must remain descriptor-only until the system has
+trusted attachment bytes. Original filenames stay metadata only.
 
 Gmail finalization instructions may now be requested only for a completed record
 owned by the verified Google subject. The callback result may be recorded only
