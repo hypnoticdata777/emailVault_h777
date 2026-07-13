@@ -163,6 +163,16 @@ checksum verification, then removes the temporary source workspace. It does not
 write archive state, expose a completed revision, or trigger Gmail
 finalization.
 
+## Metadata And Manifest Artifacts
+
+Metadata JSON records sanitized thread metadata, message checksums, preferences,
+client context, and the current descriptor-only attachment copy status.
+
+Manifest JSON records the planned artifacts plus generated checksum and byte
+size details for the PDF and metadata JSON. Its own artifact entry is marked as
+not yet generated inside the manifest payload to avoid self-referential checksum
+claims.
+
 ## Storage Verification Outcome
 
 A storage verification outcome is the coordinator-level record that storage was
@@ -190,7 +200,7 @@ safe transition from `VERIFIED`. It does not append
 Gmail.
 
 The archive route can now return `PRESERVED` after this completed backend state
-exists for the generated PDF path.
+exists for the generated PDF, metadata JSON, and manifest JSON artifacts.
 
 ## Gmail Finalization Outcome
 
