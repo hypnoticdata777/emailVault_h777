@@ -166,12 +166,14 @@ finalization.
 ## Metadata And Manifest Artifacts
 
 Metadata JSON records sanitized thread metadata, message checksums, preferences,
-client context, and the current descriptor-only attachment copy status.
+client context, and attachment copy status. When a trusted provider supplies
+bytes, attachment metadata includes the server-generated trusted name and copied
+checksum. Without trusted bytes, it remains descriptor-only.
 
 Manifest JSON records the planned artifacts plus generated checksum and byte
-size details for the PDF and metadata JSON. Its own artifact entry is marked as
-not yet generated inside the manifest payload to avoid self-referential checksum
-claims.
+size details for the PDF, copied attachments, and metadata JSON. Its own
+artifact entry is marked as not yet generated inside the manifest payload to
+avoid self-referential checksum claims.
 
 ## Storage Verification Outcome
 
@@ -200,7 +202,8 @@ safe transition from `VERIFIED`. It does not append
 Gmail.
 
 The archive route can now return `PRESERVED` after this completed backend state
-exists for the generated PDF, metadata JSON, and manifest JSON artifacts.
+exists for the generated PDF, metadata JSON, manifest JSON, and any trusted
+permitted attachment-copy artifacts.
 
 ## Gmail Finalization Outcome
 
