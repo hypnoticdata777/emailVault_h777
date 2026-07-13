@@ -73,8 +73,11 @@ scaffold, and a Playwright/Chromium adapter boundary.
   `python -m services.api.app.cli init-db`.
 - GitHub Actions CI runs the stable Python 3.12 unit test suite with API/test
   dependencies on push and pull request.
+- A preview-only Gmail Workspace Add-on shell exists with homepage/contextual
+  cards, preference capture, and tests that guard against Gmail mutation calls.
 - Developer setup, current API behavior, and data model notes are documented in
-  `docs/development.md`, `docs/api.md`, and `docs/data-model.md`.
+  `docs/development.md`, `docs/api.md`, `docs/addon.md`, and
+  `docs/data-model.md`.
 - Security and privacy boundaries are documented in
   `docs/security-and-privacy.md`.
 
@@ -91,12 +94,13 @@ The API skeleton requires optional dependencies.
 
 ## Gaps Against Target POC
 
-- No Gmail Workspace Add-on exists yet.
+- No deployed Gmail Workspace Add-on or Marketplace package exists yet.
 - No HTTPS API entry point exists yet.
 - No Google OAuth project or Marketplace add-on configuration is committed; real
   Google verifier validation still belongs in a private environment.
 - Browser-backed PDF smoke test is opt-in and not part of default CI yet.
 - No attachment fetcher or permitted attachment copy flow exists yet.
+- No add-on-to-backend archive request flow exists yet.
 - No end-to-end API route returns Gmail finalization instructions yet.
 - No Docker runtime exists yet.
 
@@ -109,7 +113,8 @@ current API tests intentionally keep Gmail finalization disabled.
 
 ## Recommended Minimal Changes
 
-1. Add the Gmail Workspace Add-on shell around the proven backend boundaries.
-2. Add Docker/runtime packaging once route orchestration is ready.
+1. Add Docker/runtime packaging once route orchestration is ready.
+2. Wire the add-on to the backend archive route after the route can complete
+   preservation safely.
 3. Validate the Google verifier against a real OAuth client before any
    real-data demo.
