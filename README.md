@@ -56,11 +56,15 @@ Done:
   dependencies on push and pull request.
 - Production identity blocker reduced to configuration and real Google OAuth
   project validation, with unit tests covering the verifier boundary.
+- Gmail Workspace Add-on shell with homepage/contextual cards, current-message
+  preview behavior, preference capture, and tests proving it does not mutate
+  Gmail.
 
 Next:
 
-1. Add Gmail Workspace Add-on shell around the proven backend boundaries.
-2. Add deployment hardening and runtime packaging.
+1. Add deployment hardening and runtime packaging.
+2. Wire the add-on to the backend archive route once route orchestration is
+   ready.
 3. Validate a real Google OAuth client ID in a private environment before any
    real-data demo.
 
@@ -117,5 +121,6 @@ Key docs:
 
 - `docs/development.md`
 - `docs/api.md`
+- `docs/addon.md`
 - `docs/data-model.md`
 - `docs/security-and-privacy.md`
