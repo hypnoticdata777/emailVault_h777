@@ -14,7 +14,8 @@ class RuntimePackagingTests(unittest.TestCase):
 
     def test_dockerfile_packages_api_runtime(self) -> None:
         self.assertIn("FROM python:3.12-slim", self.dockerfile)
-        self.assertIn('python -m pip install --no-cache-dir ".[api]"', self.dockerfile)
+        self.assertIn('python -m pip install --no-cache-dir ".[api,renderer]"', self.dockerfile)
+        self.assertIn("python -m playwright install --with-deps chromium", self.dockerfile)
         self.assertIn("services.api.app.main:app", self.dockerfile)
         self.assertIn('"--host", "0.0.0.0"', self.dockerfile)
         self.assertIn('"--port", "8000"', self.dockerfile)
