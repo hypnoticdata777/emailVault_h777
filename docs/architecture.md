@@ -16,6 +16,7 @@ API
   -> validate payload and enforce limits
   -> detect duplicate or revision
   -> sanitize HTML and block remote resources
+  -> plan generated artifact manifest with trusted filenames
   -> render PDF, metadata, manifest, checksums in temp workspace
   -> StorageProvider.stage_and_verify()
   -> persist audit and revision state
@@ -52,3 +53,13 @@ The storage provider boundary stages generated artifacts and verifies checksums.
 It does not decide that a revision is completed and it never triggers Gmail
 finalization. Later phases must call storage only after sanitization/rendering
 has produced safe artifacts, then persist state only after verification succeeds.
+
+## Artifact Planning Boundary
+
+The artifact manifest planner names the generated outputs before rendering or
+storage begins. It currently plans a PDF, metadata JSON, and manifest JSON with
+server-generated filenames only.
+
+This keeps artifact identity out of email-controlled fields and gives later
+renderer/storage integration a stable contract without claiming that any file
+has been produced or verified yet.

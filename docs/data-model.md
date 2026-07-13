@@ -117,3 +117,22 @@ text for every message.
 
 The renderer-safe snapshot must not contain raw email HTML. It is a boundary
 between sanitization and future rendering work.
+
+## Artifact Manifest Plan
+
+An artifact manifest plan is the safe list of generated outputs that a future
+archive revision expects to produce.
+
+The current plan includes:
+
+- a PDF artifact;
+- a metadata JSON artifact;
+- a manifest JSON artifact.
+
+Each planned artifact uses a server-generated trusted filename. Email subjects,
+Gmail identifiers, and original attachment filenames must not become storage
+paths.
+
+The plan does not create files, stage storage, or mark a revision completed. It
+exists so rendering and storage can be connected later without guessing artifact
+names at the last moment.

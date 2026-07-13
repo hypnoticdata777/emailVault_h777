@@ -30,14 +30,16 @@ Done:
   inputs.
 - Expanded sanitizer coverage for table-heavy emails and attachment-adjacent
   unsafe links.
+- Artifact manifest planning for future PDF, metadata JSON, and manifest JSON
+  outputs with server-generated filenames only.
 - Archive coordinator that validates, fingerprints, checks duplicates, and keeps
   Gmail finalization disabled until storage verification exists.
 
 Next:
 
-1. Add artifact manifest planning after renderer-safe snapshots are stable.
-2. Add renderer/storage integration only after sanitization tests are stable.
-3. Add PDF renderer ADR before implementing rendering.
+1. Add PDF renderer ADR before implementing rendering.
+2. Add renderer/storage integration only after the ADR is accepted.
+3. Add storage completion state transitions after verification is wired.
 
 ## Thread vs Email
 

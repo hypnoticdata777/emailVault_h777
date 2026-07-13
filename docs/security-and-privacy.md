@@ -74,6 +74,10 @@ Table-heavy emails and attachment-adjacent HTML links must preserve visible text
 while stripping unsafe attributes or unsafe link targets such as `file:` and
 `data:`.
 
+Artifact planning must use generated filenames for future PDF, metadata JSON,
+and manifest JSON outputs. Email-controlled fields such as subjects, Gmail
+identifiers, and original attachment filenames must not become storage paths.
+
 ## Fixtures and Demo Data
 
 The repository and public demo must use synthetic data only. Fixture addresses
