@@ -32,6 +32,8 @@ Default runtime paths:
 
 - `EMAIL_VAULT_STORAGE_ROOT=/data/email-vault-storage`
 - `DATABASE_URL=sqlite:////data/email_vault.db`
+- `EMAIL_VAULT_ADDON_SIGNING_SECRET` is unset by default and must be provided
+  privately before enforcing signed add-on archive requests.
 
 Public-demo requirements still open:
 
@@ -40,5 +42,5 @@ Public-demo requirements still open:
 - choose an HTTPS deployment target;
 - decide whether SQLite is acceptable for the demo or replace it with a managed
   database;
-- wire the add-on to the archive route only after request signing, deployment,
-  and live OAuth settings are ready.
+- wire the add-on to execute signed archive requests only after deployment and
+  live OAuth settings are ready.
