@@ -62,9 +62,12 @@ The coordinator can now request Gmail finalization only from a completed
 owner-scoped record and record callback success or failure only after
 `GMAIL_FINALIZATION_PENDING`. GitHub Actions CI now runs the stable Python 3.12
 test suite with API/test dependencies on push and pull request while keeping the
-browser-backed renderer smoke test opt-in.
+browser-backed renderer smoke test opt-in. The identity boundary now supports
+selectable local synthetic verification or Google ID-token verification for a
+configured OAuth client ID, with tests covering the verifier without calling
+Google.
 
 ## Later Phases
 
-- P6: production identity hardening for public demo use.
-- P7: Gmail Add-on shell and deployment hardening.
+- P6: Gmail Add-on shell around the proven backend boundaries.
+- P7: deployment hardening, runtime packaging, and private OAuth validation.
