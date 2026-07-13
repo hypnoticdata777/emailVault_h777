@@ -71,8 +71,11 @@ scaffold, and a Playwright/Chromium adapter boundary.
   append `COMPLETED`, and return `PRESERVED` while Gmail finalization remains
   disabled.
 - Metadata JSON and manifest JSON artifacts are generated and staged with the
-  PDF. Attachment copy remains descriptor-only until trusted bytes are supplied
-  by an add-on or backend fetcher.
+  PDF.
+- Trusted permitted attachment copy support exists behind an injectable content
+  provider. When bytes are supplied, the archive path verifies size/checksum,
+  stages the attachment under a server-generated name, and records copied status
+  in metadata and manifest JSON.
 - Gmail finalization instructions can be requested only after owner-scoped
   `COMPLETED` state, and callback success/failure can be recorded only after
   `GMAIL_FINALIZATION_PENDING`.
@@ -109,7 +112,7 @@ The API skeleton requires optional dependencies.
 - No Google OAuth project or Marketplace add-on configuration is committed; real
   Google verifier validation still belongs in a private environment.
 - Browser-backed PDF smoke test is opt-in and not part of default CI yet.
-- No attachment fetcher or permitted attachment copy flow exists yet.
+- No Gmail attachment fetcher is wired into the trusted content provider yet.
 - No add-on-to-backend archive request flow exists yet.
 - No API route returns Gmail finalization instructions yet.
 - No HTTPS deployment target is selected yet.
@@ -123,8 +126,9 @@ current API tests intentionally keep Gmail finalization disabled.
 
 ## Recommended Minimal Changes
 
-1. Add trusted permitted attachment fetch/copy support.
-2. Wire the add-on to the backend archive route after request signing and
+1. Wire the add-on to the backend archive route after request signing and
    deployment configuration are ready.
+2. Wire Gmail attachment fetch bytes into the trusted attachment content
+   provider.
 3. Validate the Google verifier against a real OAuth client before any
    real-data demo.
