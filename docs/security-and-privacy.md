@@ -4,7 +4,7 @@ Email Vault handles sensitive email data. The public POC must make its safety
 boundaries explicit before adding Gmail access, sanitization, rendering, or
 storage integration.
 
-## Current P2 Position
+## Current Position
 
 The current build uses synthetic fixtures and a synthetic local identity token.
 It does not connect to Gmail, fetch real messages, render PDFs, mark messages
@@ -52,17 +52,17 @@ The local storage provider can stage generated artifacts and verify checksums,
 but it does not mark a revision completed. Completion requires a later service
 step that records successful verification and state transition.
 
-## Rendering Boundary
+## Sanitization and Rendering Boundary
 
-Future HTML rendering must:
+HTML sanitization must:
 
 - sanitize hostile HTML;
 - block remote resources;
-- avoid remote network fetches;
 - prevent email JavaScript execution;
 - provide a plain-text fallback.
 
-This is the next major implementation area in P3.
+Future rendering must avoid remote network fetches and must consume sanitized
+content, not raw email HTML.
 
 ## Fixtures and Demo Data
 
@@ -88,4 +88,3 @@ Before any public demo:
 - confirm temporary artifacts are removed on success and failure;
 - document every known limitation without claiming legal-grade or byte-perfect
   backup.
-

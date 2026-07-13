@@ -40,11 +40,12 @@ verifies checksums in local development without marking revisions completed.
 
 Security and privacy boundaries are documented for public-ready development.
 
-P2 is now ready to hand off into P3 sanitization and remote-resource blocking.
+P3 has started with dependency-light HTML sanitization, remote image-source
+blocking, script/style content removal, and plain-text fallback.
 
 ## Later Phases
 
-- P3: sanitizer, remote resource blocking, and plain-text fallback.
+- P3: expand sanitizer coverage and thread/message normalization.
 - P4: storage provider staging and verification.
 - P5: PDF renderer with ADR-backed implementation.
 - P6: Gmail Add-on flow and finalization callbacks.

@@ -22,13 +22,15 @@ Done:
 - Local storage provider boundary that stages generated artifacts and verifies
   checksums without marking revisions completed.
 - Security and privacy boundaries documented for public-ready development.
+- First P3 sanitizer pass for hostile HTML, remote image blocking, and
+  plain-text fallback.
 - Archive coordinator that validates, fingerprints, checks duplicates, and keeps
   Gmail finalization disabled until storage verification exists.
 
 Next:
 
-1. Start P3 sanitization and remote-resource blocking.
-2. Add sanitizer tests for malicious HTML, tracking pixels, and plain-text fallback.
+1. Expand sanitizer coverage and normalize sanitized message bodies.
+2. Add sanitizer tests for more edge cases and attachment-adjacent HTML.
 3. Add renderer/storage integration only after sanitization tests are stable.
 
 ## Thread vs Email

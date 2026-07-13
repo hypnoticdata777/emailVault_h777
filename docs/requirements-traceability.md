@@ -28,3 +28,5 @@
 | Safe revision planning does not write completed records | P2 | `test_new_gmail_thread_gets_server_generated_vault_and_record_ids`, `test_updated_thread_reuses_existing_vault_thread_and_increments_revision` |
 | Storage verifies artifacts before completion | P2/P4 | `test_stage_and_verify_copies_artifact_and_reports_verified_result`, `test_stage_and_verify_removes_partial_record_directory_on_checksum_failure` |
 | Security and privacy boundaries are documented | P2 | `docs/security-and-privacy.md` |
+| Sanitizer removes scripts and blocks remote tracking pixels | P3 | `test_malicious_html_removes_script_content_and_keeps_safe_text`, `test_tracking_pixel_blocks_remote_image_source` |
+| Plain-text fallback is available for sanitized HTML | P3 | `test_plain_text_fallback_collapses_blocks` |

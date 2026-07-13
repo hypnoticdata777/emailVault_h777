@@ -43,6 +43,10 @@ Current P2 behavior:
   storage verification, and durable completed revisions are not implemented yet.
 - Always keeps Gmail finalization disabled in P2.
 
+P3 sanitizer work has started, but `/archive/thread` still does not execute a
+full preservation pipeline. Sanitized rendering and storage integration remain
+future route behavior.
+
 Duplicate response shape:
 
 ```json
@@ -101,4 +105,3 @@ unexpected internal errors.
 - Storage provider staging and verification.
 - Completed revision writes.
 - Gmail label, mark-read, archive, or undo behavior.
-
