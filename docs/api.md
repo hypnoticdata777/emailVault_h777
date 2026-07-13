@@ -11,9 +11,14 @@ Protected routes require a bearer credential:
 Authorization: Bearer synthetic-valid-token
 ```
 
-The current verifier is synthetic and exists only for local tests. Later phases
-must replace it with real Google ID-token verification. Backend ownership must
-come from the verified Google identity, never from a request body field.
+By default, local development uses the synthetic verifier and accepts only
+`synthetic-valid-token`. Production-like verification can be selected with
+`EMAIL_VAULT_IDENTITY_VERIFIER=google` and a configured
+`GOOGLE_OAUTH_CLIENT_ID`; in that mode, the bearer credential must be a Google
+ID token issued for the configured OAuth client ID.
+
+Backend ownership must come from the verified Google identity, never from a
+request body field.
 
 ## `GET /health`
 
@@ -104,7 +109,8 @@ unexpected internal errors.
 
 ## Not Yet Implemented
 
-- Production Google OAuth or Marketplace add-on authentication.
+- Google Marketplace add-on authentication and UI shell.
+- Private-environment validation against a real Google OAuth project.
 - End-to-end route execution for sanitization, rendering, and storage
   verification.
 - End-to-end archive route orchestration.
