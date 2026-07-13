@@ -5,6 +5,7 @@ from fastapi.responses import JSONResponse
 
 from services.api.app.api.dependencies import (
     RequestIdentity,
+    get_attachment_content_provider,
     get_pdf_renderer_adapter,
     get_revision_repository,
     get_storage_provider,
@@ -21,6 +22,7 @@ from services.api.app.domain.contracts import ApiError, ErrorCategory
 from services.api.app.repositories.interfaces import RevisionRepository
 from services.api.app.services.archive import ArchiveCoordinator
 from services.api.app.services.rendering.pdf import PdfRendererAdapter
+from services.api.app.services.storage.attachments import AttachmentContentProvider
 from services.api.app.services.storage.provider import StorageProvider
 
 
@@ -39,6 +41,7 @@ async def archive_thread(
     repository: RevisionRepository = Depends(get_revision_repository),
     pdf_renderer: PdfRendererAdapter = Depends(get_pdf_renderer_adapter),
     storage_provider: StorageProvider = Depends(get_storage_provider),
+    attachment_content_provider: AttachmentContentProvider = Depends(get_attachment_content_provider),
 ) -> ArchiveResultSchema:
     # Gmail mutation remains disabled here. The route may complete backend
     # preservation, but finalization instructions stay behind the explicit
@@ -48,6 +51,7 @@ async def archive_thread(
         identity.google_identity,
         pdf_renderer,
         storage_provider,
+        attachment_content_provider,
     )
     return ArchiveResultSchema.from_domain(result)
 
