@@ -19,8 +19,13 @@ from services.api.app.domain.contracts import (
 from services.api.app.domain.contracts import ArchiveThreadRequest
 from services.api.app.domain.state import assert_transition_allowed
 from services.api.app.repositories.interfaces import AuditEvent, RevisionRepository
+from services.api.app.services.rendering.manifest import plan_artifact_manifest
+from services.api.app.services.rendering.pdf import PdfRendererAdapter, render_pdf_from_safe_thread
+from services.api.app.services.rendering.snapshot import prepare_renderer_safe_thread
 from services.api.app.services.revision_planner import RevisionPlanner, RevisionPlanStatus
+from services.api.app.services.storage.rendered_artifacts import stage_and_verify_rendered_pdf
 from services.api.app.services.storage.provider import StageAndVerifyResult
+from services.api.app.services.storage.provider import StorageProvider
 
 
 @dataclass(frozen=True)
@@ -50,12 +55,7 @@ class GmailFinalizationCallbackOutcome:
 
 
 class ArchiveCoordinator:
-    """Coordinates the P2 archive decision without performing preservation.
-
-    Later phases will add sanitizer, renderer, storage verification, and durable
-    state writes here. For now, the coordinator proves the ordering: authenticate,
-    validate, fingerprint, check duplicate, and keep Gmail finalization disabled.
-    """
+    """Coordinates preservation while keeping Gmail finalization separate."""
 
     def __init__(self, repository: RevisionRepository) -> None:
         self.repository = repository
@@ -84,6 +84,45 @@ class ArchiveCoordinator:
                 ErrorCategory.UNEXPECTED_INTERNAL,
                 "Archive execution is not implemented in P2. Gmail finalization is disabled.",
             ),
+        )
+
+    def preserve(
+        self,
+        request: ArchiveThreadRequest,
+        identity: GoogleIdentity,
+        pdf_renderer: PdfRendererAdapter,
+        storage_provider: StorageProvider,
+    ) -> ArchiveResult:
+        """Run the preservation pipeline through completion without mutating Gmail."""
+
+        if not identity.email_verified:
+            raise ApiError(
+                ErrorCategory.AUTHENTICATION_AUTHORIZATION,
+                "Verified Google email is required.",
+                "identity.email_verified",
+            )
+
+        request.validate(load_settings())
+        plan = RevisionPlanner(self.repository).plan(identity.subject, request.thread)
+        if plan.status == RevisionPlanStatus.DUPLICATE:
+            return ArchiveResult(
+                status=ArchiveStatus.DUPLICATE,
+                record=plan.reference,
+                gmail_finalization=GmailFinalizationInstructions(enabled=False),
+            )
+
+        safe_thread = prepare_renderer_safe_thread(request.thread)
+        manifest = plan_artifact_manifest(plan.reference, safe_thread)
+        rendered_pdf = render_pdf_from_safe_thread(safe_thread, manifest, pdf_renderer)
+        storage_result = stage_and_verify_rendered_pdf(plan.reference.record_id, rendered_pdf, storage_provider)
+        verified = self.record_verified_storage(identity, plan.gmail_thread_id, plan.reference, storage_result)
+        completed = self.record_completed_preservation(identity, verified.record)
+
+        return ArchiveResult(
+            status=ArchiveStatus.PRESERVED,
+            record=completed.record,
+            verification=verified.verification,
+            gmail_finalization=GmailFinalizationInstructions(enabled=False),
         )
 
     def record_verified_storage(
