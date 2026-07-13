@@ -59,6 +59,34 @@ class FakeRevisionRepository:
         return tuple(event for event in self.audit_events if event.record_id == record_id)
 
 
+class FakePdfRendererAdapter:
+    def render_pdf(self, html_content, output_path, policy) -> None:
+        self.html_content = html_content
+        self.policy = policy
+        output_path.write_bytes(b"%PDF-1.4 synthetic archive pdf")
+
+
+class FakeStorageProvider:
+    def __init__(self) -> None:
+        self.record_ids: list[str] = []
+
+    def stage_and_verify(self, request) -> StageAndVerifyResult:
+        self.record_ids.append(request.record_id)
+        return StageAndVerifyResult(
+            verified=True,
+            artifacts=tuple(
+                StoredArtifact(
+                    trusted_name=artifact.trusted_name,
+                    storage_path=f"{request.record_id}/{artifact.trusted_name}",
+                    sha256=artifact.sha256,
+                    size_bytes=artifact.size_bytes,
+                )
+                for artifact in request.artifacts
+            ),
+            total_bytes=sum(artifact.size_bytes for artifact in request.artifacts),
+        )
+
+
 class ArchiveCoordinatorTests(unittest.TestCase):
     def _identity(self, email_verified: bool = True) -> GoogleIdentity:
         return GoogleIdentity(
@@ -91,6 +119,49 @@ class ArchiveCoordinatorTests(unittest.TestCase):
         self.assertIsNone(result.record)
         self.assertFalse(result.gmail_finalization.enabled)
         self.assertIsNotNone(result.error)
+
+    def test_preserve_new_snapshot_records_completed_archive_without_gmail_finalization(self) -> None:
+        repository = FakeRevisionRepository()
+        renderer = FakePdfRendererAdapter()
+        storage = FakeStorageProvider()
+
+        result = ArchiveCoordinator(repository).preserve(load_fixture("plain_text"), self._identity(), renderer, storage)
+
+        self.assertEqual(result.status, ArchiveStatus.PRESERVED)
+        self.assertIsNotNone(result.record)
+        self.assertIsNotNone(result.verification)
+        self.assertTrue(result.verification.verified)
+        self.assertEqual(result.verification.artifact_count, 1)
+        self.assertFalse(result.gmail_finalization.enabled)
+        self.assertIn("Plain synthetic message for Email Vault.", renderer.html_content)
+        self.assertEqual(storage.record_ids, [result.record.record_id])
+        self.assertEqual(
+            [event.state for event in repository.audit_events],
+            [ArchiveState.RENDERED, ArchiveState.STAGED, ArchiveState.VERIFIED, ArchiveState.COMPLETED],
+        )
+        self.assertNotIn(ArchiveState.GMAIL_FINALIZATION_PENDING, [event.state for event in repository.audit_events])
+
+    def test_preserve_duplicate_snapshot_returns_existing_record_without_rendering(self) -> None:
+        request = load_fixture("duplicate_snapshot")
+        existing = ArchiveRecordReference(
+            vault_thread_id="vault-thread-example",
+            revision=1,
+            record_id="record-existing",
+            snapshot_sha256=snapshot_fingerprint(request.thread),
+        )
+        renderer = FakePdfRendererAdapter()
+
+        result = ArchiveCoordinator(FakeRevisionRepository(duplicate=existing)).preserve(
+            request,
+            self._identity(),
+            renderer,
+            FakeStorageProvider(),
+        )
+
+        self.assertEqual(result.status, ArchiveStatus.DUPLICATE)
+        self.assertEqual(result.record, existing)
+        self.assertFalse(result.gmail_finalization.enabled)
+        self.assertFalse(hasattr(renderer, "html_content"))
 
     def test_unverified_google_email_is_rejected(self) -> None:
         with self.assertRaises(ApiError):
