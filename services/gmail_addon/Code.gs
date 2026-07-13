@@ -1,5 +1,8 @@
 const ADD_ON_TITLE = 'Email Vault';
 const DEFAULT_CATEGORY = 'General';
+const BACKEND_SIGNATURE_VERSION = 'v1';
+const BACKEND_TIMESTAMP_HEADER = 'X-Email-Vault-Timestamp';
+const BACKEND_SIGNATURE_HEADER = 'X-Email-Vault-Signature';
 
 /**
  * Home card shown when Gmail has not provided a selected message context.
@@ -122,4 +125,51 @@ function formValue_(event, fieldName) {
     return field.dateInput.msSinceEpoch;
   }
   return '';
+}
+
+function buildSignedArchiveRequestOptions_(path, payload, signingSecret, idToken, timestamp) {
+  const body = JSON.stringify(payload);
+  const requestedAt = timestamp || String(Math.floor(Date.now() / 1000));
+  const signature = signBackendRequest_('POST', path, requestedAt, body, signingSecret);
+  return {
+    method: 'post',
+    contentType: 'application/json',
+    payload: body,
+    muteHttpExceptions: true,
+    headers: {
+      Authorization: 'Bearer ' + idToken,
+      [BACKEND_TIMESTAMP_HEADER]: requestedAt,
+      [BACKEND_SIGNATURE_HEADER]: signature
+    }
+  };
+}
+
+function signBackendRequest_(method, path, timestamp, body, signingSecret) {
+  if (!signingSecret) {
+    throw new Error('Backend signing secret is required.');
+  }
+  const bodyHash = bytesToHex_(Utilities.computeDigest(
+    Utilities.DigestAlgorithm.SHA_256,
+    body,
+    Utilities.Charset.UTF_8
+  ));
+  const canonical = [
+    BACKEND_SIGNATURE_VERSION,
+    method.toUpperCase(),
+    path,
+    timestamp,
+    bodyHash
+  ].join('\n');
+  return bytesToHex_(Utilities.computeHmacSha256Signature(
+    canonical,
+    signingSecret,
+    Utilities.Charset.UTF_8
+  ));
+}
+
+function bytesToHex_(bytes) {
+  return bytes.map(function(byteValue) {
+    const unsigned = byteValue < 0 ? byteValue + 256 : byteValue;
+    return ('0' + unsigned.toString(16)).slice(-2);
+  }).join('');
 }
