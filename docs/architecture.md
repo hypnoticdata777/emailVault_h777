@@ -13,6 +13,7 @@ Gmail Workspace Add-on
   -> HTTPS API with Google ID token and canonical thread payload
 API
   -> verify identity and resolve internal user
+  -> verify signed add-on request headers when signing is configured
   -> validate payload and enforce limits
   -> detect duplicate or revision
   -> sanitize HTML and block remote resources
@@ -129,12 +130,21 @@ so the public POC can prove preservation completion before mutating Gmail.
 
 `POST /archive/thread` now calls the backend preservation path for generated
 PDF, metadata JSON, manifest JSON, and trusted permitted attachment-copy output.
-It validates ownership, checks duplicates, prepares sanitized renderer input,
-renders the PDF through the configured adapter, stages and verifies storage,
-appends `COMPLETED`, and returns `PRESERVED`.
+It validates ownership, verifies add-on request signatures when configured,
+checks duplicates, prepares sanitized renderer input, renders the PDF through
+the configured adapter, stages and verifies storage, appends `COMPLETED`, and
+returns `PRESERVED`.
 
 The route still returns Gmail finalization disabled. Finalization instructions
 remain a separate owner-scoped call after completion.
+
+## Add-on Request Signing Boundary
+
+The API has an optional HMAC signature check for add-on calls. When
+`EMAIL_VAULT_ADDON_SIGNING_SECRET` is configured, the archive route requires a
+timestamp and signature over the method, path, timestamp, and raw request body
+hash. The Apps Script shell has matching signing helpers, but it still does not
+call the backend until deployment configuration exists.
 
 ## Gmail Finalization Boundary
 
