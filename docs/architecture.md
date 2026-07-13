@@ -17,12 +17,13 @@ API
   -> detect duplicate or revision
   -> sanitize HTML and block remote resources
   -> plan generated artifact manifest with trusted filenames
-  -> render PDF, metadata, manifest, checksums in temp workspace
+  -> render generated PDF in temp workspace
   -> StorageProvider.stage_and_verify()
   -> persist audit and revision state
-  -> return PRESERVED or DUPLICATE with finalization instructions
+  -> return PRESERVED or DUPLICATE with Gmail finalization disabled
 Gmail Workspace Add-on
-  -> label, optionally mark read/archive
+  -> later request finalization instructions
+  -> label, optionally mark read/archive only after instructions
   -> report finalization outcome
 ```
 
@@ -79,8 +80,7 @@ cleans the temporary workspace before returning.
 
 The Playwright adapter boundary creates a Chromium context with JavaScript
 disabled, registers a route handler that aborts network requests, renders the
-safe HTML to PDF, and closes browser resources. Browser-backed smoke tests and
-renderer/storage integration are still pending.
+safe HTML to PDF, and closes browser resources.
 
 Rendering a PDF is not enough to complete an archive. Completion still requires
 storage staging, checksum verification, persisted state, and only then Gmail
@@ -93,17 +93,15 @@ artifact. The bridge writes the PDF bytes to a temporary source file, calls
 `StorageProvider.stage_and_verify()`, and cleans the temporary source workspace
 on success or failure.
 
-This is still not archive completion. The bridge returns storage verification
-details only. Persisting `VERIFIED` or `COMPLETED` state remains a later
-coordinator step.
+The bridge returns storage verification details only. Persisting `VERIFIED` or
+`COMPLETED` state remains a coordinator decision.
 
 ## Verified Storage State Boundary
 
 The archive coordinator can now record a verified storage result by creating the
 planned revision and appending `RENDERED`, `STAGED`, and `VERIFIED` audit
-events. The coordinator still does not append `COMPLETED`, does not create Gmail
-finalization instructions, and does not expose partially verified work as a
-completed archive.
+events. Completion remains a separate transition so storage verification cannot
+accidentally imply Gmail finalization.
 
 ## Completion State Boundary
 
@@ -114,6 +112,16 @@ finalization instructions.
 
 Gmail labeling, mark-read, and archive actions remain a later callback boundary
 so the public POC can prove preservation completion before mutating Gmail.
+
+## Archive Route Preservation Boundary
+
+`POST /archive/thread` now calls the backend preservation path for generated PDF
+output. It validates ownership, checks duplicates, prepares sanitized renderer
+input, renders the PDF through the configured adapter, stages and verifies
+storage, appends `COMPLETED`, and returns `PRESERVED`.
+
+The route still returns Gmail finalization disabled. Finalization instructions
+remain a separate owner-scoped call after completion.
 
 ## Gmail Finalization Boundary
 
