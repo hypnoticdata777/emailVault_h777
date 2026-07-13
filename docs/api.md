@@ -109,7 +109,8 @@ unexpected internal errors.
 
 ## Not Yet Implemented
 
-- Google Marketplace add-on authentication and UI shell.
+- Google Marketplace packaging and live add-on authentication.
+- Add-on-to-backend archive request execution.
 - Private-environment validation against a real Google OAuth project.
 - End-to-end route execution for sanitization, rendering, and storage
   verification.
