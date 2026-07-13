@@ -6,9 +6,10 @@ storage integration.
 
 ## Current Position
 
-The current build uses synthetic fixtures and a synthetic local identity token.
-It does not connect to Gmail, fetch real messages, render PDFs, mark messages
-read, apply labels, archive Gmail, delete Gmail, or deploy publicly.
+The current build uses synthetic fixtures and defaults to a synthetic local
+identity token. It can be configured to verify Google ID tokens, but it does not
+connect to Gmail, fetch real messages, render PDFs from the API route, mark
+messages read, apply labels, archive Gmail, delete Gmail, or deploy publicly.
 
 ## Data That Must Not Enter Logs
 
@@ -32,8 +33,11 @@ categories, counts, byte sizes, and server-generated identifiers instead.
 Protected backend behavior must derive ownership from a verified Google
 identity. The client must never send an owner ID that the backend trusts.
 
-The P2 verifier is synthetic and accepts only `synthetic-valid-token` for local
-tests. Production Google ID-token verification is not implemented yet.
+Local development defaults to the synthetic verifier and accepts only
+`synthetic-valid-token` for tests. Production-like mode must set
+`EMAIL_VAULT_IDENTITY_VERIFIER=google` and `GOOGLE_OAUTH_CLIENT_ID` so backend
+ownership is derived from Google ID-token claims verified for that configured
+client ID.
 
 ## Gmail Mutation Boundary
 
@@ -111,8 +115,8 @@ passwords, tokens, and real email exports must not be committed.
 
 Before any public demo:
 
-- replace synthetic identity verification with real Google ID-token
-  verification;
+- configure and validate Google ID-token verification against a real OAuth
+  client ID in a private environment;
 - keep demo data synthetic unless a private local-only flow is clearly marked;
 - confirm logs redact sensitive fields;
 - confirm renderer blocks scripts and remote fetches;
