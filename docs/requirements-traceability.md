@@ -51,3 +51,6 @@
 | Gmail Add-on shell has contextual entry point | P6 | `test_manifest_declares_gmail_contextual_trigger`, `services/gmail_addon/appsscript.json` |
 | Gmail Add-on shell avoids broad mailbox scopes | P6 | `test_manifest_uses_minimal_current_message_scopes` |
 | Gmail Add-on shell does not mutate Gmail | P6 | `test_shell_does_not_mutate_gmail` |
+| API runtime is packaged for container deployment | P7 | `test_dockerfile_packages_api_runtime`, `.github/workflows/ci.yml` Docker build step |
+| API container runs as non-root and exposes healthcheck | P7 | `test_dockerfile_uses_non_root_user_and_healthcheck` |
+| Runtime image excludes local secrets and non-runtime files | P7 | `test_dockerignore_excludes_local_secrets_and_non_runtime_files` |
