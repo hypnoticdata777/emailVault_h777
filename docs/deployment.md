@@ -4,7 +4,8 @@ Email Vault now has a first Docker runtime boundary for the FastAPI API.
 
 Current files:
 
-- `Dockerfile` builds a Python 3.12 slim image for `services.api.app.main:app`.
+- `Dockerfile` builds a Python 3.12 slim image for `services.api.app.main:app`
+  with API, renderer, and Chromium runtime dependencies.
 - `.dockerignore` keeps local databases, secrets, tests, docs, and the
   Apps Script add-on shell out of the API image.
 
@@ -39,5 +40,5 @@ Public-demo requirements still open:
 - choose an HTTPS deployment target;
 - decide whether SQLite is acceptable for the demo or replace it with a managed
   database;
-- wire the archive route to the completed preservation pipeline before the
-  add-on sends real archive requests.
+- wire the add-on to the archive route only after request signing, deployment,
+  and live OAuth settings are ready.
