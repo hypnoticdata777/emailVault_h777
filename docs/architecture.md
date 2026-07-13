@@ -46,6 +46,7 @@ docs/adr/                       Architecture decision records
 - Rendering must not execute email JavaScript or fetch remote resources.
 
 See `docs/security-and-privacy.md` for the fuller public-ready safety model.
+See `docs/adr/0003-pdf-renderer-boundary.md` for the PDF renderer decision.
 
 ## Storage Boundary
 
@@ -63,3 +64,14 @@ server-generated filenames only.
 This keeps artifact identity out of email-controlled fields and gives later
 renderer/storage integration a stable contract without claiming that any file
 has been produced or verified yet.
+
+## PDF Rendering Boundary
+
+ADR 0003 selects a Playwright/Chromium-based renderer for the POC, with email
+JavaScript disabled and every network request blocked. The renderer must consume
+renderer-safe snapshots only, write generated outputs into a temporary
+workspace, and clean that workspace on success and failure.
+
+Rendering a PDF is not enough to complete an archive. Completion still requires
+storage staging, checksum verification, persisted state, and only then Gmail
+finalization instructions.

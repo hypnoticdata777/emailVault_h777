@@ -32,13 +32,15 @@ Done:
   unsafe links.
 - Artifact manifest planning for future PDF, metadata JSON, and manifest JSON
   outputs with server-generated filenames only.
+- PDF renderer boundary ADR covering Playwright/Chromium, blocked network
+  requests, disabled JavaScript, and temp workspace cleanup requirements.
 - Archive coordinator that validates, fingerprints, checks duplicates, and keeps
   Gmail finalization disabled until storage verification exists.
 
 Next:
 
-1. Add PDF renderer ADR before implementing rendering.
-2. Add renderer/storage integration only after the ADR is accepted.
+1. Add renderer tests and a minimal PDF rendering scaffold from the accepted ADR.
+2. Add renderer/storage integration after blocked-network and cleanup tests pass.
 3. Add storage completion state transitions after verification is wired.
 
 ## Thread vs Email

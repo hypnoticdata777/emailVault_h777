@@ -44,11 +44,12 @@ P3 has started with dependency-light HTML sanitization, remote image-source
 blocking, script/style content removal, plain-text fallback, normalized
 sanitized body output, renderer-safe snapshot preparation, coverage for
 table-heavy plus attachment-adjacent HTML, and artifact manifest planning for
-future generated outputs.
+future generated outputs. The PDF renderer boundary is now recorded in ADR
+0003 before renderer implementation begins.
 
 ## Later Phases
 
-- P3: write the PDF renderer ADR before implementing rendering.
+- P3: add renderer tests and a minimal PDF rendering scaffold from ADR 0003.
 - P4: connect renderer output to storage staging and verification.
 - P5: record completion state transitions only after storage verification.
 - P6: Gmail Add-on flow and finalization callbacks.
