@@ -34,6 +34,9 @@ scaffold, and a Playwright/Chromium adapter boundary.
   when optional API dependencies are installed.
 - The archive route requires a bearer identity and returns Gmail finalization
   disabled until archive execution is implemented.
+- Identity verification is selectable: synthetic local mode remains the default,
+  and Google ID-token verifier mode can validate tokens for a configured OAuth
+  client ID.
 - SQLite-backed revision persistence stores owner-scoped archive references and
   ordered audit events without storing email content.
 - The archive coordinator now uses a safe revision planner for duplicate,
@@ -90,8 +93,8 @@ The API skeleton requires optional dependencies.
 
 - No Gmail Workspace Add-on exists yet.
 - No HTTPS API entry point exists yet.
-- No production Google identity verification exists yet; the local verifier is
-  synthetic.
+- No Google OAuth project or Marketplace add-on configuration is committed; real
+  Google verifier validation still belongs in a private environment.
 - Browser-backed PDF smoke test is opt-in and not part of default CI yet.
 - No attachment fetcher or permitted attachment copy flow exists yet.
 - No end-to-end API route returns Gmail finalization instructions yet.
@@ -106,6 +109,7 @@ current API tests intentionally keep Gmail finalization disabled.
 
 ## Recommended Minimal Changes
 
-1. Replace synthetic Google identity verification before any real-data demo.
-2. Add the Gmail Workspace Add-on shell around the proven backend boundaries.
-3. Add Docker/runtime packaging once route orchestration is ready.
+1. Add the Gmail Workspace Add-on shell around the proven backend boundaries.
+2. Add Docker/runtime packaging once route orchestration is ready.
+3. Validate the Google verifier against a real OAuth client before any
+   real-data demo.
