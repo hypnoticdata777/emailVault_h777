@@ -79,10 +79,14 @@ content provider; signed add-on requests can now supply Gmail attachment bytes
 as base64 plus SHA-256 for backend verification and copying. The API can now
 verify add-on HMAC request signatures when `EMAIL_VAULT_ADDON_SIGNING_SECRET`
 is set, and the add-on can execute signed `/archive/thread` requests when
-backend script properties are configured.
+backend script properties are configured. The API now exposes the
+post-completion Gmail finalization request and callback routes, and the add-on
+has signed helpers for both endpoints while Gmail mutation remains disabled
+pending the permission/deployment review.
 
 ## Later Phases
 
-- P6: add post-completion Gmail finalization route and callback flow.
-- P7: HTTPS deployment choice, real signed add-on validation, and private OAuth
-  validation.
+- P7: HTTPS deployment choice, real signed archive/finalization validation, and
+  private OAuth validation.
+- P8: Gmail mutation permission decision for label, mark-read, archive, and
+  callback success behavior.
