@@ -2,11 +2,11 @@
 
 Email Vault is a portfolio-quality proof of concept for preserving the accessible
 snapshot of one opened Gmail thread. The current build contains the P0/P1
-foundation plus the first P2/P3 API, persistence, rendering, and identity
-boundaries.
+foundation plus the API, persistence, rendering, storage, add-on signing, and
+Gmail finalization boundaries needed for the public POC path.
 
-No Gmail mutation, cloud storage, AI, deletion, or deployment behavior is
-implemented in this phase.
+No live Gmail mutation, cloud storage, AI, deletion, or public deployment
+behavior is implemented in this phase.
 
 ## Current Status
 
@@ -15,7 +15,8 @@ Done:
 - Product scope, requirements, architecture notes, and ADRs.
 - Canonical archive contracts, state model, and controlled error categories.
 - Synthetic email fixtures and invariant tests.
-- FastAPI app skeleton with `/health` and `/archive/thread`.
+- FastAPI app with `/health`, `/archive/thread`, and post-completion Gmail
+  finalization endpoints.
 - Pydantic v2 request/response schemas.
 - Google identity verification boundary with synthetic local mode and
   configurable Google ID-token verification mode.
@@ -49,9 +50,12 @@ Done:
   audit boundary, still without enabling Gmail finalization.
 - Gmail finalization instructions can be requested only after `COMPLETED`, and
   callback results can be recorded only after finalization is pending.
+- API routes now expose that finalization boundary through
+  `/archive/thread/gmail-finalization` and
+  `/archive/thread/gmail-finalization/callback`.
 - Archive coordinator that validates, fingerprints, checks duplicates, and keeps
-  Gmail finalization disabled on the archive route until the end-to-end add-on
-  flow exists.
+  Gmail finalization disabled on the archive route so Gmail follow-up remains a
+  separate explicit handoff.
 - Archive route can run the backend preservation path for generated PDFs:
   sanitize, render, stage storage, verify checksums, persist the revision, append
   `COMPLETED`, and still leave Gmail finalization disabled.
@@ -67,6 +71,8 @@ Done:
 - Gmail Workspace Add-on shell with homepage/contextual cards, current-message
   preview behavior, preference capture, configured signed backend archive calls,
   and tests proving it does not mutate Gmail.
+- Add-on finalization request/callback helpers use the same signed request
+  boundary while Gmail mutation stays disabled pending the permission review.
 - Add-on-to-backend HMAC request signing boundary. The archive route can require
   signed add-on headers when `EMAIL_VAULT_ADDON_SIGNING_SECRET` is set, and the
   Apps Script shell can call `/archive/thread` with matching signed headers when
@@ -76,9 +82,11 @@ Done:
 
 Next:
 
-1. Add the post-completion Gmail finalization route and add-on callback flow.
-2. Validate the signed add-on archive flow against a real HTTPS API and Google
+1. Validate the signed add-on archive/finalization flow against a real HTTPS API
+   and Google
    OAuth client in a private environment.
+2. Decide and document the Gmail mutation permission step for label, mark-read,
+   archive, and callback success behavior.
 3. Choose the public-demo deployment target before any
    real-data demo.
 
@@ -128,11 +136,12 @@ Remove-Item Env:\EMAIL_VAULT_RUN_RENDERER_SMOKE
 
 The archive route can preserve generated PDF, metadata JSON, manifest JSON, and
 trusted permitted attachment-copy artifacts when the required providers are
-installed. If `EMAIL_VAULT_ADDON_SIGNING_SECRET` is set, archive requests must
-also include matching add-on signature headers. The add-on can send signed
-archive requests with trusted attachment bytes when `EMAIL_VAULT_BACKEND_URL`
-and `EMAIL_VAULT_ADDON_SIGNING_SECRET` script properties are configured. The
-route still does not label Gmail, mark Gmail read, or archive Gmail messages.
+installed. If `EMAIL_VAULT_ADDON_SIGNING_SECRET` is set, archive and Gmail
+finalization requests must also include matching add-on signature headers. The
+add-on can send signed archive requests with trusted attachment bytes and signed
+finalization requests when `EMAIL_VAULT_BACKEND_URL` and
+`EMAIL_VAULT_ADDON_SIGNING_SECRET` script properties are configured. The route
+still does not label Gmail, mark Gmail read, or archive Gmail messages.
 
 Key docs:
 
