@@ -120,8 +120,15 @@ services/gmail_addon/
 ```
 
 It includes an Apps Script manifest, Gmail contextual card code, and local tests.
-The shell can collect archive preferences, but it does not call the backend or
-mutate Gmail yet.
+The shell can collect archive preferences and can call the backend when script
+properties are configured. It still does not mutate Gmail.
+
+Apps Script deployment properties for backend calls:
+
+```text
+EMAIL_VAULT_BACKEND_URL=<https-api-origin>
+EMAIL_VAULT_ADDON_SIGNING_SECRET=<private-shared-secret>
+```
 
 ## Run the API
 
@@ -145,5 +152,5 @@ The archive route can render the generated PDF path, generate metadata and
 manifest JSON artifacts, copy permitted attachments when a trusted content
 provider supplies bytes, stage and verify local storage, and record a completed
 backend revision. It can require signed add-on headers when configured, but it
-still does not label Gmail, mark messages read, archive Gmail, call the backend
-from the add-on, or fetch Gmail attachment bytes by default.
+still does not label Gmail, mark messages read, archive Gmail, or fetch Gmail
+attachment bytes by default.
