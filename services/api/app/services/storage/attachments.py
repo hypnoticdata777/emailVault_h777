@@ -62,6 +62,22 @@ class NullAttachmentContentProvider:
         return None
 
 
+class MappingAttachmentContentProvider:
+    def __init__(
+        self,
+        content_by_source: dict[tuple[str, str], bytes],
+        fallback: AttachmentContentProvider | None = None,
+    ) -> None:
+        self.content_by_source = content_by_source
+        self.fallback = fallback or NullAttachmentContentProvider()
+
+    def fetch_attachment_content(self, message: MessageSnapshot, attachment: AttachmentDescriptor) -> bytes | None:
+        content = self.content_by_source.get((message.message_id, attachment.attachment_id))
+        if content is not None:
+            return content
+        return self.fallback.fetch_attachment_content(message, attachment)
+
+
 def build_attachment_copy_artifacts(
     thread: ThreadSnapshot,
     manifest: ArtifactManifestPlan,

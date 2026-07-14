@@ -247,12 +247,14 @@ function buildBodyRepresentations_(message) {
 
 function buildAttachmentDescriptors_(message, messageId, messageIndex) {
   return message.getAttachments({includeInlineImages: false, includeAttachments: true}).map(function(attachment, index) {
+    const bytes = attachment.getBytes();
     return {
       attachment_id: messageId + '-attachment-' + String(messageIndex) + '-' + String(index),
       original_filename: valueOrDefault_(attachment.getName(), 'attachment'),
       mime_type: valueOrDefault_(attachment.getContentType(), 'application/octet-stream'),
-      size_bytes: typeof attachment.getSize === 'function' ? attachment.getSize() : 0,
-      content_sha256: null
+      size_bytes: bytes.length,
+      content_sha256: bytesToHex_(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, bytes)),
+      trusted_content_base64: Utilities.base64Encode(bytes)
     };
   });
 }

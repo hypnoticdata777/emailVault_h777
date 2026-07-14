@@ -46,9 +46,9 @@ fresh HMAC signature over the method, path, timestamp, and raw request body hash
 This does not replace Google identity; it reduces accidental or replayed
 add-on-to-backend calls once the live add-on execution path exists.
 
-The add-on sends attachment descriptors only. It must not read attachment bytes
-or compute attachment checksums until the trusted Gmail attachment fetch boundary
-is implemented.
+The add-on may read attachment bytes only to include them in the signed archive
+request payload with SHA-256 checksums. The backend must still verify size and
+checksum before copying those bytes under server-generated names.
 
 ## Gmail Mutation Boundary
 

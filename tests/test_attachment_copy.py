@@ -9,6 +9,7 @@ from services.api.app.domain.contracts import ApiError
 from services.api.app.services.rendering.manifest import plan_artifact_manifest
 from services.api.app.services.rendering.snapshot import prepare_renderer_safe_thread
 from services.api.app.services.storage.attachments import (
+    MappingAttachmentContentProvider,
     NullAttachmentContentProvider,
     build_attachment_copy_artifacts,
 )
@@ -83,6 +84,21 @@ class AttachmentCopyTests(unittest.TestCase):
         self.assertEqual(result.statuses[0].copy_status, "copied")
         self.assertEqual(result.statuses[0].trusted_name, result.artifacts[0].trusted_name)
         self.assertEqual(result.statuses[0].sha256, hashlib.sha256(content).hexdigest())
+
+    def test_copy_artifacts_use_mapped_payload_bytes_before_fallback(self) -> None:
+        content = b"trusted mapped bytes"
+        request = self._request_with_attachment_sha(content)
+        message = request.thread.messages[0]
+        attachment = message.attachments[0]
+        provider = MappingAttachmentContentProvider(
+            {(message.message_id, attachment.attachment_id): content},
+            StaticAttachmentContentProvider(b"different fallback bytes"),
+        )
+
+        result = build_attachment_copy_artifacts(request.thread, self._manifest(request), provider)
+
+        self.assertEqual(result.artifacts[0].content, content)
+        self.assertEqual(result.statuses[0].copy_status, "copied")
 
     def test_copy_artifacts_reject_checksum_mismatch(self) -> None:
         request = self._request_with_attachment_sha(b"expected")

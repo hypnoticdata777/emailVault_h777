@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import importlib.util
 import hashlib
 import json
@@ -150,6 +151,39 @@ class ApiTests(unittest.TestCase):
         body = response.json()
         self.assertEqual(body["status"], "PRESERVED")
         self.assertEqual(body["verification"]["artifact_count"], 4)
+
+    def test_archive_copies_trusted_attachment_bytes_from_payload(self) -> None:
+        attachment_content = b"trusted payload attachment bytes"
+        payload = self._fixture("plain_text")
+        attachment = payload["thread"]["messages"][0]["attachments"][0]
+        attachment["size_bytes"] = len(attachment_content)
+        attachment["content_sha256"] = hashlib.sha256(attachment_content).hexdigest()
+        attachment["trusted_content_base64"] = base64.b64encode(attachment_content).decode("ascii")
+
+        response = self.client.post(
+            "/archive/thread",
+            json=payload,
+            headers={"Authorization": "Bearer synthetic-valid-token"},
+        )
+
+        self.assertEqual(response.status_code, 202)
+        body = response.json()
+        self.assertEqual(body["status"], "PRESERVED")
+        self.assertEqual(body["verification"]["artifact_count"], 4)
+
+    def test_archive_rejects_trusted_attachment_payload_without_sha256(self) -> None:
+        payload = self._fixture("plain_text")
+        attachment = payload["thread"]["messages"][0]["attachments"][0]
+        attachment["content_sha256"] = None
+        attachment["trusted_content_base64"] = base64.b64encode(b"missing checksum").decode("ascii")
+
+        response = self.client.post(
+            "/archive/thread",
+            json=payload,
+            headers={"Authorization": "Bearer synthetic-valid-token"},
+        )
+
+        self.assertEqual(response.status_code, 422)
 
     def test_archive_returns_duplicate_when_snapshot_already_exists(self) -> None:
         payload = self._fixture("duplicate_snapshot")

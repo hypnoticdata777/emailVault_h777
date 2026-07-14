@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import base64
+import binascii
 from datetime import datetime
 from enum import StrEnum
 
@@ -21,6 +23,7 @@ from services.api.app.domain.contracts import (
     ThreadSnapshot,
     VerificationSummary,
 )
+from services.api.app.services.storage.attachments import AttachmentContentProvider, MappingAttachmentContentProvider
 
 
 class ArchiveStatusSchema(StrEnum):
@@ -71,6 +74,16 @@ class AttachmentDescriptorSchema(BaseModel):
     mime_type: str
     size_bytes: int = Field(ge=0)
     content_sha256: str | None = None
+    trusted_content_base64: str | None = None
+
+    @model_validator(mode="after")
+    def trusted_content_requires_checksum(self) -> "AttachmentDescriptorSchema":
+        if self.trusted_content_base64 is not None:
+            if not self.content_sha256:
+                raise ValueError("trusted attachment content requires content_sha256")
+            if len(self.content_sha256) != 64:
+                raise ValueError("trusted attachment content requires a 64 character SHA-256")
+        return self
 
     def to_domain(self) -> AttachmentDescriptor:
         return AttachmentDescriptor(
@@ -80,6 +93,14 @@ class AttachmentDescriptorSchema(BaseModel):
             size_bytes=self.size_bytes,
             content_sha256=self.content_sha256,
         )
+
+    def trusted_content_bytes(self) -> bytes | None:
+        if self.trusted_content_base64 is None:
+            return None
+        try:
+            return base64.b64decode(self.trusted_content_base64, validate=True)
+        except binascii.Error as exc:
+            raise ApiError(ErrorCategory.INVALID_SCHEMA, "Trusted attachment content must be valid base64.", "attachment.trusted_content_base64") from exc
 
 
 class MessageSnapshotSchema(BaseModel):
@@ -203,6 +224,17 @@ class ArchiveThreadRequestSchema(BaseModel):
             thread=self.thread.to_domain(),
             confirmed_at=self.confirmed_at,
         )
+
+    def attachment_content_provider(self, fallback: AttachmentContentProvider) -> AttachmentContentProvider:
+        content_by_source: dict[tuple[str, str], bytes] = {}
+        for message in self.thread.messages:
+            for attachment in message.attachments:
+                content = attachment.trusted_content_bytes()
+                if content is not None:
+                    content_by_source[(message.message_id, attachment.attachment_id)] = content
+        if not content_by_source:
+            return fallback
+        return MappingAttachmentContentProvider(content_by_source, fallback)
 
 
 class ApiErrorSchema(BaseModel):

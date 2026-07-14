@@ -76,6 +76,8 @@ scaffold, and a Playwright/Chromium adapter boundary.
   provider. When bytes are supplied, the archive path verifies size/checksum,
   stages the attachment under a server-generated name, and records copied status
   in metadata and manifest JSON.
+- Signed add-on archive requests can now supply trusted Gmail attachment bytes
+  as base64 plus SHA-256 so the backend provider can verify and copy them.
 - Gmail finalization instructions can be requested only after owner-scoped
   `COMPLETED` state, and callback success/failure can be recorded only after
   `GMAIL_FINALIZATION_PENDING`.
@@ -116,7 +118,6 @@ The API skeleton requires optional dependencies.
 - No Google OAuth project or Marketplace add-on configuration is committed; real
   Google verifier validation still belongs in a private environment.
 - Browser-backed PDF smoke test is opt-in and not part of default CI yet.
-- No Gmail attachment fetcher is wired into the trusted content provider yet.
 - No deployed live add-on-to-backend archive request flow has been validated
   against a real HTTPS API and OAuth project yet.
 - No API route returns Gmail finalization instructions yet.
@@ -131,9 +132,8 @@ current API tests intentionally keep Gmail finalization disabled.
 
 ## Recommended Minimal Changes
 
-1. Wire Gmail attachment fetch bytes into the trusted attachment content
-   provider.
-2. Add the post-completion Gmail finalization route and callback flow.
-3. Validate the Google verifier and signed add-on flow against a real OAuth
+1. Add the post-completion Gmail finalization route and callback flow.
+2. Validate the Google verifier and signed add-on flow against a real OAuth
    client before any
    real-data demo.
+3. Select and validate the HTTPS deployment target.

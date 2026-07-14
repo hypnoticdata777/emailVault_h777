@@ -52,12 +52,13 @@ async def archive_thread(
     # Gmail mutation remains disabled here. The route may complete backend
     # preservation, but finalization instructions stay behind the explicit
     # post-completion boundary.
+    trusted_attachment_provider = payload.attachment_content_provider(attachment_content_provider)
     result = ArchiveCoordinator(repository).preserve(
         payload.to_domain(),
         identity.google_identity,
         pdf_renderer,
         storage_provider,
-        attachment_content_provider,
+        trusted_attachment_provider,
     )
     return ArchiveResultSchema.from_domain(result)
 

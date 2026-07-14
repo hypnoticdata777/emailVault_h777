@@ -59,7 +59,7 @@
 | Gmail Add-on shell does not mutate Gmail | P6 | `test_shell_does_not_mutate_gmail` |
 | Add-on archive requests can be signed before backend execution | P7 | `test_verifier_accepts_current_matching_signature`, `test_archive_accepts_matching_addon_request_signature_when_configured`, `test_shell_contains_signed_request_helpers` |
 | Add-on archive execution requires deployment configuration | P7 | `test_shell_wires_backend_call_behind_configuration` |
-| Add-on archive payload remains descriptor-only before attachment byte fetch | P7 | `test_shell_builds_descriptor_only_archive_payload` |
+| Add-on archive payload carries trusted attachment bytes for backend verification | P7 | `test_shell_builds_trusted_attachment_payload`, `test_archive_copies_trusted_attachment_bytes_from_payload`, `test_copy_artifacts_use_mapped_payload_bytes_before_fallback` |
 | Unsigned add-on archive requests fail when signing is configured | P7 | `test_archive_rejects_unsigned_addon_request_when_configured`, `test_verifier_rejects_missing_headers_when_secret_is_configured` |
 | API runtime is packaged for container deployment | P7 | `test_dockerfile_packages_api_runtime`, `.github/workflows/ci.yml` Docker build step |
 | API container runs as non-root and exposes healthcheck | P7 | `test_dockerfile_uses_non_root_user_and_healthcheck` |

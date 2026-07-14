@@ -65,9 +65,10 @@ Current P2 behavior:
 
 The current route stores generated PDF, metadata JSON, and manifest JSON
 artifacts. It can also store permitted attachment-copy artifacts when the
-configured attachment content provider supplies trusted bytes. The default
-provider supplies no bytes, so normal local API runs remain descriptor-only
-until add-on or backend Gmail fetch wiring exists.
+configured attachment content provider supplies trusted bytes. Signed add-on
+requests may provide those bytes as `trusted_content_base64` plus
+`content_sha256` on each attachment descriptor. The default provider supplies no
+bytes, so normal local API runs remain descriptor-only.
 
 The service layer now has the Gmail finalization boundary used by future API
 routes: instructions can be requested only after `COMPLETED`, and callback
@@ -134,5 +135,4 @@ unexpected internal errors.
 - Google Marketplace packaging and live add-on authentication.
 - Add-on-to-backend archive request execution.
 - Private-environment validation against a real Google OAuth project.
-- Gmail attachment fetch integration for the trusted attachment content provider.
 - Gmail Workspace Add-on label, mark-read, archive, or undo behavior.

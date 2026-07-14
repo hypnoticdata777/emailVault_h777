@@ -152,5 +152,4 @@ The archive route can render the generated PDF path, generate metadata and
 manifest JSON artifacts, copy permitted attachments when a trusted content
 provider supplies bytes, stage and verify local storage, and record a completed
 backend revision. It can require signed add-on headers when configured, but it
-still does not label Gmail, mark messages read, archive Gmail, or fetch Gmail
-attachment bytes by default.
+still does not label Gmail, mark messages read, or archive Gmail.

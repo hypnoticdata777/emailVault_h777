@@ -58,8 +58,8 @@ Done:
 - Archive route now stores generated PDF, metadata JSON, and manifest JSON
   artifacts together.
 - Trusted permitted attachment copy support exists behind an injectable content
-  provider. The default route remains descriptor-only until Gmail fetch wiring
-  supplies trusted bytes.
+  provider. Signed add-on requests can now supply Gmail attachment bytes as
+  base64 with SHA-256, while default local API calls remain descriptor-only.
 - GitHub Actions CI runs the stable Python 3.12 test suite with API/test
   dependencies on push and pull request.
 - Production identity blocker reduced to configuration and real Google OAuth
@@ -76,10 +76,10 @@ Done:
 
 Next:
 
-1. Wire Gmail attachment fetch bytes into the trusted attachment content
-   provider.
-2. Add the post-completion Gmail finalization route and add-on callback flow.
-3. Validate a real Google OAuth client ID in a private environment before any
+1. Add the post-completion Gmail finalization route and add-on callback flow.
+2. Validate the signed add-on archive flow against a real HTTPS API and Google
+   OAuth client in a private environment.
+3. Choose the public-demo deployment target before any
    real-data demo.
 
 ## Thread vs Email
@@ -130,10 +130,9 @@ The archive route can preserve generated PDF, metadata JSON, manifest JSON, and
 trusted permitted attachment-copy artifacts when the required providers are
 installed. If `EMAIL_VAULT_ADDON_SIGNING_SECRET` is set, archive requests must
 also include matching add-on signature headers. The add-on can send signed
-descriptor-only archive requests when `EMAIL_VAULT_BACKEND_URL` and
-`EMAIL_VAULT_ADDON_SIGNING_SECRET` script properties are configured. The route
-still does not label Gmail, mark Gmail read, archive Gmail messages, or fetch
-Gmail attachment bytes by default.
+archive requests with trusted attachment bytes when `EMAIL_VAULT_BACKEND_URL`
+and `EMAIL_VAULT_ADDON_SIGNING_SECRET` script properties are configured. The
+route still does not label Gmail, mark Gmail read, or archive Gmail messages.
 
 Key docs:
 

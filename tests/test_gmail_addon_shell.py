@@ -51,12 +51,14 @@ class GmailAddonShellTests(unittest.TestCase):
         self.assertIn("UrlFetchApp.fetch", self.source)
         self.assertIn("Backend is not configured. Gmail is unchanged.", self.source)
 
-    def test_shell_builds_descriptor_only_archive_payload(self) -> None:
+    def test_shell_builds_trusted_attachment_payload(self) -> None:
         self.assertIn("function buildArchiveThreadRequest_", self.source)
         self.assertIn("function buildMessageSnapshot_", self.source)
         self.assertIn("function buildAttachmentDescriptors_", self.source)
-        self.assertIn("content_sha256: null", self.source)
-        self.assertNotIn(".getBytes(", self.source)
+        self.assertIn("attachment.getBytes()", self.source)
+        self.assertIn("trusted_content_base64", self.source)
+        self.assertIn("Utilities.base64Encode(bytes)", self.source)
+        self.assertIn("Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, bytes)", self.source)
 
     def test_shell_does_not_mutate_gmail(self) -> None:
         forbidden_calls = [
