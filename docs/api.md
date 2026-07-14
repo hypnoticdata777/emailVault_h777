@@ -1,7 +1,7 @@
 # API
 
-This document describes the current P2 API surface. The API is intentionally
-small while the preservation pipeline is still being built.
+This document describes the current API surface. The API is intentionally small
+while the preservation pipeline is still being prepared for a public POC.
 
 ## Authentication
 
@@ -20,9 +20,9 @@ ID token issued for the configured OAuth client ID.
 Backend ownership must come from the verified Google identity, never from a
 request body field.
 
-Archive requests may also require add-on request signing. When
-`EMAIL_VAULT_ADDON_SIGNING_SECRET` is configured, `POST /archive/thread` expects
-these headers:
+Archive and Gmail finalization requests may also require add-on request signing.
+When `EMAIL_VAULT_ADDON_SIGNING_SECRET` is configured, these mutating routes
+expect matching headers:
 
 ```text
 X-Email-Vault-Timestamp: <unix-seconds>
@@ -50,7 +50,7 @@ Example response:
 
 Accepts an `ArchiveThreadRequest` payload representing one opened Gmail thread.
 
-Current P2 behavior:
+Current behavior:
 
 - Requires bearer identity.
 - Validates the request schema and domain invariants.
@@ -60,8 +60,9 @@ Current P2 behavior:
 - For new snapshots, prepares a renderer-safe snapshot, renders a PDF through
   the configured renderer adapter, stages and verifies storage, records
   `RENDERED`, `STAGED`, `VERIFIED`, and `COMPLETED`, then returns `PRESERVED`.
-- Keeps Gmail finalization disabled. Gmail label, mark-read, and archive
-  instructions remain behind the separate post-completion finalization boundary.
+- Keeps Gmail finalization disabled on the archive response. Gmail label,
+  mark-read, and archive instructions remain behind the separate
+  post-completion finalization route.
 
 The current route stores generated PDF, metadata JSON, and manifest JSON
 artifacts. It can also store permitted attachment-copy artifacts when the
@@ -69,10 +70,6 @@ configured attachment content provider supplies trusted bytes. Signed add-on
 requests may provide those bytes as `trusted_content_base64` plus
 `content_sha256` on each attachment descriptor. The default provider supplies no
 bytes, so normal local API runs remain descriptor-only.
-
-The service layer now has the Gmail finalization boundary used by future API
-routes: instructions can be requested only after `COMPLETED`, and callback
-results can be recorded only after `GMAIL_FINALIZATION_PENDING`.
 
 Duplicate response shape:
 
@@ -123,6 +120,92 @@ New-snapshot preserved response shape:
 }
 ```
 
+## `POST /archive/thread/gmail-finalization`
+
+Requests Gmail finalization instructions for a completed archive record.
+
+Current behavior:
+
+- Requires bearer identity.
+- Requires add-on HMAC headers when `EMAIL_VAULT_ADDON_SIGNING_SECRET` is
+  configured.
+- Looks up the record by verified owner subject plus `record_id`.
+- Requires the latest audit state to be `COMPLETED`.
+- Appends `GMAIL_FINALIZATION_PENDING`.
+- Returns explicit instructions for the add-on to apply the Email Vault label,
+  mark read if requested, and archive if requested.
+
+Example request:
+
+```json
+{
+  "record_id": "record-...",
+  "preferences": {
+    "category": "Receipts",
+    "mark_read_after_preserve": true,
+    "archive_after_preserve": true
+  }
+}
+```
+
+Example response:
+
+```json
+{
+  "record": {
+    "vault_thread_id": "vault-thread-...",
+    "revision": 1,
+    "record_id": "record-...",
+    "snapshot_sha256": "..."
+  },
+  "gmail_finalization": {
+    "apply_label": "EmailVault/Vaulted",
+    "mark_read": true,
+    "archive": true,
+    "enabled": true
+  },
+  "requested_at": "2026-07-14T12:00:00Z"
+}
+```
+
+## `POST /archive/thread/gmail-finalization/callback`
+
+Records the final Gmail-side result after a pending finalization request.
+
+Current behavior:
+
+- Requires bearer identity.
+- Requires add-on HMAC headers when `EMAIL_VAULT_ADDON_SIGNING_SECRET` is
+  configured.
+- Looks up the record by verified owner subject plus `record_id`.
+- Requires the latest audit state to be `GMAIL_FINALIZATION_PENDING`.
+- Appends `GMAIL_FINALIZED` when `succeeded` is true.
+- Appends `PRESERVED_GMAIL_FINALIZATION_FAILED` when `succeeded` is false.
+
+Example request:
+
+```json
+{
+  "record_id": "record-...",
+  "succeeded": true
+}
+```
+
+Example response:
+
+```json
+{
+  "record": {
+    "vault_thread_id": "vault-thread-...",
+    "revision": 1,
+    "record_id": "record-...",
+    "snapshot_sha256": "..."
+  },
+  "state": "GMAIL_FINALIZED",
+  "recorded_at": "2026-07-14T12:01:00Z"
+}
+```
+
 ## Controlled Error Categories
 
 The domain defines controlled categories for authentication, schema validation,
@@ -133,6 +216,6 @@ unexpected internal errors.
 ## Not Yet Implemented
 
 - Google Marketplace packaging and live add-on authentication.
-- Add-on-to-backend archive request execution.
+- Live add-on-to-backend validation against a deployed HTTPS API.
 - Private-environment validation against a real Google OAuth project.
 - Gmail Workspace Add-on label, mark-read, archive, or undo behavior.
