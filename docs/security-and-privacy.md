@@ -9,9 +9,9 @@ storage integration.
 The current backend uses synthetic fixtures and defaults to a synthetic local
 identity token. It can be configured to verify Google ID tokens. The archive
 route can render and preserve the generated PDF path, and the repository also
-includes a preview-only Gmail Add-on shell with dormant signed-request helpers.
-The project does not deploy publicly, call the backend from the add-on, mark
-messages read, apply labels, archive Gmail, or delete Gmail.
+includes a Gmail Add-on shell that can call the backend with signed request
+headers when script properties are configured. The project does not deploy
+publicly, mark messages read, apply labels, archive Gmail, or delete Gmail.
 
 ## Data That Must Not Enter Logs
 
@@ -45,6 +45,10 @@ When add-on request signing is configured, the archive route also requires a
 fresh HMAC signature over the method, path, timestamp, and raw request body hash.
 This does not replace Google identity; it reduces accidental or replayed
 add-on-to-backend calls once the live add-on execution path exists.
+
+The add-on sends attachment descriptors only. It must not read attachment bytes
+or compute attachment checksums until the trusted Gmail attachment fetch boundary
+is implemented.
 
 ## Gmail Mutation Boundary
 
