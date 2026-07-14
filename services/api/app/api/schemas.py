@@ -9,14 +9,17 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 from services.api.app.core.settings import load_settings
 from services.api.app.domain.contracts import (
+    ApiError,
     ArchivePreferences,
     ArchiveRecordReference,
     ArchiveResult,
+    ArchiveState,
     ArchiveStatus,
     ArchiveThreadRequest,
     AttachmentDescriptor,
     BodyRepresentation,
     ClientContext,
+    ErrorCategory,
     GmailFinalizationInstructions,
     MessageSnapshot,
     Participant,
@@ -282,6 +285,58 @@ class GmailFinalizationInstructionsSchema(BaseModel):
     @classmethod
     def from_domain(cls, value: GmailFinalizationInstructions) -> "GmailFinalizationInstructionsSchema":
         return cls(**value.__dict__)
+
+
+class GmailFinalizationRequestSchema(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    record_id: str
+    preferences: ArchivePreferencesSchema
+
+
+class GmailFinalizationRequestResultSchema(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    record: ArchiveRecordReferenceSchema
+    gmail_finalization: GmailFinalizationInstructionsSchema
+    requested_at: datetime
+
+    @classmethod
+    def from_domain(cls, value) -> "GmailFinalizationRequestResultSchema":
+        return cls(
+            record=ArchiveRecordReferenceSchema.from_domain(value.record),
+            gmail_finalization=GmailFinalizationInstructionsSchema.from_domain(value.instructions),
+            requested_at=value.requested_at,
+        )
+
+
+class GmailFinalizationCallbackRequestSchema(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    record_id: str
+    succeeded: bool
+
+
+class ArchiveStateSchema(StrEnum):
+    GMAIL_FINALIZATION_PENDING = "GMAIL_FINALIZATION_PENDING"
+    GMAIL_FINALIZED = "GMAIL_FINALIZED"
+    PRESERVED_GMAIL_FINALIZATION_FAILED = "PRESERVED_GMAIL_FINALIZATION_FAILED"
+
+
+class GmailFinalizationCallbackResultSchema(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    record: ArchiveRecordReferenceSchema
+    state: ArchiveStateSchema
+    recorded_at: datetime
+
+    @classmethod
+    def from_domain(cls, value) -> "GmailFinalizationCallbackResultSchema":
+        return cls(
+            record=ArchiveRecordReferenceSchema.from_domain(value.record),
+            state=ArchiveStateSchema(value.state.value if isinstance(value.state, ArchiveState) else value.state),
+            recorded_at=value.recorded_at,
+        )
 
 
 class ArchiveResultSchema(BaseModel):
