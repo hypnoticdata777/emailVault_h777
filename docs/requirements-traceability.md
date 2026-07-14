@@ -52,6 +52,8 @@
 | Trusted attachment copy validates descriptor size and checksum | P6 | `test_copy_artifacts_reject_checksum_mismatch` |
 | Gmail finalization starts only after completed preservation | P6 | `test_gmail_finalization_request_requires_completed_archive_and_returns_instructions`, `test_gmail_finalization_request_rejects_before_completed_without_writes` |
 | Gmail finalization callback records only after pending state | P6 | `test_gmail_finalization_callback_records_success_after_pending_state`, `test_gmail_finalization_callback_rejects_without_pending_state` |
+| API exposes post-completion Gmail finalization instructions | P6 | `test_gmail_finalization_route_returns_instructions_after_completed_archive` |
+| API records Gmail finalization callback only after pending request | P6 | `test_gmail_finalization_callback_records_success_after_pending_request`, `test_gmail_finalization_callback_rejects_without_pending_request` |
 | Gmail finalization uses owner-scoped record lookup | P6 | `test_find_by_record_id_is_owner_scoped` |
 | Stable test suite runs in CI | P6 | `.github/workflows/ci.yml` runs `python -m unittest discover -s tests` |
 | Gmail Add-on shell has contextual entry point | P6 | `test_manifest_declares_gmail_contextual_trigger`, `services/gmail_addon/appsscript.json` |
@@ -60,6 +62,7 @@
 | Add-on archive requests can be signed before backend execution | P7 | `test_verifier_accepts_current_matching_signature`, `test_archive_accepts_matching_addon_request_signature_when_configured`, `test_shell_contains_signed_request_helpers` |
 | Add-on archive execution requires deployment configuration | P7 | `test_shell_wires_backend_call_behind_configuration` |
 | Add-on archive payload carries trusted attachment bytes for backend verification | P7 | `test_shell_builds_trusted_attachment_payload`, `test_archive_copies_trusted_attachment_bytes_from_payload`, `test_copy_artifacts_use_mapped_payload_bytes_before_fallback` |
+| Add-on has signed Gmail finalization request/callback helpers | P7 | `test_shell_contains_gmail_finalization_helpers` |
 | Unsigned add-on archive requests fail when signing is configured | P7 | `test_archive_rejects_unsigned_addon_request_when_configured`, `test_verifier_rejects_missing_headers_when_secret_is_configured` |
 | API runtime is packaged for container deployment | P7 | `test_dockerfile_packages_api_runtime`, `.github/workflows/ci.yml` Docker build step |
 | API container runs as non-root and exposes healthcheck | P7 | `test_dockerfile_uses_non_root_user_and_healthcheck` |
