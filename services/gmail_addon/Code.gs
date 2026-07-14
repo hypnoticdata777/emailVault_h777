@@ -2,6 +2,8 @@ const ADD_ON_TITLE = 'Email Vault';
 const DEFAULT_CATEGORY = 'General';
 const ADD_ON_VERSION = '0.1.0';
 const ARCHIVE_THREAD_PATH = '/archive/thread';
+const GMAIL_FINALIZATION_PATH = '/archive/thread/gmail-finalization';
+const GMAIL_FINALIZATION_CALLBACK_PATH = '/archive/thread/gmail-finalization/callback';
 const BACKEND_URL_PROPERTY = 'EMAIL_VAULT_BACKEND_URL';
 const BACKEND_SIGNING_SECRET_PROPERTY = 'EMAIL_VAULT_ADDON_SIGNING_SECRET';
 const BACKEND_SIGNATURE_VERSION = 'v1';
@@ -54,7 +56,7 @@ function archiveThreadAction(event) {
       );
     }
     const result = sendArchiveThreadRequest_(config, payload, idToken);
-    return buildArchiveResultResponse_(result, category);
+    return buildArchiveResultResponse_(result, category, markRead, archive, config, idToken);
   } catch (error) {
     return buildActionResponse_(
       'Archive request failed before Gmail changes. Gmail is unchanged.',
@@ -147,18 +149,87 @@ function sendArchiveThreadRequest_(config, payload, idToken) {
   };
 }
 
-function buildArchiveResultResponse_(result, category) {
+function buildArchiveResultResponse_(result, category, markRead, archive, config, idToken) {
   const status = result.body && result.body.status ? result.body.status : 'FAILED';
   if (result.statusCode >= 200 && result.statusCode < 300 && (status === 'PRESERVED' || status === 'DUPLICATE')) {
+    const record = result.body && result.body.record ? result.body.record : null;
+    if (record && record.record_id) {
+      try {
+        const finalization = sendGmailFinalizationRequest_(
+          config,
+          buildGmailFinalizationRequest_(record.record_id, category, markRead, archive),
+          idToken
+        );
+        if (finalization.statusCode >= 200 && finalization.statusCode < 300) {
+          return buildActionResponse_(
+            'Backend preservation returned ' + status + '. Gmail finalization instructions are pending.',
+            buildStatusCard_(
+              'Finalization pending',
+              'Category: ' + category + '. Gmail is unchanged until the add-on mutation step is enabled.'
+            )
+          );
+        }
+      } catch (error) {
+        // Preservation already completed. Finalization can be retried later
+        // without implying Gmail changed or the archive failed.
+      }
+    }
     return buildActionResponse_(
       'Backend preservation returned ' + status + '. Gmail is unchanged.',
-      buildStatusCard_('Preservation ' + status.toLowerCase(), 'Category: ' + category + '. Gmail finalization remains disabled.')
+      buildStatusCard_('Preservation ' + status.toLowerCase(), 'Category: ' + category + '. Gmail finalization was not requested.')
     );
   }
   return buildActionResponse_(
     'Backend preservation did not complete. Gmail is unchanged.',
     buildStatusCard_('Archive not completed', 'The backend did not return a preserved or duplicate result.')
   );
+}
+
+function sendGmailFinalizationRequest_(config, payload, idToken) {
+  const options = buildSignedArchiveRequestOptions_(
+    GMAIL_FINALIZATION_PATH,
+    payload,
+    config.signingSecret,
+    idToken
+  );
+  const response = UrlFetchApp.fetch(joinBackendUrl_(config.backendUrl, GMAIL_FINALIZATION_PATH), options);
+  return {
+    statusCode: response.getResponseCode(),
+    body: parseJsonOrFallback_(response.getContentText() || '{}')
+  };
+}
+
+function sendGmailFinalizationCallback_(config, recordId, succeeded, idToken) {
+  const payload = buildGmailFinalizationCallback_(recordId, succeeded);
+  const options = buildSignedArchiveRequestOptions_(
+    GMAIL_FINALIZATION_CALLBACK_PATH,
+    payload,
+    config.signingSecret,
+    idToken
+  );
+  const response = UrlFetchApp.fetch(joinBackendUrl_(config.backendUrl, GMAIL_FINALIZATION_CALLBACK_PATH), options);
+  return {
+    statusCode: response.getResponseCode(),
+    body: parseJsonOrFallback_(response.getContentText() || '{}')
+  };
+}
+
+function buildGmailFinalizationRequest_(recordId, category, markRead, archive) {
+  return {
+    record_id: recordId,
+    preferences: {
+      category: category,
+      mark_read_after_preserve: markRead,
+      archive_after_preserve: archive
+    }
+  };
+}
+
+function buildGmailFinalizationCallback_(recordId, succeeded) {
+  return {
+    record_id: recordId,
+    succeeded: succeeded
+  };
 }
 
 function buildArchiveThreadRequest_(event, category, markRead, archive) {
