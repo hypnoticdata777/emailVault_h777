@@ -81,6 +81,9 @@ scaffold, and a Playwright/Chromium adapter boundary.
 - Gmail finalization instructions can be requested only after owner-scoped
   `COMPLETED` state, and callback success/failure can be recorded only after
   `GMAIL_FINALIZATION_PENDING`.
+- The API exposes the Gmail finalization request and callback boundary at
+  `/archive/thread/gmail-finalization` and
+  `/archive/thread/gmail-finalization/callback`.
 - Local API runs can bootstrap the configured SQLite schema with
   `python -m services.api.app.cli init-db`.
 - GitHub Actions CI runs the stable Python 3.12 unit test suite with API/test
@@ -88,6 +91,8 @@ scaffold, and a Playwright/Chromium adapter boundary.
 - A Gmail Workspace Add-on shell exists with homepage/contextual cards,
   preference capture, configured signed backend archive calls, and tests that
   guard against Gmail mutation calls.
+- The add-on shell can request Gmail finalization instructions and includes a
+  signed callback helper, while still avoiding live Gmail mutation calls.
 - Add-on-to-backend HMAC request signing exists. The API can enforce signature
   headers when configured, and the Apps Script shell can call the archive route
   with matching signed request options when script properties are present.
@@ -120,7 +125,8 @@ The API skeleton requires optional dependencies.
 - Browser-backed PDF smoke test is opt-in and not part of default CI yet.
 - No deployed live add-on-to-backend archive request flow has been validated
   against a real HTTPS API and OAuth project yet.
-- No API route returns Gmail finalization instructions yet.
+- No live Gmail label, mark-read, archive, or callback-success execution has
+  been validated with real Workspace Add-on permissions yet.
 - No HTTPS deployment target is selected yet.
 
 ## Risky or Conflicting Code
@@ -128,12 +134,13 @@ The API skeleton requires optional dependencies.
 No pre-existing code was present. The main risk is still premature completion:
 rendering, storage staging, and Gmail finalization must remain separate until
 storage verification and persisted state transitions are implemented. The
-current API tests intentionally keep Gmail finalization disabled.
+archive route tests intentionally keep Gmail finalization disabled. The separate
+finalization route tests cover the post-completion handoff.
 
 ## Recommended Minimal Changes
 
-1. Add the post-completion Gmail finalization route and callback flow.
-2. Validate the Google verifier and signed add-on flow against a real OAuth
-   client before any
-   real-data demo.
+1. Validate the Google verifier and signed add-on archive/finalization flow
+   against a real OAuth client before any real-data demo.
+2. Decide the Gmail mutation permission path for label, mark-read, archive, and
+   callback success behavior.
 3. Select and validate the HTTPS deployment target.
