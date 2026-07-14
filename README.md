@@ -65,21 +65,20 @@ Done:
 - Production identity blocker reduced to configuration and real Google OAuth
   project validation, with unit tests covering the verifier boundary.
 - Gmail Workspace Add-on shell with homepage/contextual cards, current-message
-  preview behavior, preference capture, and tests proving it does not mutate
-  Gmail.
-- Dormant add-on-to-backend HMAC request signing boundary. The archive route can
-  require signed add-on headers when `EMAIL_VAULT_ADDON_SIGNING_SECRET` is set,
-  and the Apps Script shell has matching signing helpers without making backend
-  calls yet.
+  preview behavior, preference capture, configured signed backend archive calls,
+  and tests proving it does not mutate Gmail.
+- Add-on-to-backend HMAC request signing boundary. The archive route can require
+  signed add-on headers when `EMAIL_VAULT_ADDON_SIGNING_SECRET` is set, and the
+  Apps Script shell can call `/archive/thread` with matching signed headers when
+  script properties are configured.
 - Docker runtime packaging for the API with non-root execution, `/health`
   healthcheck, persistent `/data` paths, and CI build validation.
 
 Next:
 
-1. Wire the add-on to call the backend archive route with signed request headers
-   once deployment configuration is ready.
-2. Wire Gmail attachment fetch bytes into the trusted attachment content
+1. Wire Gmail attachment fetch bytes into the trusted attachment content
    provider.
+2. Add the post-completion Gmail finalization route and add-on callback flow.
 3. Validate a real Google OAuth client ID in a private environment before any
    real-data demo.
 
@@ -130,9 +129,11 @@ Remove-Item Env:\EMAIL_VAULT_RUN_RENDERER_SMOKE
 The archive route can preserve generated PDF, metadata JSON, manifest JSON, and
 trusted permitted attachment-copy artifacts when the required providers are
 installed. If `EMAIL_VAULT_ADDON_SIGNING_SECRET` is set, archive requests must
-also include matching add-on signature headers. The route still does not label
-Gmail, mark Gmail read, archive Gmail messages, fetch Gmail attachment bytes by
-default, or receive live add-on requests.
+also include matching add-on signature headers. The add-on can send signed
+descriptor-only archive requests when `EMAIL_VAULT_BACKEND_URL` and
+`EMAIL_VAULT_ADDON_SIGNING_SECRET` script properties are configured. The route
+still does not label Gmail, mark Gmail read, archive Gmail messages, or fetch
+Gmail attachment bytes by default.
 
 Key docs:
 
