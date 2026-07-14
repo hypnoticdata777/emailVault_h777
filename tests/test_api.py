@@ -75,11 +75,7 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(response.json()["detail"]["category"], "authentication_authorization")
 
     def test_archive_preserves_snapshot_and_keeps_gmail_finalization_disabled(self) -> None:
-        response = self.client.post(
-            "/archive/thread",
-            json=self._fixture("plain_text"),
-            headers={"Authorization": "Bearer synthetic-valid-token"},
-        )
+        response = self._archive_fixture("plain_text")
         self.assertEqual(response.status_code, 202)
         body = response.json()
         self.assertEqual(body["status"], "PRESERVED")
@@ -90,6 +86,70 @@ class ApiTests(unittest.TestCase):
         self.assertIsNone(body["error"])
 
         audit_states = [event.state.value for event in self.repository.list_audit_events(body["record"]["record_id"])]
+        self.assertEqual(audit_states, ["RENDERED", "STAGED", "VERIFIED", "COMPLETED"])
+
+    def test_gmail_finalization_route_returns_instructions_after_completed_archive(self) -> None:
+        archive_response = self._archive_fixture("plain_text")
+        record_id = archive_response.json()["record"]["record_id"]
+
+        response = self.client.post(
+            "/archive/thread/gmail-finalization",
+            json={
+                "record_id": record_id,
+                "preferences": {
+                    "category": "Receipts",
+                    "mark_read_after_preserve": True,
+                    "archive_after_preserve": True,
+                },
+            },
+            headers={"Authorization": "Bearer synthetic-valid-token"},
+        )
+
+        self.assertEqual(response.status_code, 202)
+        body = response.json()
+        self.assertEqual(body["record"]["record_id"], record_id)
+        self.assertTrue(body["gmail_finalization"]["enabled"])
+        self.assertTrue(body["gmail_finalization"]["mark_read"])
+        self.assertTrue(body["gmail_finalization"]["archive"])
+        self.assertEqual(body["gmail_finalization"]["apply_label"], "EmailVault/Vaulted")
+
+        audit_states = [event.state.value for event in self.repository.list_audit_events(record_id)]
+        self.assertEqual(audit_states, ["RENDERED", "STAGED", "VERIFIED", "COMPLETED", "GMAIL_FINALIZATION_PENDING"])
+
+    def test_gmail_finalization_callback_records_success_after_pending_request(self) -> None:
+        archive_response = self._archive_fixture("plain_text")
+        record_id = archive_response.json()["record"]["record_id"]
+        self._request_gmail_finalization(record_id)
+
+        response = self.client.post(
+            "/archive/thread/gmail-finalization/callback",
+            json={"record_id": record_id, "succeeded": True},
+            headers={"Authorization": "Bearer synthetic-valid-token"},
+        )
+
+        self.assertEqual(response.status_code, 202)
+        body = response.json()
+        self.assertEqual(body["record"]["record_id"], record_id)
+        self.assertEqual(body["state"], "GMAIL_FINALIZED")
+        audit_states = [event.state.value for event in self.repository.list_audit_events(record_id)]
+        self.assertEqual(
+            audit_states,
+            ["RENDERED", "STAGED", "VERIFIED", "COMPLETED", "GMAIL_FINALIZATION_PENDING", "GMAIL_FINALIZED"],
+        )
+
+    def test_gmail_finalization_callback_rejects_without_pending_request(self) -> None:
+        archive_response = self._archive_fixture("plain_text")
+        record_id = archive_response.json()["record"]["record_id"]
+
+        response = self.client.post(
+            "/archive/thread/gmail-finalization/callback",
+            json={"record_id": record_id, "succeeded": True},
+            headers={"Authorization": "Bearer synthetic-valid-token"},
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()["error"]["category"], "gmail_finalization")
+        audit_states = [event.state.value for event in self.repository.list_audit_events(record_id)]
         self.assertEqual(audit_states, ["RENDERED", "STAGED", "VERIFIED", "COMPLETED"])
 
     def test_archive_accepts_matching_addon_request_signature_when_configured(self) -> None:
@@ -223,6 +283,27 @@ class ApiTests(unittest.TestCase):
             headers={"Authorization": "Bearer synthetic-valid-token"},
         )
         self.assertEqual(response.status_code, 422)
+
+    def _archive_fixture(self, name: str):
+        return self.client.post(
+            "/archive/thread",
+            json=self._fixture(name),
+            headers={"Authorization": "Bearer synthetic-valid-token"},
+        )
+
+    def _request_gmail_finalization(self, record_id: str):
+        return self.client.post(
+            "/archive/thread/gmail-finalization",
+            json={
+                "record_id": record_id,
+                "preferences": {
+                    "category": "General",
+                    "mark_read_after_preserve": False,
+                    "archive_after_preserve": False,
+                },
+            },
+            headers={"Authorization": "Bearer synthetic-valid-token"},
+        )
 
 
 if __name__ == "__main__":
