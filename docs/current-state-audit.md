@@ -83,11 +83,12 @@ scaffold, and a Playwright/Chromium adapter boundary.
   `python -m services.api.app.cli init-db`.
 - GitHub Actions CI runs the stable Python 3.12 unit test suite with API/test
   dependencies on push and pull request.
-- A preview-only Gmail Workspace Add-on shell exists with homepage/contextual
-  cards, preference capture, and tests that guard against Gmail mutation calls.
-- Add-on-to-backend HMAC request signing exists as a dormant boundary. The API
-  can enforce signature headers when configured, and the Apps Script shell can
-  build matching signed request options without calling the backend yet.
+- A Gmail Workspace Add-on shell exists with homepage/contextual cards,
+  preference capture, configured signed backend archive calls, and tests that
+  guard against Gmail mutation calls.
+- Add-on-to-backend HMAC request signing exists. The API can enforce signature
+  headers when configured, and the Apps Script shell can call the archive route
+  with matching signed request options when script properties are present.
 - Docker runtime packaging exists for the API with non-root execution,
   persistent `/data` paths, healthcheck, `.dockerignore`, and CI build
   validation.
@@ -116,7 +117,8 @@ The API skeleton requires optional dependencies.
   Google verifier validation still belongs in a private environment.
 - Browser-backed PDF smoke test is opt-in and not part of default CI yet.
 - No Gmail attachment fetcher is wired into the trusted content provider yet.
-- No live add-on-to-backend archive request flow exists yet.
+- No deployed live add-on-to-backend archive request flow has been validated
+  against a real HTTPS API and OAuth project yet.
 - No API route returns Gmail finalization instructions yet.
 - No HTTPS deployment target is selected yet.
 
@@ -129,9 +131,9 @@ current API tests intentionally keep Gmail finalization disabled.
 
 ## Recommended Minimal Changes
 
-1. Wire the add-on to call the backend archive route with signed headers after
-   deployment configuration is ready.
-2. Wire Gmail attachment fetch bytes into the trusted attachment content
+1. Wire Gmail attachment fetch bytes into the trusted attachment content
    provider.
-3. Validate the Google verifier against a real OAuth client before any
+2. Add the post-completion Gmail finalization route and callback flow.
+3. Validate the Google verifier and signed add-on flow against a real OAuth
+   client before any
    real-data demo.
