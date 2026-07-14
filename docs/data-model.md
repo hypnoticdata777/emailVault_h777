@@ -220,3 +220,10 @@ The coordinator records two pieces:
 
 The owner lookup uses the verified Google subject plus server-generated record
 id. A client-supplied record id alone is not trusted.
+
+The API now exposes this as two explicit records of intent: a finalization
+request that moves the archive from `COMPLETED` to
+`GMAIL_FINALIZATION_PENDING`, and a callback that records either
+`GMAIL_FINALIZED` or `PRESERVED_GMAIL_FINALIZATION_FAILED`. The add-on can
+request instructions, but actual Gmail label, mark-read, or archive execution
+remains a separate permission/deployment step.
