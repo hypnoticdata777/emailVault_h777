@@ -36,13 +36,27 @@ class GmailAddonShellTests(unittest.TestCase):
         self.assertIn("function archiveThreadAction(event)", self.source)
         self.assertIn("Prepare Archive", self.source)
 
-    def test_shell_contains_dormant_signed_request_helpers(self) -> None:
+    def test_shell_contains_signed_request_helpers(self) -> None:
         self.assertIn("function buildSignedArchiveRequestOptions_", self.source)
         self.assertIn("function signBackendRequest_", self.source)
         self.assertIn("X-Email-Vault-Timestamp", self.source)
         self.assertIn("X-Email-Vault-Signature", self.source)
         self.assertIn("Utilities.computeHmacSha256Signature", self.source)
-        self.assertNotIn("UrlFetchApp.fetch", self.source)
+
+    def test_shell_wires_backend_call_behind_configuration(self) -> None:
+        self.assertIn("function readBackendConfig_", self.source)
+        self.assertIn("EMAIL_VAULT_BACKEND_URL", self.source)
+        self.assertIn("EMAIL_VAULT_ADDON_SIGNING_SECRET", self.source)
+        self.assertIn("ScriptApp.getIdentityToken()", self.source)
+        self.assertIn("UrlFetchApp.fetch", self.source)
+        self.assertIn("Backend is not configured. Gmail is unchanged.", self.source)
+
+    def test_shell_builds_descriptor_only_archive_payload(self) -> None:
+        self.assertIn("function buildArchiveThreadRequest_", self.source)
+        self.assertIn("function buildMessageSnapshot_", self.source)
+        self.assertIn("function buildAttachmentDescriptors_", self.source)
+        self.assertIn("content_sha256: null", self.source)
+        self.assertNotIn(".getBytes(", self.source)
 
     def test_shell_does_not_mutate_gmail(self) -> None:
         forbidden_calls = [
