@@ -30,8 +30,8 @@ X-Email-Vault-Signature: <hmac-sha256-hex>
 ```
 
 The signature covers the HTTP method, path, timestamp, and SHA-256 hash of the
-raw request body. This is dormant by default for local development until the
-add-on-to-backend flow is wired.
+raw request body. Signing is off by default for local development until the
+secret is configured.
 
 ## `GET /health`
 
