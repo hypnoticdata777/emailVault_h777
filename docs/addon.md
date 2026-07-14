@@ -8,7 +8,8 @@ Current files:
   trigger, homepage trigger, and current-message scopes.
 - `Code.gs` builds a card for the selected Gmail message/thread, prepares an
   archive payload with trusted attachment bytes, and can call the backend with
-  signed request headers when script properties are configured.
+  signed request headers when script properties are configured. It also has
+  signed helpers for the Gmail finalization request and callback endpoints.
 - `README.md` records the local boundary for the shell.
 
 Current behavior:
@@ -23,6 +24,10 @@ Current behavior:
   for backend verification and copy;
 - call `POST /archive/thread` with a Google identity token and HMAC signature
   only when backend URL and signing secret script properties are configured;
+- request `POST /archive/thread/gmail-finalization` after the backend returns a
+  preserved or duplicate record;
+- keep a signed callback helper ready for
+  `POST /archive/thread/gmail-finalization/callback`;
 - return a notification saying Gmail remains unchanged.
 
 Current limits:
@@ -32,7 +37,9 @@ Current limits:
 - backend API calls require `EMAIL_VAULT_BACKEND_URL` and
   `EMAIL_VAULT_ADDON_SIGNING_SECRET` script properties;
 - attachment bytes are sent only inside the signed archive request payload;
+- finalization instructions can be requested, but Gmail mutation execution is
+  still gated behind the next permission/deployment review;
 - no Gmail label, mark-read, archive, delete, or undo behavior is implemented.
 
 The shell is intentionally narrow. Gmail mutation must stay behind the backend
-completion and finalization-instructions boundary.
+completion, finalization-instructions boundary, and explicit permission review.
