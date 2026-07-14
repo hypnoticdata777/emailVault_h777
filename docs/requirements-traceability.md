@@ -57,7 +57,9 @@
 | Gmail Add-on shell has contextual entry point | P6 | `test_manifest_declares_gmail_contextual_trigger`, `services/gmail_addon/appsscript.json` |
 | Gmail Add-on shell avoids broad mailbox scopes | P6 | `test_manifest_uses_minimal_current_message_scopes` |
 | Gmail Add-on shell does not mutate Gmail | P6 | `test_shell_does_not_mutate_gmail` |
-| Add-on archive requests can be signed before backend execution | P7 | `test_verifier_accepts_current_matching_signature`, `test_archive_accepts_matching_addon_request_signature_when_configured`, `test_shell_contains_dormant_signed_request_helpers` |
+| Add-on archive requests can be signed before backend execution | P7 | `test_verifier_accepts_current_matching_signature`, `test_archive_accepts_matching_addon_request_signature_when_configured`, `test_shell_contains_signed_request_helpers` |
+| Add-on archive execution requires deployment configuration | P7 | `test_shell_wires_backend_call_behind_configuration` |
+| Add-on archive payload remains descriptor-only before attachment byte fetch | P7 | `test_shell_builds_descriptor_only_archive_payload` |
 | Unsigned add-on archive requests fail when signing is configured | P7 | `test_archive_rejects_unsigned_addon_request_when_configured`, `test_verifier_rejects_missing_headers_when_secret_is_configured` |
 | API runtime is packaged for container deployment | P7 | `test_dockerfile_packages_api_runtime`, `.github/workflows/ci.yml` Docker build step |
 | API container runs as non-root and exposes healthcheck | P7 | `test_dockerfile_uses_non_root_user_and_healthcheck` |
