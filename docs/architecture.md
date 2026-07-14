@@ -23,9 +23,9 @@ API
   -> persist audit and revision state
   -> return PRESERVED or DUPLICATE with Gmail finalization disabled
 Gmail Workspace Add-on
-  -> later request finalization instructions
-  -> label, optionally mark read/archive only after instructions
-  -> report finalization outcome
+  -> request finalization instructions from separate signed route
+  -> later label, optionally mark read/archive only after permission review
+  -> report finalization outcome through separate signed callback route
 ```
 
 ## Current P1 Layout
@@ -141,10 +141,10 @@ remain a separate owner-scoped call after completion.
 ## Add-on Request Signing Boundary
 
 The API has an optional HMAC signature check for add-on calls. When
-`EMAIL_VAULT_ADDON_SIGNING_SECRET` is configured, the archive route requires a
-timestamp and signature over the method, path, timestamp, and raw request body
-hash. The Apps Script shell has matching signing helpers, but it still does not
-call the backend until deployment configuration exists.
+`EMAIL_VAULT_ADDON_SIGNING_SECRET` is configured, archive and Gmail
+finalization routes require a timestamp and signature over the method, path,
+timestamp, and raw request body hash. The Apps Script shell has matching
+signing helpers and calls them only when deployment configuration exists.
 
 ## Gmail Finalization Boundary
 
@@ -158,3 +158,9 @@ appends `GMAIL_FINALIZED`; failure appends
 `PRESERVED_GMAIL_FINALIZATION_FAILED`. The coordinator looks up records by the
 verified Google subject plus record id so a client-supplied record id cannot
 cross owner boundaries.
+
+The API exposes this boundary through `/archive/thread/gmail-finalization` and
+`/archive/thread/gmail-finalization/callback`. The add-on can request
+instructions now, but live Gmail label, mark-read, archive, and callback-success
+execution stay behind the next permission and private deployment validation
+step.
