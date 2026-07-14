@@ -10,7 +10,8 @@ The current backend uses synthetic fixtures and defaults to a synthetic local
 identity token. It can be configured to verify Google ID tokens. The archive
 route can render and preserve the generated PDF path, and the repository also
 includes a Gmail Add-on shell that can call the backend with signed request
-headers when script properties are configured. The project does not deploy
+headers when script properties are configured. The API also exposes signed
+Gmail finalization request and callback routes. The project does not deploy
 publicly, mark messages read, apply labels, archive Gmail, or delete Gmail.
 
 ## Data That Must Not Enter Logs
@@ -41,10 +42,10 @@ Local development defaults to the synthetic verifier and accepts only
 ownership is derived from Google ID-token claims verified for that configured
 client ID.
 
-When add-on request signing is configured, the archive route also requires a
-fresh HMAC signature over the method, path, timestamp, and raw request body hash.
-This does not replace Google identity; it reduces accidental or replayed
-add-on-to-backend calls once the live add-on execution path exists.
+When add-on request signing is configured, archive and Gmail finalization routes
+also require a fresh HMAC signature over the method, path, timestamp, and raw
+request body hash. This does not replace Google identity; it reduces accidental
+or replayed add-on-to-backend calls once the live add-on execution path exists.
 
 The add-on may read attachment bytes only to include them in the signed archive
 request payload with SHA-256 checksums. The backend must still verify size and
@@ -56,8 +57,9 @@ Gmail must remain unchanged until backend storage verification succeeds.
 
 The add-on may apply the `EmailVault/Vaulted` label, mark read, or archive only
 after the backend returns finalization instructions from a verified preservation
-flow. The current archive route can complete backend preservation, but it still
-does not enable those Gmail instructions.
+flow. The archive route can complete backend preservation, but it still does not
+return those Gmail instructions. The separate finalization route returns
+instructions only after owner-scoped `COMPLETED` state.
 
 ## Storage Boundary
 
@@ -118,6 +120,11 @@ owned by the verified Google subject. The callback result may be recorded only
 after `GMAIL_FINALIZATION_PENDING`, and the callback records success as
 `GMAIL_FINALIZED` or failure as `PRESERVED_GMAIL_FINALIZATION_FAILED`.
 
+The add-on currently requests finalization instructions but does not execute
+label, mark-read, or archive actions. Callback success should not be wired until
+the Gmail mutation scopes, user-facing consent copy, and private deployment
+validation are complete.
+
 ## Fixtures and Demo Data
 
 The repository and public demo must use synthetic data only. Fixture addresses
@@ -139,6 +146,8 @@ Before any public demo:
 - confirm logs redact sensitive fields;
 - confirm renderer blocks scripts and remote fetches;
 - confirm storage verification happens before Gmail finalization;
+- confirm Gmail mutation scopes and callback success behavior are validated in a
+  private Workspace Add-on deployment;
 - confirm temporary artifacts are removed on success and failure;
 - document every known limitation without claiming legal-grade or byte-perfect
   backup.
