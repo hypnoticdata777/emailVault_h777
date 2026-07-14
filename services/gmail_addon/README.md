@@ -8,10 +8,12 @@ Current behavior:
 - shows a homepage card when no Gmail thread is selected;
 - shows a contextual card for the opened Gmail message/thread;
 - collects category, mark-read preference, and archive preference;
-- contains dormant helpers for signed backend archive request options;
-- returns a local preview notification only.
+- builds a descriptor-only archive request payload;
+- calls the backend with signed headers only when script properties are
+  configured;
+- returns a notification while keeping Gmail unchanged.
 
 The shell must not label, mark read, archive, delete, or otherwise mutate Gmail
 until the backend has completed preservation and returned explicit finalization
-instructions. Backend API calls, deployment configuration, and Marketplace
-packaging are still later roadmap work.
+instructions. Deployment configuration, Gmail attachment byte fetching,
+finalization callbacks, and Marketplace packaging are still later roadmap work.
