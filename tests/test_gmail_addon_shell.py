@@ -43,6 +43,16 @@ class GmailAddonShellTests(unittest.TestCase):
         self.assertIn("X-Email-Vault-Signature", self.source)
         self.assertIn("Utilities.computeHmacSha256Signature", self.source)
 
+    def test_shell_contains_gmail_finalization_helpers(self) -> None:
+        self.assertIn("GMAIL_FINALIZATION_PATH", self.source)
+        self.assertIn("GMAIL_FINALIZATION_CALLBACK_PATH", self.source)
+        self.assertIn("function sendGmailFinalizationRequest_", self.source)
+        self.assertIn("function sendGmailFinalizationCallback_", self.source)
+        self.assertIn("function buildGmailFinalizationRequest_", self.source)
+        self.assertIn("function buildGmailFinalizationCallback_", self.source)
+        self.assertIn("/archive/thread/gmail-finalization", self.source)
+        self.assertIn("/archive/thread/gmail-finalization/callback", self.source)
+
     def test_shell_wires_backend_call_behind_configuration(self) -> None:
         self.assertIn("function readBackendConfig_", self.source)
         self.assertIn("EMAIL_VAULT_BACKEND_URL", self.source)
