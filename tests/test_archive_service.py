@@ -13,6 +13,7 @@ from services.api.app.domain.contracts import (
     ArchiveRecordReference,
     ArchiveState,
     ArchiveStatus,
+    ErrorCategory,
     snapshot_fingerprint,
 )
 from services.api.app.repositories.interfaces import AuditEvent
@@ -426,13 +427,14 @@ class ArchiveCoordinatorTests(unittest.TestCase):
             )
         )
 
-        with self.assertRaises(ApiError):
+        with self.assertRaises(ApiError) as context:
             ArchiveCoordinator(repository).record_gmail_finalization_callback(
                 self._identity(),
                 reference.record_id,
                 succeeded=True,
             )
 
+        self.assertEqual(context.exception.category, ErrorCategory.GMAIL_FINALIZATION)
         self.assertEqual([event.state for event in repository.audit_events], [ArchiveState.COMPLETED])
 
     def test_unverified_storage_result_is_rejected_without_writes(self) -> None:
