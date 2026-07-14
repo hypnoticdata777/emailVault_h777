@@ -22,11 +22,20 @@ ALLOWED_TRANSITIONS: dict[ArchiveState, frozenset[ArchiveState]] = {
 }
 
 
+GMAIL_FINALIZATION_TARGETS = frozenset(
+    {
+        ArchiveState.GMAIL_FINALIZATION_PENDING,
+        ArchiveState.GMAIL_FINALIZED,
+        ArchiveState.PRESERVED_GMAIL_FINALIZATION_FAILED,
+    }
+)
+
+
 def assert_transition_allowed(current: ArchiveState, target: ArchiveState) -> None:
     if target not in ALLOWED_TRANSITIONS[current]:
         raise ApiError(
             ErrorCategory.GMAIL_FINALIZATION
-            if target == ArchiveState.GMAIL_FINALIZATION_PENDING
+            if target in GMAIL_FINALIZATION_TARGETS
             else ErrorCategory.DUPLICATE_CONFLICT,
             f"Invalid state transition from {current} to {target}.",
             "archive_state",
