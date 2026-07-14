@@ -17,7 +17,11 @@ from services.api.app.api.schemas import (
     ArchiveResultSchema,
     ArchiveStatusSchema,
     ArchiveThreadRequestSchema,
+    GmailFinalizationCallbackRequestSchema,
+    GmailFinalizationCallbackResultSchema,
     GmailFinalizationInstructionsSchema,
+    GmailFinalizationRequestResultSchema,
+    GmailFinalizationRequestSchema,
 )
 from services.api.app.domain.contracts import ApiError, ErrorCategory
 from services.api.app.repositories.interfaces import RevisionRepository
@@ -61,6 +65,48 @@ async def archive_thread(
         trusted_attachment_provider,
     )
     return ArchiveResultSchema.from_domain(result)
+
+
+@router.post(
+    "/archive/thread/gmail-finalization",
+    response_model=GmailFinalizationRequestResultSchema,
+    status_code=status.HTTP_202_ACCEPTED,
+    dependencies=[Depends(require_addon_request_signature)],
+)
+async def request_gmail_finalization(
+    payload: GmailFinalizationRequestSchema,
+    identity: RequestIdentity = Depends(require_identity),
+    repository: RevisionRepository = Depends(get_revision_repository),
+) -> GmailFinalizationRequestResultSchema:
+    # This route is the explicit handoff from completed backend preservation to
+    # Gmail-side follow-up. The archive route stays mutation-free by design.
+    outcome = ArchiveCoordinator(repository).request_gmail_finalization(
+        identity.google_identity,
+        payload.record_id,
+        payload.preferences.to_domain(),
+    )
+    return GmailFinalizationRequestResultSchema.from_domain(outcome)
+
+
+@router.post(
+    "/archive/thread/gmail-finalization/callback",
+    response_model=GmailFinalizationCallbackResultSchema,
+    status_code=status.HTTP_202_ACCEPTED,
+    dependencies=[Depends(require_addon_request_signature)],
+)
+async def record_gmail_finalization_callback(
+    payload: GmailFinalizationCallbackRequestSchema,
+    identity: RequestIdentity = Depends(require_identity),
+    repository: RevisionRepository = Depends(get_revision_repository),
+) -> GmailFinalizationCallbackResultSchema:
+    # The add-on reports only the final Gmail-side outcome; state transition
+    # policy rejects callbacks that do not follow a pending finalization request.
+    outcome = ArchiveCoordinator(repository).record_gmail_finalization_callback(
+        identity.google_identity,
+        payload.record_id,
+        payload.succeeded,
+    )
+    return GmailFinalizationCallbackResultSchema.from_domain(outcome)
 
 
 async def api_error_handler(request: Request, exc: ApiError) -> JSONResponse:
