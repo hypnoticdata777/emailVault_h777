@@ -1,12 +1,45 @@
 # Email Vault POC
 
 Email Vault is a portfolio-quality proof of concept for preserving the accessible
-snapshot of one opened Gmail thread. The current build contains the P0/P1
-foundation plus the API, persistence, rendering, storage, add-on signing, and
-Gmail finalization boundaries needed for the public POC path.
+snapshot of one opened Gmail thread as an immutable archive revision.
 
-No live Gmail mutation, cloud storage, AI, deletion, or public deployment
-behavior is implemented in this phase.
+The project demonstrates a safety-first Gmail preservation flow: validate a
+thread snapshot, sanitize message content, render and stage generated artifacts,
+verify storage checksums, persist an owner-scoped revision, and only then allow
+a separate Gmail finalization handoff.
+
+This repo is public-portfolio oriented. It uses synthetic data by default and
+does not claim to be a production Gmail backup product.
+
+## Portfolio Snapshot
+
+What this POC proves:
+
+- A Gmail thread can be modeled as a canonical archive request with stable state
+  transitions and controlled API errors.
+- Backend preservation can stay separate from Gmail mutation.
+- Generated archive artifacts can use server-owned filenames, checksum
+  verification, metadata JSON, and manifest JSON.
+- Unsafe email HTML can be sanitized before rendering.
+- A Gmail Workspace Add-on shell can collect preferences and send signed backend
+  requests without mutating Gmail.
+- CI can run a stable Python test suite over the core API, state, storage,
+  rendering, signing, and add-on boundaries.
+
+What this POC intentionally does not do yet:
+
+- No live Gmail label, mark-read, archive, deletion, or mailbox mutation.
+- No committed Google OAuth client, tokens, real email exports, or secrets.
+- No public HTTPS deployment has been selected.
+- No cloud storage provider is wired.
+- No legal-grade or byte-perfect backup guarantee is claimed.
+
+Recommended public demo posture:
+
+1. Present this repository as a code and architecture POC.
+2. Use synthetic fixtures and docs for portfolio review.
+3. Validate OAuth, HTTPS hosting, and Gmail mutation privately before any live
+   real-data demo.
 
 ## Current Status
 
@@ -79,16 +112,36 @@ Done:
   script properties are configured.
 - Docker runtime packaging for the API with non-root execution, `/health`
   healthcheck, persistent `/data` paths, and CI build validation.
+- GitHub Actions stable Python CI is passing after the Gmail finalization
+  callback category regression fix.
 
 Next:
 
-1. Validate the signed add-on archive/finalization flow against a real HTTPS API
-   and Google
-   OAuth client in a private environment.
-2. Decide and document the Gmail mutation permission step for label, mark-read,
+1. Polish the public portfolio narrative and keep the repo docs aligned.
+2. Validate the signed add-on archive/finalization flow against a real HTTPS API
+   and Google OAuth client in a private environment.
+3. Decide and document the Gmail mutation permission step for label, mark-read,
    archive, and callback success behavior.
-3. Choose the public-demo deployment target before any
-   real-data demo.
+4. Choose the public-demo deployment target before any real-data demo.
+
+## Architecture At A Glance
+
+```text
+Gmail Add-on shell
+  -> signed archive request
+  -> FastAPI archive route
+  -> identity and signature checks
+  -> contract validation and duplicate planning
+  -> sanitization and renderer-safe snapshot
+  -> PDF, metadata JSON, manifest JSON, trusted attachment copies
+  -> local storage staging and checksum verification
+  -> SQLite revision and audit history
+  -> completed backend preservation
+  -> separate Gmail finalization request/callback boundary
+```
+
+The archive route completes backend preservation only. Gmail changes stay behind
+the finalization route and remain disabled in the current add-on shell.
 
 ## Thread vs Email
 
@@ -151,3 +204,6 @@ Key docs:
 - `docs/deployment.md`
 - `docs/data-model.md`
 - `docs/security-and-privacy.md`
+- `docs/public-poc-readiness.md`
+- `docs/open-questions.md`
+- `docs/current-state-audit.md`

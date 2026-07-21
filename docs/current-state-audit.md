@@ -99,11 +99,16 @@ scaffold, and a Playwright/Chromium adapter boundary.
 - Docker runtime packaging exists for the API with non-root execution,
   persistent `/data` paths, healthcheck, `.dockerignore`, and CI build
   validation.
+- GitHub Actions stable Python CI is passing after the Gmail finalization
+  callback error category regression fix.
 - Developer setup, current API behavior, and data model notes are documented in
   `docs/development.md`, `docs/api.md`, `docs/addon.md`,
   `docs/deployment.md`, and `docs/data-model.md`.
 - Security and privacy boundaries are documented in
   `docs/security-and-privacy.md`.
+- Public portfolio readiness boundaries are documented in
+  `docs/public-poc-readiness.md`, with open decisions tracked in
+  `docs/open-questions.md`.
 
 ## Setup and Run Commands
 
@@ -128,6 +133,8 @@ The API skeleton requires optional dependencies.
 - No live Gmail label, mark-read, archive, or callback-success execution has
   been validated with real Workspace Add-on permissions yet.
 - No HTTPS deployment target is selected yet.
+- No public screenshots, demo video, or hosted synthetic walkthrough has been
+  added yet.
 
 ## Risky or Conflicting Code
 
@@ -139,8 +146,10 @@ finalization route tests cover the post-completion handoff.
 
 ## Recommended Minimal Changes
 
-1. Validate the Google verifier and signed add-on archive/finalization flow
+1. Finish the public-facing README/docs polish and add synthetic-only screenshots
+   or a short walkthrough if the repo will be shared with non-engineers.
+2. Validate the Google verifier and signed add-on archive/finalization flow
    against a real OAuth client before any real-data demo.
-2. Decide the Gmail mutation permission path for label, mark-read, archive, and
+3. Decide the Gmail mutation permission path for label, mark-read, archive, and
    callback success behavior.
-3. Select and validate the HTTPS deployment target.
+4. Select and validate the HTTPS deployment target.

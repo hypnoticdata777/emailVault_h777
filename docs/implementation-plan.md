@@ -83,9 +83,15 @@ backend script properties are configured. The API now exposes the
 post-completion Gmail finalization request and callback routes, and the add-on
 has signed helpers for both endpoints while Gmail mutation remains disabled
 pending the permission/deployment review.
+The public portfolio readiness pass has started: the README now explains what
+the POC proves, what it intentionally does not do, and how the archive flow is
+separated from Gmail mutation. Open product/deployment decisions are now split
+between answered local POC defaults and private live-demo blockers.
 
 ## Later Phases
 
+- Public-readiness polish: screenshots or a short synthetic walkthrough, final
+  README/doc alignment, and a secrets/artifact sweep before broad sharing.
 - P7: HTTPS deployment choice, real signed archive/finalization validation, and
   private OAuth validation.
 - P8: Gmail mutation permission decision for label, mark-read, archive, and
