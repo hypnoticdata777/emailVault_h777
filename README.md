@@ -156,14 +156,16 @@ Done:
 - Local Clean Inbox intent CLI that records post-preservation cleanup intent
   for a completed record while still returning `enabled=false` Gmail
   finalization instructions.
+- Local batch CLI that preserves several synthetic request files, produces one
+  Clean Inbox review summary, and can record intent only for lower-risk
+  approvable items while Gmail mutation remains disabled.
 
 Next:
 
 1. Decide whether the next user-facing surface should be desktop UI,
    add-on-triggered local API, or a richer CLI workflow.
-2. Add batch Preserve-to-review workflow polish so a user can export several
-   synthetic requests, inspect review results, and record intents in one
-   documented demo path.
+2. Add optional synthetic screenshots or demo output captures for the public
+   portfolio walkthrough.
 3. Validate the signed add-on archive/finalization flow against a real HTTPS API
    and Google OAuth client in a private environment.
 4. Decide and document the Gmail mutation permission step for label, mark-read,
@@ -247,6 +249,17 @@ python -m services.api.app.cli record-clean-inbox-intent --record-id <record-id-
 
 This appends the intent audit marker for the completed record while Gmail
 finalization remains disabled.
+
+Run the full local synthetic batch workflow:
+
+```powershell
+python -m services.api.app.cli local-batch --request tests/fixtures/emails/newsletter_digest.json --request tests/fixtures/emails/bank_notice.json --request tests/fixtures/emails/unknown_message.json --export-root .local/EmailVault --mark-read --record-approvable-intents --json
+```
+
+This writes verified Preserve Mode packages, prints one Clean Inbox review
+summary, and records intent only for lower-risk approvable items. Review-required
+items, such as bank/financial or unknown mail, are preserved but not
+intent-recorded by default.
 
 To prepare local PDF rendering, install the renderer optional dependency and
 Chromium browser runtime:

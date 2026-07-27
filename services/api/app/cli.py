@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -26,8 +27,22 @@ from services.api.app.domain.export_package import ExportFolderLayout
 from services.api.app.domain.export_package import ExportPackageMode
 from services.api.app.repositories.sqlite import SqliteRevisionRepository, sqlite_path_from_database_url
 from services.api.app.services.archive import ArchiveCoordinator, CleanInboxIntentOutcome, LocalPreservePackageOutcome
-from services.api.app.services.export_dry_run import ExportDryRunPlan, plan_export_dry_run
+from services.api.app.services.export_dry_run import ExportDryRunItem, ExportDryRunPlan, plan_export_dry_run
 from services.api.app.services.storage.attachments import MappingAttachmentContentProvider, NullAttachmentContentProvider
+
+
+@dataclass(frozen=True)
+class LocalBatchWorkflowItem:
+    request_path: Path
+    preserve: LocalPreservePackageOutcome
+    review: ExportDryRunItem
+    intent: CleanInboxIntentOutcome | None = None
+
+
+@dataclass(frozen=True)
+class LocalBatchWorkflowOutcome:
+    review_plan: ExportDryRunPlan
+    items: tuple[LocalBatchWorkflowItem, ...]
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -113,6 +128,57 @@ def build_parser() -> argparse.ArgumentParser:
         help="Record label-only intent instead of archive intent.",
     )
     intent.add_argument("--json", action="store_true", help="Print the intent record as JSON.")
+
+    batch = subcommands.add_parser(
+        "local-batch",
+        help="Run local Preserve Mode, Clean Inbox review, and optional safe intent recording for a request batch.",
+    )
+    batch.add_argument(
+        "--request",
+        action="append",
+        required=True,
+        type=Path,
+        help="Path to an ArchiveThreadRequest JSON file. Repeat for batch workflow.",
+    )
+    batch.add_argument("--export-root", required=True, type=Path, help="Folder where Email Vault packages are written.")
+    batch.add_argument("--database-url", help="SQLite URL for local archive state. Defaults to configured DATABASE_URL.")
+    batch.add_argument("--identity-subject", default="local-demo-subject", help="Synthetic local owner subject.")
+    batch.add_argument("--identity-email", default="owner@example.com", help="Synthetic local owner email.")
+    batch.add_argument(
+        "--layout",
+        choices=[item.value for item in ExportFolderLayout],
+        default=ExportFolderLayout.DOMAIN_FIRST.value,
+        help="Folder layout for local package routes and review output.",
+    )
+    batch.add_argument("--label-name", default="EmailVault/Vaulted", help="Gmail label name to plan.")
+    batch.add_argument("--mark-read", action="store_true", help="Plan and record mark-read intent after verified export.")
+    batch.add_argument(
+        "--no-archive",
+        action="store_false",
+        dest="archive",
+        default=True,
+        help="Plan and record label-only intent instead of archive intent.",
+    )
+    batch.add_argument(
+        "--sender-domain-override",
+        action="append",
+        default=[],
+        metavar="THREAD_ID_OR_GMAIL_THREAD_ID=DOMAIN",
+        help="Override a thread's sender-domain route. Repeat for multiple threads.",
+    )
+    batch.add_argument(
+        "--attachment-content",
+        action="append",
+        default=[],
+        metavar="MESSAGE_ID:ATTACHMENT_ID=PATH",
+        help="Trusted attachment bytes to include in Preserve Mode packages. Repeat for multiple attachments.",
+    )
+    batch.add_argument(
+        "--record-approvable-intents",
+        action="store_true",
+        help="Record Clean Inbox intent only for lower-risk items that do not require review.",
+    )
+    batch.add_argument("--json", action="store_true", help="Print the batch workflow result as JSON.")
     return parser
 
 
@@ -160,6 +226,17 @@ def main(argv: list[str] | None = None) -> int:
         else:
             _print_clean_inbox_intent_summary(outcome)
         return 0
+    if args.command == "local-batch":
+        try:
+            outcome = _local_batch(args)
+        except ApiError as exc:
+            print(f"Email Vault error: {exc.category.value}: {exc.message}", file=sys.stderr)
+            return 2
+        if args.json:
+            print(json.dumps(_local_batch_payload(outcome), sort_keys=True, indent=2))
+        else:
+            _print_local_batch_summary(outcome)
+        return 0
     return 1
 
 
@@ -182,6 +259,69 @@ def _preserve_local(args: argparse.Namespace) -> LocalPreservePackageOutcome:
         layout=ExportFolderLayout(args.layout),
         sender_domain_override=args.sender_domain_override,
     )
+
+
+def _local_batch(args: argparse.Namespace) -> LocalBatchWorkflowOutcome:
+    settings = load_settings()
+    database_path = sqlite_path_from_database_url(args.database_url or settings.database_url)
+    repository = SqliteRevisionRepository(database_path)
+    identity = GoogleIdentity(
+        subject=args.identity_subject,
+        email=args.identity_email,
+        email_verified=True,
+    )
+    coordinator = ArchiveCoordinator(repository)
+    attachment_provider = _attachment_provider(args.attachment_content)
+    requests = tuple((path, _load_archive_request(path)) for path in args.request)
+    overrides = _sender_domain_overrides(args.sender_domain_override)
+    layout = ExportFolderLayout(args.layout)
+
+    preserve_outcomes = tuple(
+        coordinator.preserve_export_package_with_details(
+            request,
+            identity,
+            export_root=args.export_root,
+            attachment_content_provider=attachment_provider,
+            layout=layout,
+            sender_domain_override=overrides.get(request.thread.thread_id)
+            or overrides.get(request.thread.gmail_thread_id),
+        )
+        for _path, request in requests
+    )
+    review_plan = plan_export_dry_run(
+        (request.thread for _path, request in requests),
+        mode=ExportPackageMode.CLEAN_INBOX,
+        layout=layout,
+        label_name=args.label_name,
+        mark_read=args.mark_read,
+        archive=args.archive,
+        sender_domain_overrides=overrides,
+    )
+
+    items: list[LocalBatchWorkflowItem] = []
+    for (path, _request), preserve_outcome, review_item in zip(requests, preserve_outcomes, review_plan.items, strict=True):
+        intent = None
+        record = preserve_outcome.result.record
+        if args.record_approvable_intents and not review_item.review_required and record is not None:
+            intent = coordinator.record_clean_inbox_intent(
+                identity,
+                record.record_id,
+                ArchivePreferences(
+                    category=review_item.category,
+                    mark_read_after_preserve=args.mark_read,
+                    archive_after_preserve=args.archive,
+                ),
+            )
+        items.append(
+            LocalBatchWorkflowItem(
+                request_path=path,
+                preserve=preserve_outcome,
+                review=review_item,
+                intent=intent,
+            )
+        )
+
+    return LocalBatchWorkflowOutcome(review_plan=review_plan, items=tuple(items))
 
 
 def _clean_inbox_review(args: argparse.Namespace) -> ExportDryRunPlan:
@@ -362,6 +502,49 @@ def _clean_inbox_intent_payload(outcome: CleanInboxIntentOutcome) -> dict[str, A
     }
 
 
+def _local_batch_payload(outcome: LocalBatchWorkflowOutcome) -> dict[str, Any]:
+    review_payload = _dry_run_payload(outcome.review_plan)
+    return {
+        "mode": "local_batch",
+        "gmail_mutation_enabled": False,
+        "recorded_intent_count": sum(1 for item in outcome.items if item.intent is not None),
+        "review": {
+            "mode": review_payload["mode"],
+            "layout": review_payload["layout"],
+            "label_name": review_payload["label_name"],
+            "mark_read": review_payload["mark_read"],
+            "archive": review_payload["archive"],
+            "summary": review_payload["summary"],
+        },
+        "items": [
+            {
+                "request_path": str(item.request_path),
+                "preserve": _outcome_payload(item.preserve),
+                "review": {
+                    "thread_id": item.review.thread_id,
+                    "gmail_thread_id": item.review.gmail_thread_id,
+                    "subject": item.review.subject,
+                    "category": item.review.category,
+                    "sender_domain": item.review.sender_domain,
+                    "export_path": item.review.export_path,
+                    "review_required": item.review.review_required,
+                    "approved_by_default": not item.review.review_required,
+                    "planned_gmail_action": item.review.planned_gmail_action.value,
+                    "evidence": [
+                        {
+                            "reason": evidence.reason,
+                            "detail": evidence.detail,
+                        }
+                        for evidence in item.review.evidence
+                    ],
+                },
+                "intent": _clean_inbox_intent_payload(item.intent) if item.intent is not None else None,
+            }
+            for item in outcome.items
+        ],
+    }
+
+
 def _print_local_preserve_summary(outcome: LocalPreservePackageOutcome) -> None:
     payload = _outcome_payload(outcome)
     print("Email Vault local Preserve Mode")
@@ -403,6 +586,24 @@ def _print_clean_inbox_intent_summary(outcome: CleanInboxIntentOutcome) -> None:
     print(f"Mark read: {payload['gmail_finalization']['mark_read']}")
     print(f"Archive: {payload['gmail_finalization']['archive']}")
     print(f"Gmail finalization enabled: {payload['gmail_finalization']['enabled']}")
+
+
+def _print_local_batch_summary(outcome: LocalBatchWorkflowOutcome) -> None:
+    payload = _local_batch_payload(outcome)
+    summary = payload["review"]["summary"]
+    print("Email Vault local batch workflow")
+    print(f"Threads: {summary['total_threads']}")
+    print(f"Needs review: {summary['review_required_count']}")
+    print(f"Intent records: {payload['recorded_intent_count']}")
+    print("Gmail mutation enabled: False")
+    for item in payload["items"]:
+        preserve = item["preserve"]
+        review = item["review"]
+        intent_status = "intent_recorded" if item["intent"] else "intent_not_recorded"
+        print(
+            f"- {review['subject']} | {preserve['status']} | {review['category']} | "
+            f"{review['planned_gmail_action']} | {intent_status}"
+        )
 
 
 if __name__ == "__main__":

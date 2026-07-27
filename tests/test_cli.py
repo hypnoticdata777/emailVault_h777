@@ -207,6 +207,68 @@ class CliTests(unittest.TestCase):
         self.assertEqual(stdout, "")
         self.assertIn("authentication_authorization", stderr)
 
+    def test_local_batch_preserves_reviews_and_records_only_approvable_intents(self) -> None:
+        exit_code, stdout, stderr = self._run(
+            "local-batch",
+            "--request",
+            str(FIXTURE_ROOT / "newsletter_digest.json"),
+            "--request",
+            str(FIXTURE_ROOT / "bank_notice.json"),
+            "--request",
+            str(FIXTURE_ROOT / "unknown_message.json"),
+            "--export-root",
+            str(self.export_root),
+            "--database-url",
+            self.database_url,
+            "--mark-read",
+            "--record-approvable-intents",
+            "--json",
+        )
+
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(stderr, "")
+        payload = json.loads(stdout)
+        self.assertEqual(payload["mode"], "local_batch")
+        self.assertFalse(payload["gmail_mutation_enabled"])
+        self.assertEqual(payload["review"]["summary"]["total_threads"], 3)
+        self.assertEqual(payload["review"]["summary"]["review_required_count"], 2)
+        self.assertEqual(payload["recorded_intent_count"], 1)
+        self.assertEqual([item["preserve"]["status"] for item in payload["items"]], ["PRESERVED", "PRESERVED", "PRESERVED"])
+        self.assertTrue(all(Path(item["preserve"]["package_path"]).is_dir() for item in payload["items"]))
+        self.assertEqual(payload["items"][0]["review"]["category"], "newsletter")
+        self.assertIsNotNone(payload["items"][0]["intent"])
+        self.assertFalse(payload["items"][0]["intent"]["gmail_finalization"]["enabled"])
+        self.assertTrue(payload["items"][0]["intent"]["gmail_finalization"]["mark_read"])
+        self.assertIsNone(payload["items"][1]["intent"])
+        self.assertIsNone(payload["items"][2]["intent"])
+
+    def test_local_batch_without_intent_flag_preserves_and_reviews_only(self) -> None:
+        exit_code, stdout, stderr = self._run(
+            "local-batch",
+            "--request",
+            str(FIXTURE_ROOT / "newsletter_digest.json"),
+            "--request",
+            str(FIXTURE_ROOT / "automated_notice.json"),
+            "--export-root",
+            str(self.export_root),
+            "--database-url",
+            self.database_url,
+            "--json",
+        )
+
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(stderr, "")
+        payload = json.loads(stdout)
+        self.assertEqual(payload["review"]["summary"]["review_required_count"], 0)
+        self.assertEqual(payload["recorded_intent_count"], 0)
+        self.assertTrue(all(item["intent"] is None for item in payload["items"]))
+        self.assertEqual(
+            payload["review"]["summary"]["by_gmail_action"],
+            {
+                "label_archive": 2,
+            },
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -90,3 +90,4 @@
 | Local Preserve Mode CLI writes verified packages and reports safe status | v0.2 | `test_preserve_local_writes_package_and_prints_json_summary`, `test_preserve_local_duplicate_returns_existing_record_without_second_package` |
 | Local Clean Inbox review CLI previews batch actions without Gmail mutation | v0.2 | `test_clean_inbox_review_prints_batch_plan_without_gmail_mutation`, `test_clean_inbox_review_accepts_sender_domain_override` |
 | Local Clean Inbox intent CLI records completed-record intent without enabling Gmail mutation | v0.2 | `test_record_clean_inbox_intent_adds_audit_marker_without_enabling_gmail_mutation`, `test_record_clean_inbox_intent_rejects_unknown_or_unowned_record` |
+| Local batch workflow preserves multiple requests, reviews cleanup, and records only approvable intents | v0.2 | `test_local_batch_preserves_reviews_and_records_only_approvable_intents`, `test_local_batch_without_intent_flag_preserves_and_reviews_only` |

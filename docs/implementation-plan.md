@@ -103,9 +103,11 @@ package writer, Preserve Mode coordinator wiring, and Clean Inbox intent records
 while Gmail mutation remains disabled.
 
 The first user-facing CLI wave now exposes local Preserve Mode package writing,
-Clean Inbox dry-run review, and post-preservation Clean Inbox intent recording.
-The next implementation should focus on a smoother batch demo path or the next
-chosen surface before any live Gmail mutation.
+Clean Inbox dry-run review, post-preservation Clean Inbox intent recording, and
+a one-command local batch workflow that preserves several synthetic requests,
+reviews them, and records intent for lower-risk approvable items only. The next
+implementation should focus on the next chosen surface before any live Gmail
+mutation.
 
 ## Later Phases
 
@@ -113,11 +115,10 @@ chosen surface before any live Gmail mutation.
   README/doc alignment, and a secrets/artifact sweep before broad sharing.
 - v0.2 local-first closeout and next wave:
   `docs/v0.2-closeout-and-next-wave.md`.
-- Local batch workflow polish: preserve several synthetic requests, review
-  planned Clean Inbox results, and record safe intent markers with fewer manual
-  steps.
 - Next surface decision: desktop UI, add-on-triggered local API, or richer CLI
   workflow.
+- Portfolio capture: optional synthetic screenshots or saved sample outputs
+  from the local batch workflow.
 - Free Space Mode: reviewed trash/delete queue after verified export, with
   warning copy and reversibility checks.
 - Portable AI/data port: folder and JSON/text outputs that downstream tools can

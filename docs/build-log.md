@@ -159,3 +159,22 @@ easy to follow alongside Git commits.
 - Updated README, development docs, closeout notes, and current-state audit.
 - Validation: `python -m unittest discover -s tests` passed with 165 tests and
   17 expected skips.
+
+## 2026-07-27 - Local Batch Workflow CLI
+
+- Added `python -m services.api.app.cli local-batch` as the first one-command
+  local Preserve-to-review demo path.
+- The command preserves each supplied synthetic request to the selected export
+  root, generates one Clean Inbox review summary, and can record Clean Inbox
+  intent for lower-risk approvable items only.
+- Kept bank/financial, human, attachment-heavy, unknown, and other
+  review-required categories out of automatic intent recording.
+- Kept Gmail mutation disabled. The command writes local export packages and
+  audit intent markers only; it does not label, mark read, archive, trash, or
+  delete Gmail messages.
+- Added CLI tests for batch preservation/review/approvable intent recording and
+  review-only batch behavior when intent recording is not requested.
+- Updated README, development docs, closeout notes, current-state audit, and
+  traceability.
+- Validation: `python -m unittest discover -s tests` passed with 167 tests and
+  17 expected skips.

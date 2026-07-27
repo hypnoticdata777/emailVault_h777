@@ -37,6 +37,8 @@ subscription product implementation.
   coordinator handoff, and Clean Inbox intent records.
 - Local CLI surfaces for Preserve Mode, Clean Inbox dry-run review, and
   post-preservation Clean Inbox intent records.
+- Local batch CLI that demonstrates synthetic preserve, review, and lower-risk
+  intent recording in one mutation-disabled command.
 - Docker runtime boundary for the API.
 - Stable Python CI passing in GitHub Actions.
 - Documentation for development, API behavior, deployment runtime, data model,

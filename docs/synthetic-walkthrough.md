@@ -14,6 +14,16 @@ The user chooses email to process, previews a dry run, exports verified copies
 to storage they control, and only then can record cleanup intent. Live Gmail
 label/archive/mark-read/delete actions remain disabled in the public POC.
 
+Current local demo command:
+
+```powershell
+python -m services.api.app.cli local-batch --request tests/fixtures/emails/newsletter_digest.json --request tests/fixtures/emails/bank_notice.json --request tests/fixtures/emails/unknown_message.json --export-root .local/EmailVault --mark-read --record-approvable-intents --json
+```
+
+This command uses synthetic fixtures only. It writes verified local export
+packages, previews Clean Inbox actions, and records intent only for lower-risk
+approvable items while Gmail mutation remains disabled.
+
 ## Synthetic Demo Dataset
 
 The public fixtures model six common email types:

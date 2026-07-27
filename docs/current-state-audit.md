@@ -148,6 +148,10 @@ scaffold, and a Playwright/Chromium adapter boundary.
   services.api.app.cli record-clean-inbox-intent`, which appends the
   `CLEAN_INBOX_INTENT_RECORDED` audit marker for a completed preserved record
   while Gmail finalization remains disabled.
+- Local batch workflow is now exposed through `python -m services.api.app.cli
+  local-batch`, which preserves several synthetic requests, produces one Clean
+  Inbox review summary, and can record intent for lower-risk approvable items
+  only while Gmail mutation remains disabled.
 
 ## Setup and Run Commands
 
@@ -194,9 +198,8 @@ finalization route tests cover the post-completion handoff.
    non-engineers.
 2. Decide whether the next local Preserve Mode surface should be desktop UI,
    public API, or add-on-triggered local API.
-3. Polish the batch Preserve-to-review local demo path so several synthetic
-   requests can be exported, reviewed, and intent-recorded with one documented
-   flow.
+3. Capture optional demo output or screenshots from the synthetic batch workflow
+   if the repo will be shown in a portfolio review.
 4. Validate the Google verifier and signed add-on archive/finalization flow
    against a real OAuth client before any real-data demo.
 5. Decide the Gmail mutation permission path for label, mark-read, archive,

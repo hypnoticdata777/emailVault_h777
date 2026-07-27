@@ -141,6 +141,21 @@ The command returns Gmail finalization instructions with `enabled=false`. It is
 safe for the public POC because it records the user's intended cleanup choice
 without mutating Gmail.
 
+## Run The Local Batch Workflow
+
+The batch command is the tightest synthetic demo path. It preserves each request
+into the selected export root, produces one Clean Inbox review summary, and can
+record intent only for lower-risk items that do not require review.
+
+```powershell
+python -m services.api.app.cli local-batch --request tests/fixtures/emails/newsletter_digest.json --request tests/fixtures/emails/bank_notice.json --request tests/fixtures/emails/unknown_message.json --export-root .local/EmailVault --mark-read --record-approvable-intents --json
+```
+
+The command is still local-only and mutation-disabled. Bank, human,
+attachment-heavy, unknown, and other review-required categories are preserved
+and reported, but they do not receive intent records from
+`--record-approvable-intents`.
+
 ## Run Tests
 
 ```powershell
@@ -207,6 +222,6 @@ manifest JSON artifacts, copy permitted attachments when a trusted content
 provider supplies bytes, stage and verify local storage, and record a completed
 backend revision. The local Preserve Mode CLI can write portable export packages
 to a selected folder. The local Clean Inbox review and intent commands can
-preview cleanup and record post-preservation intent. None of these paths labels
-Gmail, marks messages read, archives Gmail, trashes Gmail, or deletes Gmail
-messages.
+preview cleanup and record post-preservation intent. The local batch command
+chains those pieces for synthetic demos. None of these paths labels Gmail, marks
+messages read, archives Gmail, trashes Gmail, or deletes Gmail messages.
