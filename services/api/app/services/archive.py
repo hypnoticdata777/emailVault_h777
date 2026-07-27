@@ -69,6 +69,13 @@ class CleanInboxIntentOutcome:
 
 
 @dataclass(frozen=True)
+class LocalPreservePackageOutcome:
+    result: ArchiveResult
+    package_path: Path | None
+    relative_package_path: str | None
+
+
+@dataclass(frozen=True)
 class GmailFinalizationCallbackOutcome:
     record: ArchiveRecordReference
     state: ArchiveState
@@ -170,6 +177,26 @@ class ArchiveCoordinator:
     ) -> ArchiveResult:
         """Run Preserve Mode through the local export package writer."""
 
+        return self.preserve_export_package_with_details(
+            request,
+            identity,
+            export_root=export_root,
+            attachment_content_provider=attachment_content_provider,
+            layout=layout,
+            sender_domain_override=sender_domain_override,
+        ).result
+
+    def preserve_export_package_with_details(
+        self,
+        request: ArchiveThreadRequest,
+        identity: GoogleIdentity,
+        export_root: Path | None = None,
+        attachment_content_provider: AttachmentContentProvider | None = None,
+        layout: ExportFolderLayout = ExportFolderLayout.DOMAIN_FIRST,
+        sender_domain_override: str | None = None,
+    ) -> LocalPreservePackageOutcome:
+        """Run Preserve Mode and return local package details for user-facing tools."""
+
         if not identity.email_verified:
             raise ApiError(
                 ErrorCategory.AUTHENTICATION_AUTHORIZATION,
@@ -181,10 +208,14 @@ class ArchiveCoordinator:
         request.validate(settings)
         plan = RevisionPlanner(self.repository).plan(identity.subject, request.thread)
         if plan.status == RevisionPlanStatus.DUPLICATE:
-            return ArchiveResult(
-                status=ArchiveStatus.DUPLICATE,
-                record=plan.reference,
-                gmail_finalization=GmailFinalizationInstructions(enabled=False),
+            return LocalPreservePackageOutcome(
+                result=ArchiveResult(
+                    status=ArchiveStatus.DUPLICATE,
+                    record=plan.reference,
+                    gmail_finalization=GmailFinalizationInstructions(enabled=False),
+                ),
+                package_path=None,
+                relative_package_path=None,
             )
 
         classification = classify_thread(request.thread)
@@ -214,11 +245,15 @@ class ArchiveCoordinator:
         )
         completed = self.record_completed_preservation(identity, verified.record)
 
-        return ArchiveResult(
-            status=ArchiveStatus.PRESERVED,
-            record=completed.record,
-            verification=verified.verification,
-            gmail_finalization=GmailFinalizationInstructions(enabled=False),
+        return LocalPreservePackageOutcome(
+            result=ArchiveResult(
+                status=ArchiveStatus.PRESERVED,
+                record=completed.record,
+                verification=verified.verification,
+                gmail_finalization=GmailFinalizationInstructions(enabled=False),
+            ),
+            package_path=written.package_path,
+            relative_package_path=written.relative_package_path,
         )
 
     def record_verified_storage(

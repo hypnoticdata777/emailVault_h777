@@ -137,6 +137,9 @@ scaffold, and a Playwright/Chromium adapter boundary.
   recommended next blockers before public/live demo work.
 - `docs/synthetic-walkthrough.md` now provides a public-safe demo narrative,
   screenshot checklist, and short explanation script using synthetic fixtures.
+- Local Preserve Mode is now exposed through `python -m services.api.app.cli
+  preserve-local`, which writes a verified package to a selected export root and
+  reports the package path plus verification summary.
 
 ## Setup and Run Commands
 
@@ -163,8 +166,8 @@ The API skeleton requires optional dependencies.
 - No HTTPS deployment target is selected yet.
 - No public screenshot assets, demo video, or hosted walkthrough page has been
   added yet.
-- The local export package Preserve Mode path is not yet exposed as a dedicated
-  public API/add-on workflow.
+- The local export package Preserve Mode path is not yet exposed as a desktop,
+  public API, or add-on workflow.
 - No executable Free Space Mode trash/delete queue exists yet.
 - No private/public repository split has been executed yet; the recommended
   posture is private core product repo plus public portfolio case study.
@@ -181,8 +184,8 @@ finalization route tests cover the post-completion handoff.
 
 1. Add optional synthetic-only screenshots if the repo will be shown to
    non-engineers.
-2. Decide how the local export package Preserve Mode path should be exposed to
-   the add-on, CLI, or desktop/local UI.
+2. Decide whether the next local Preserve Mode surface should be desktop UI,
+   public API, or add-on-triggered local API.
 3. Decide how Clean Inbox intent should be exposed in the API/add-on UX while
    Gmail mutation remains disabled.
 4. Validate the Google verifier and signed add-on archive/finalization flow

@@ -147,20 +147,21 @@ Done:
   records completed preservation while Gmail finalization remains disabled.
 - Clean Inbox intent records after completed export while Gmail mutation remains
   disabled.
+- Local Preserve Mode CLI that accepts a request JSON file, user-selected export
+  root, optional trusted attachment byte mappings, and prints package path plus
+  verification summary.
 
 Next:
 
-1. Decide how the local Preserve Mode export package path should be exposed:
-   CLI, local desktop UI, or add-on-triggered local API.
-2. Expose a user-selected export root and show the generated package path plus
-   verification summary.
-3. Add a Clean Inbox review surface that shows dry-run results and records
+1. Decide whether the next user-facing surface should be desktop UI,
+   add-on-triggered local API, or a richer CLI workflow.
+2. Add a Clean Inbox review surface that shows dry-run results and records
    intent while Gmail mutation remains disabled.
-4. Validate the signed add-on archive/finalization flow against a real HTTPS API
+3. Validate the signed add-on archive/finalization flow against a real HTTPS API
    and Google OAuth client in a private environment.
-5. Decide and document the Gmail mutation permission step for label, mark-read,
+4. Decide and document the Gmail mutation permission step for label, mark-read,
    archive, delete/trash queue, and callback success behavior.
-6. Keep Free Space Mode trash/delete behavior deferred until review, warning,
+5. Keep Free Space Mode trash/delete behavior deferred until review, warning,
    and reversibility protections are privately validated.
 
 ## Architecture At A Glance
@@ -210,6 +211,16 @@ python -m services.api.app.cli init-db
 python -m pytest
 python -m uvicorn services.api.app.main:app --reload
 ```
+
+Run the local Preserve Mode CLI against a synthetic no-attachment fixture:
+
+```powershell
+python -m services.api.app.cli preserve-local --request tests/fixtures/emails/unknown_message.json --export-root .local/EmailVault --json
+```
+
+The command writes a verified package under the selected export root and prints
+the record id, package path, artifact count, byte total, and Gmail finalization
+status. It does not mutate Gmail.
 
 To prepare local PDF rendering, install the renderer optional dependency and
 Chromium browser runtime:

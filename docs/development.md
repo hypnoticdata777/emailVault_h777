@@ -87,6 +87,27 @@ python -m services.api.app.cli init-db
 The command creates the SQLite schema if it does not already exist. It is safe to
 run more than once.
 
+## Run Local Preserve Mode
+
+The first hands-on local interface is a CLI command. It accepts one
+`ArchiveThreadRequest` JSON file, a user-selected export root, and optional
+trusted attachment-byte mappings. It writes a verified local export package and
+prints the generated package path plus verification summary.
+
+```powershell
+python -m services.api.app.cli preserve-local --request tests/fixtures/emails/unknown_message.json --export-root .local/EmailVault --json
+```
+
+For requests with attachments, pass trusted bytes for each attachment:
+
+```powershell
+python -m services.api.app.cli preserve-local --request path/to/request.json --export-root E:\EmailVault --attachment-content msg-123:att-123=path\to\attachment.pdf
+```
+
+The attachment descriptor in the request must match the supplied byte size and
+SHA-256 checksum. If bytes are missing or mismatched, the CLI rejects the package
+and removes partial output.
+
 ## Run Tests
 
 ```powershell
@@ -151,5 +172,6 @@ credential must be a Google ID token for the configured OAuth client ID.
 The archive route can render the generated PDF path, generate metadata and
 manifest JSON artifacts, copy permitted attachments when a trusted content
 provider supplies bytes, stage and verify local storage, and record a completed
-backend revision. It can require signed add-on headers when configured, but it
-still does not label Gmail, mark messages read, or archive Gmail.
+backend revision. The local Preserve Mode CLI can write portable export packages
+to a selected folder. Neither path labels Gmail, marks messages read, archives
+Gmail, trashes Gmail, or deletes Gmail messages.

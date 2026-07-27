@@ -125,3 +125,18 @@ easy to follow alongside Git commits.
 - Updated README, public POC readiness, closeout, and current-state audit notes.
 - Validation: `python -m unittest discover -s tests` passed with 157 tests and
   17 expected skips.
+
+## 2026-07-27 - Local Preserve Mode CLI
+
+- Added `python -m services.api.app.cli preserve-local` as the first hands-on
+  local Preserve Mode interface.
+- The command accepts an archive request JSON file, selected export root,
+  optional trusted attachment byte mappings, and folder layout controls.
+- It reuses the archive coordinator local export package path and prints status,
+  record id, package path, verification count, byte total, and Gmail
+  finalization status.
+- Added CLI tests for database bootstrap, successful local package export,
+  duplicate short-circuit behavior, and controlled missing-attachment failures.
+- Updated README, development docs, closeout notes, and current-state audit.
+- Validation: `python -m unittest discover -s tests` passed with 161 tests and
+  17 expected skips.
