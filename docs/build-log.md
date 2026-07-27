@@ -113,3 +113,15 @@ easy to follow alongside Git commits.
   the next recommended blockers.
 - Validation: `python -m unittest discover -s tests` passed with 157 tests and
   17 expected skips.
+
+## 2026-07-27 - Synthetic Walkthrough For Public Review
+
+- Added a public-safe synthetic walkthrough for portfolio, investor, and
+  non-engineer review.
+- Documented the demo story from Gmail batch preview through classification,
+  dry-run review, verified local export package, and Clean Inbox intent.
+- Added a screenshot checklist and short public demo script that avoid real
+  Gmail data and live mutation claims.
+- Updated README, public POC readiness, closeout, and current-state audit notes.
+- Validation: `python -m unittest discover -s tests` passed with 157 tests and
+  17 expected skips.

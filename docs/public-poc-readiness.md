@@ -39,6 +39,7 @@ subscription product implementation.
 - Stable Python CI passing in GitHub Actions.
 - Documentation for development, API behavior, deployment runtime, data model,
   add-on behavior, security boundaries, and open decisions.
+- Synthetic walkthrough for non-engineer portfolio or investor review.
 
 ## Must Stay Private Or Deferred
 
@@ -67,8 +68,8 @@ subscription product implementation.
    and are not provided by Gmail archive alone.
 8. Decide whether the core implementation repo should be switched private before
    adding real Gmail sync, deletion, SaaS billing, or commercial roadmap details.
-9. Add a synthetic walkthrough or screenshot set if the repo will be shown to
-   non-engineer portfolio or investor viewers.
+9. If screenshots are added, confirm they follow the synthetic walkthrough and
+   use synthetic data only.
 
 ## Before A Live Hosted Demo
 

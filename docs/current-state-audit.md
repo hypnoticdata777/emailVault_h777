@@ -135,6 +135,8 @@ scaffold, and a Playwright/Chromium adapter boundary.
   mutation still disabled, preserving the explicit finalization boundary.
 - `docs/v0.2-closeout-and-next-wave.md` now records what v0.2 proves and the
   recommended next blockers before public/live demo work.
+- `docs/synthetic-walkthrough.md` now provides a public-safe demo narrative,
+  screenshot checklist, and short explanation script using synthetic fixtures.
 
 ## Setup and Run Commands
 
@@ -159,7 +161,7 @@ The API skeleton requires optional dependencies.
 - No live Gmail label, mark-read, archive, or callback-success execution has
   been validated with real Workspace Add-on permissions yet.
 - No HTTPS deployment target is selected yet.
-- No public screenshots, demo video, or hosted synthetic walkthrough has been
+- No public screenshot assets, demo video, or hosted walkthrough page has been
   added yet.
 - The local export package Preserve Mode path is not yet exposed as a dedicated
   public API/add-on workflow.
@@ -177,8 +179,8 @@ finalization route tests cover the post-completion handoff.
 
 ## Recommended Minimal Changes
 
-1. Finish the public-facing README/docs polish and add synthetic-only screenshots
-   or a short walkthrough if the repo will be shared with non-engineers.
+1. Add optional synthetic-only screenshots if the repo will be shown to
+   non-engineers.
 2. Decide how the local export package Preserve Mode path should be exposed to
    the add-on, CLI, or desktop/local UI.
 3. Decide how Clean Inbox intent should be exposed in the API/add-on UX while

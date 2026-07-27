@@ -56,7 +56,7 @@ What this POC intentionally does not do yet:
 Recommended public demo posture:
 
 1. Present this repository as a code and architecture POC.
-2. Use synthetic fixtures and docs for portfolio review.
+2. Use the synthetic walkthrough, fixtures, and docs for portfolio review.
 3. Validate OAuth, HTTPS hosting, and Gmail mutation privately before any live
    real-data demo.
 
@@ -150,18 +150,17 @@ Done:
 
 Next:
 
-1. Add a synthetic walkthrough or screenshot set for public portfolio review.
-2. Decide how the local Preserve Mode export package path should be exposed:
+1. Decide how the local Preserve Mode export package path should be exposed:
    CLI, local desktop UI, or add-on-triggered local API.
-3. Expose a user-selected export root and show the generated package path plus
+2. Expose a user-selected export root and show the generated package path plus
    verification summary.
-4. Add a Clean Inbox review surface that shows dry-run results and records
+3. Add a Clean Inbox review surface that shows dry-run results and records
    intent while Gmail mutation remains disabled.
-5. Validate the signed add-on archive/finalization flow against a real HTTPS API
+4. Validate the signed add-on archive/finalization flow against a real HTTPS API
    and Google OAuth client in a private environment.
-6. Decide and document the Gmail mutation permission step for label, mark-read,
+5. Decide and document the Gmail mutation permission step for label, mark-read,
    archive, delete/trash queue, and callback success behavior.
-7. Keep Free Space Mode trash/delete behavior deferred until review, warning,
+6. Keep Free Space Mode trash/delete behavior deferred until review, warning,
    and reversibility protections are privately validated.
 
 ## Architecture At A Glance
@@ -245,6 +244,7 @@ Key docs:
 - `docs/deployment.md`
 - `docs/data-model.md`
 - `docs/security-and-privacy.md`
+- `docs/synthetic-walkthrough.md`
 - `docs/public-poc-readiness.md`
 - `docs/v0.2-local-first-roadmap.md`
 - `docs/v0.2-closeout-and-next-wave.md`
