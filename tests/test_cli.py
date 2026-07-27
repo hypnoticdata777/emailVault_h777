@@ -301,6 +301,57 @@ class CliTests(unittest.TestCase):
         self.assertIn("not intent-recorded", report)
         self.assertNotIn(str(self.export_root), report)
 
+    def test_synthetic_demo_runs_canonical_batch_with_short_command(self) -> None:
+        report_path = self.root / "synthetic-demo-report.md"
+
+        exit_code, stdout, stderr = self._run(
+            "synthetic-demo",
+            "--export-root",
+            str(self.export_root),
+            "--database-url",
+            self.database_url,
+            "--report-markdown",
+            str(report_path),
+            "--json",
+        )
+
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(stderr, "")
+        payload = json.loads(stdout)
+        self.assertEqual(payload["review"]["summary"]["total_threads"], 3)
+        self.assertEqual(payload["review"]["summary"]["review_required_count"], 2)
+        self.assertEqual(payload["recorded_intent_count"], 1)
+        self.assertEqual(payload["items"][0]["review"]["category"], "newsletter")
+        self.assertEqual(payload["items"][1]["review"]["category"], "bank_financial")
+        self.assertEqual(payload["items"][2]["review"]["category"], "unknown")
+        self.assertTrue(report_path.is_file())
+
+    def test_synthetic_demo_can_be_rerun_after_approvable_intent_exists(self) -> None:
+        first_exit_code, _first_stdout, first_stderr = self._run(
+            "synthetic-demo",
+            "--export-root",
+            str(self.export_root),
+            "--database-url",
+            self.database_url,
+            "--json",
+        )
+        second_exit_code, second_stdout, second_stderr = self._run(
+            "synthetic-demo",
+            "--export-root",
+            str(self.export_root),
+            "--database-url",
+            self.database_url,
+            "--json",
+        )
+
+        self.assertEqual(first_exit_code, 0)
+        self.assertEqual(first_stderr, "")
+        self.assertEqual(second_exit_code, 0)
+        self.assertEqual(second_stderr, "")
+        payload = json.loads(second_stdout)
+        self.assertEqual(payload["recorded_intent_count"], 0)
+        self.assertEqual([item["preserve"]["status"] for item in payload["items"]], ["DUPLICATE", "DUPLICATE", "DUPLICATE"])
+
 
 if __name__ == "__main__":
     unittest.main()

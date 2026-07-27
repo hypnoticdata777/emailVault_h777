@@ -17,13 +17,14 @@ label/archive/mark-read/delete actions remain disabled in the public POC.
 Current local demo command:
 
 ```powershell
-python -m services.api.app.cli local-batch --request tests/fixtures/emails/newsletter_digest.json --request tests/fixtures/emails/bank_notice.json --request tests/fixtures/emails/unknown_message.json --export-root .local/EmailVault --mark-read --record-approvable-intents --report-markdown .local/demo-report.md --json
+python -m services.api.app.cli synthetic-demo --export-root .local/EmailVault --report-markdown .local/demo-report.md --json
 ```
 
-This command uses synthetic fixtures only. It writes verified local export
-packages, previews Clean Inbox actions, and records intent only for lower-risk
-approvable items while Gmail mutation remains disabled. The optional Markdown
-report gives reviewers a readable summary without absolute local package paths.
+This command uses the canonical newsletter, bank/financial, and unknown
+synthetic fixtures. It writes verified local export packages, previews Clean
+Inbox actions, and records intent only for the lower-risk newsletter item while
+Gmail mutation remains disabled. The optional Markdown report gives reviewers a
+readable summary without absolute local package paths.
 
 ## Synthetic Demo Dataset
 

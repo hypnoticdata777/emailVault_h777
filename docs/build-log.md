@@ -193,3 +193,19 @@ easy to follow alongside Git commits.
   public readiness, closeout notes, implementation plan, and traceability.
 - Validation: `python -m unittest discover -s tests` passed with 168 tests and
   17 expected skips.
+
+## 2026-07-27 - Canonical Synthetic Demo CLI
+
+- Added `python -m services.api.app.cli synthetic-demo` as a short public-safe
+  command for the canonical newsletter, bank/financial, and unknown fixture
+  walkthrough.
+- Reused the local batch workflow so the shortcut preserves verified packages,
+  produces Clean Inbox review output, records intent only for the lower-risk
+  newsletter item, and can write the public-safe Markdown report.
+- Added a rerun guard so an already-recorded Clean Inbox intent does not make a
+  repeated local demo fail.
+- Added CLI tests for the short demo command and repeated demo execution.
+- Updated README, development docs, synthetic walkthrough, current-state audit,
+  public readiness, closeout notes, implementation plan, and traceability.
+- Validation: `python -m unittest discover -s tests` passed with 170 tests and
+  17 expected skips.

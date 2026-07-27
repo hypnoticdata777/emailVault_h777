@@ -106,8 +106,10 @@ The first user-facing CLI wave now exposes local Preserve Mode package writing,
 Clean Inbox dry-run review, post-preservation Clean Inbox intent recording, and
 a one-command local batch workflow that preserves several synthetic requests,
 reviews them, records intent for lower-risk approvable items only, and can
-write a public-safe Markdown report. The next implementation should focus on
-the next chosen surface before any live Gmail mutation.
+write a public-safe Markdown report. The canonical `synthetic-demo` shortcut
+now runs that public walkthrough with fewer flags and can be rerun safely. The
+next implementation should focus on the next chosen surface before any live
+Gmail mutation.
 
 ## Later Phases
 

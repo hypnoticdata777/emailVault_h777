@@ -92,3 +92,4 @@
 | Local Clean Inbox intent CLI records completed-record intent without enabling Gmail mutation | v0.2 | `test_record_clean_inbox_intent_adds_audit_marker_without_enabling_gmail_mutation`, `test_record_clean_inbox_intent_rejects_unknown_or_unowned_record` |
 | Local batch workflow preserves multiple requests, reviews cleanup, and records only approvable intents | v0.2 | `test_local_batch_preserves_reviews_and_records_only_approvable_intents`, `test_local_batch_without_intent_flag_preserves_and_reviews_only` |
 | Local batch workflow can write public-safe Markdown output without absolute package paths | v0.2 | `test_local_batch_writes_public_safe_markdown_report` |
+| Canonical synthetic demo command runs the public walkthrough and tolerates reruns | v0.2 | `test_synthetic_demo_runs_canonical_batch_with_short_command`, `test_synthetic_demo_can_be_rerun_after_approvable_intent_exists` |

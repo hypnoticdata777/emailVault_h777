@@ -141,7 +141,22 @@ The command returns Gmail finalization instructions with `enabled=false`. It is
 safe for the public POC because it records the user's intended cleanup choice
 without mutating Gmail.
 
-## Run The Local Batch Workflow
+## Run The Canonical Synthetic Demo
+
+Use this command for public-safe portfolio review. It uses the canonical
+newsletter, bank/financial, and unknown synthetic fixtures; records intent only
+for the lower-risk newsletter item; and can be rerun safely against the same
+local database.
+
+```powershell
+python -m services.api.app.cli synthetic-demo --export-root .local/EmailVault --report-markdown .local/demo-report.md --json
+```
+
+The command is still local-only and mutation-disabled. It writes verified local
+packages, prints JSON output, and writes a Markdown report without absolute
+local package paths.
+
+## Run A Custom Local Batch Workflow
 
 The batch command is the tightest synthetic demo path. It preserves each request
 into the selected export root, produces one Clean Inbox review summary, and can
@@ -225,5 +240,6 @@ backend revision. The local Preserve Mode CLI can write portable export packages
 to a selected folder. The local Clean Inbox review and intent commands can
 preview cleanup and record post-preservation intent. The local batch command
 chains those pieces for synthetic demos and can write a Markdown report without
-absolute package paths. None of these paths labels Gmail, marks messages read,
-archives Gmail, trashes Gmail, or deletes Gmail messages.
+absolute package paths. The `synthetic-demo` shortcut runs the canonical public
+demo fixtures with fewer flags. None of these paths labels Gmail, marks messages
+read, archives Gmail, trashes Gmail, or deletes Gmail messages.

@@ -41,6 +41,8 @@ subscription product implementation.
   intent recording in one mutation-disabled command.
 - Public-safe Markdown report output from the local batch CLI, with absolute
   local package paths omitted.
+- Canonical `synthetic-demo` CLI shortcut for the public newsletter,
+  bank/financial, and unknown-mail walkthrough.
 - Docker runtime boundary for the API.
 - Stable Python CI passing in GitHub Actions.
 - Documentation for development, API behavior, deployment runtime, data model,

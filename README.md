@@ -161,6 +161,8 @@ Done:
   approvable items while Gmail mutation remains disabled.
 - Public-safe Markdown report output for the local batch CLI, so portfolio demos
   can show summary tables without absolute local package paths.
+- Canonical `synthetic-demo` CLI shortcut that runs the public-safe newsletter,
+  bank/financial, and unknown-mail walkthrough with fewer flags.
 
 Next:
 
@@ -251,7 +253,18 @@ python -m services.api.app.cli record-clean-inbox-intent --record-id <record-id-
 This appends the intent audit marker for the completed record while Gmail
 finalization remains disabled.
 
-Run the full local synthetic batch workflow:
+Run the canonical local synthetic demo:
+
+```powershell
+python -m services.api.app.cli synthetic-demo --export-root .local/EmailVault --report-markdown .local/demo-report.md --json
+```
+
+This shortcut preserves the standard public-safe newsletter, bank/financial, and
+unknown synthetic fixtures; prints one Clean Inbox review summary; records
+intent only for the lower-risk newsletter item; and writes the public-safe
+Markdown report. It does not mutate Gmail.
+
+Run a custom local synthetic batch workflow:
 
 ```powershell
 python -m services.api.app.cli local-batch --request tests/fixtures/emails/newsletter_digest.json --request tests/fixtures/emails/bank_notice.json --request tests/fixtures/emails/unknown_message.json --export-root .local/EmailVault --mark-read --record-approvable-intents --report-markdown .local/demo-report.md --json

@@ -13,6 +13,7 @@ from services.api.app.core.settings import load_settings
 from services.api.app.domain.contracts import (
     ApiError,
     ArchivePreferences,
+    ArchiveState,
     ArchiveThreadRequest,
     AttachmentDescriptor,
     BodyRepresentation,
@@ -29,6 +30,9 @@ from services.api.app.repositories.sqlite import SqliteRevisionRepository, sqlit
 from services.api.app.services.archive import ArchiveCoordinator, CleanInboxIntentOutcome, LocalPreservePackageOutcome
 from services.api.app.services.export_dry_run import ExportDryRunItem, ExportDryRunPlan, plan_export_dry_run
 from services.api.app.services.storage.attachments import MappingAttachmentContentProvider, NullAttachmentContentProvider
+
+
+SYNTHETIC_DEMO_FIXTURES = ("newsletter_digest.json", "bank_notice.json", "unknown_message.json")
 
 
 @dataclass(frozen=True)
@@ -184,6 +188,27 @@ def build_parser() -> argparse.ArgumentParser:
         help="Write a public-safe Markdown summary without absolute local package paths.",
     )
     batch.add_argument("--json", action="store_true", help="Print the batch workflow result as JSON.")
+
+    demo = subcommands.add_parser(
+        "synthetic-demo",
+        help="Run the canonical public-safe synthetic demo batch with fewer flags.",
+    )
+    demo.add_argument("--export-root", required=True, type=Path, help="Folder where synthetic demo packages are written.")
+    demo.add_argument("--database-url", help="SQLite URL for local demo state. Defaults to configured DATABASE_URL.")
+    demo.add_argument("--identity-subject", default="local-demo-subject", help="Synthetic local owner subject.")
+    demo.add_argument("--identity-email", default="owner@example.com", help="Synthetic local owner email.")
+    demo.add_argument(
+        "--fixture-root",
+        type=Path,
+        default=_default_fixture_root(),
+        help="Folder containing synthetic ArchiveThreadRequest fixtures.",
+    )
+    demo.add_argument(
+        "--report-markdown",
+        type=Path,
+        help="Write a public-safe Markdown summary without absolute local package paths.",
+    )
+    demo.add_argument("--json", action="store_true", help="Print the demo workflow result as JSON.")
     return parser
 
 
@@ -244,7 +269,24 @@ def main(argv: list[str] | None = None) -> int:
         else:
             _print_local_batch_summary(outcome)
         return 0
+    if args.command == "synthetic-demo":
+        try:
+            outcome = _synthetic_demo(args)
+        except ApiError as exc:
+            print(f"Email Vault error: {exc.category.value}: {exc.message}", file=sys.stderr)
+            return 2
+        if args.report_markdown:
+            _write_local_batch_report(outcome, args.report_markdown)
+        if args.json:
+            print(json.dumps(_local_batch_payload(outcome), sort_keys=True, indent=2))
+        else:
+            _print_local_batch_summary(outcome)
+        return 0
     return 1
+
+
+def _default_fixture_root() -> Path:
+    return Path(__file__).resolve().parents[3] / "tests" / "fixtures" / "emails"
 
 
 def _preserve_local(args: argparse.Namespace) -> LocalPreservePackageOutcome:
@@ -266,6 +308,24 @@ def _preserve_local(args: argparse.Namespace) -> LocalPreservePackageOutcome:
         layout=ExportFolderLayout(args.layout),
         sender_domain_override=args.sender_domain_override,
     )
+
+
+def _synthetic_demo(args: argparse.Namespace) -> LocalBatchWorkflowOutcome:
+    demo_args = argparse.Namespace(
+        request=tuple(args.fixture_root / fixture for fixture in SYNTHETIC_DEMO_FIXTURES),
+        export_root=args.export_root,
+        database_url=args.database_url,
+        identity_subject=args.identity_subject,
+        identity_email=args.identity_email,
+        layout=ExportFolderLayout.DOMAIN_FIRST.value,
+        label_name="EmailVault/Vaulted",
+        mark_read=True,
+        archive=True,
+        sender_domain_override=[],
+        attachment_content=[],
+        record_approvable_intents=True,
+    )
+    return _local_batch(demo_args)
 
 
 def _local_batch(args: argparse.Namespace) -> LocalBatchWorkflowOutcome:
@@ -310,15 +370,16 @@ def _local_batch(args: argparse.Namespace) -> LocalBatchWorkflowOutcome:
         intent = None
         record = preserve_outcome.result.record
         if args.record_approvable_intents and not review_item.review_required and record is not None:
-            intent = coordinator.record_clean_inbox_intent(
-                identity,
-                record.record_id,
-                ArchivePreferences(
-                    category=review_item.category,
-                    mark_read_after_preserve=args.mark_read,
-                    archive_after_preserve=args.archive,
-                ),
-            )
+            if not _clean_inbox_intent_already_recorded(repository, record.record_id):
+                intent = coordinator.record_clean_inbox_intent(
+                    identity,
+                    record.record_id,
+                    ArchivePreferences(
+                        category=review_item.category,
+                        mark_read_after_preserve=args.mark_read,
+                        archive_after_preserve=args.archive,
+                    ),
+                )
         items.append(
             LocalBatchWorkflowItem(
                 request_path=path,
@@ -329,6 +390,10 @@ def _local_batch(args: argparse.Namespace) -> LocalBatchWorkflowOutcome:
         )
 
     return LocalBatchWorkflowOutcome(review_plan=review_plan, items=tuple(items))
+
+
+def _clean_inbox_intent_already_recorded(repository: SqliteRevisionRepository, record_id: str) -> bool:
+    return any(event.state == ArchiveState.CLEAN_INBOX_INTENT_RECORDED for event in repository.list_audit_events(record_id))
 
 
 def _clean_inbox_review(args: argparse.Namespace) -> ExportDryRunPlan:

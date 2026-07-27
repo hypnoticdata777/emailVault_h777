@@ -154,6 +154,9 @@ scaffold, and a Playwright/Chromium adapter boundary.
   only while Gmail mutation remains disabled.
 - The local batch workflow can write a public-safe Markdown report with summary
   tables and no absolute local package paths.
+- The canonical `synthetic-demo` shortcut runs the public-safe newsletter,
+  bank/financial, and unknown-mail walkthrough with fewer flags and can be
+  rerun safely against the same local database.
 
 ## Setup and Run Commands
 
