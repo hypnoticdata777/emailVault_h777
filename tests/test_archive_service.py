@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import hashlib
+import json
+import tempfile
 import unittest
 
 from dataclasses import replace
 from datetime import UTC, datetime
+from pathlib import Path
 
 from services.api.app.auth.identity import GoogleIdentity
 from services.api.app.domain.contracts import (
@@ -192,6 +195,85 @@ class ArchiveCoordinatorTests(unittest.TestCase):
             [trusted_name.rsplit(".", 1)[-1] for trusted_name in storage.trusted_names],
             ["pdf", "pdf", "json", "json"],
         )
+
+    def test_preserve_export_package_writes_verified_local_package_without_gmail_finalization(self) -> None:
+        repository = FakeRevisionRepository()
+        attachment_content = b"trusted local export attachment bytes"
+        request = self._request_with_attachment_content_hash(attachment_content)
+        with tempfile.TemporaryDirectory() as temp_dir:
+            export_root = Path(temp_dir) / "EmailVault"
+
+            result = ArchiveCoordinator(repository).preserve_export_package(
+                request,
+                self._identity(),
+                export_root=export_root,
+                attachment_content_provider=FakeAttachmentContentProvider(attachment_content),
+            )
+
+            self.assertEqual(result.status, ArchiveStatus.PRESERVED)
+            self.assertIsNotNone(result.record)
+            self.assertIsNotNone(result.verification)
+            self.assertTrue(result.verification.verified)
+            self.assertEqual(result.verification.artifact_count, 5)
+            self.assertFalse(result.gmail_finalization.enabled)
+
+            package_dir = export_root / "example.com" / result.record.record_id
+            self.assertTrue(package_dir.is_dir())
+            self.assertEqual(len(tuple(package_dir.iterdir())), 5)
+            manifest_path = next(package_dir.glob("*.manifest.json"))
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            self.assertEqual(manifest["package"]["mode"], "preserve")
+            self.assertEqual(manifest["package"]["route"]["relative_path"], "example.com")
+            generated_by_kind = {artifact["kind"]: artifact for artifact in manifest["artifacts"]}
+            self.assertTrue(generated_by_kind["raw_eml"]["generated"])
+            self.assertTrue(generated_by_kind["metadata_json"]["generated"])
+            self.assertTrue(generated_by_kind["normalized_text"]["generated"])
+            self.assertTrue(generated_by_kind["attachment"]["generated"])
+            self.assertFalse(generated_by_kind["manifest_json"]["generated"])
+
+        self.assertEqual(
+            [event.state for event in repository.audit_events],
+            [ArchiveState.RENDERED, ArchiveState.STAGED, ArchiveState.VERIFIED, ArchiveState.COMPLETED],
+        )
+        self.assertNotIn(ArchiveState.GMAIL_FINALIZATION_PENDING, [event.state for event in repository.audit_events])
+
+    def test_preserve_export_package_duplicate_returns_before_local_write(self) -> None:
+        request = load_fixture("duplicate_snapshot")
+        existing = ArchiveRecordReference(
+            vault_thread_id="vault-thread-example",
+            revision=1,
+            record_id="record-existing",
+            snapshot_sha256=snapshot_fingerprint(request.thread),
+        )
+        with tempfile.TemporaryDirectory() as temp_dir:
+            export_root = Path(temp_dir) / "EmailVault"
+
+            result = ArchiveCoordinator(FakeRevisionRepository(duplicate=existing)).preserve_export_package(
+                request,
+                self._identity(),
+                export_root=export_root,
+            )
+
+            self.assertEqual(result.status, ArchiveStatus.DUPLICATE)
+            self.assertEqual(result.record, existing)
+            self.assertFalse(result.gmail_finalization.enabled)
+            self.assertFalse(export_root.exists())
+
+    def test_preserve_export_package_rejects_missing_attachment_bytes_without_state_writes(self) -> None:
+        repository = FakeRevisionRepository()
+        with tempfile.TemporaryDirectory() as temp_dir:
+            export_root = Path(temp_dir) / "EmailVault"
+
+            with self.assertRaises(ApiError):
+                ArchiveCoordinator(repository).preserve_export_package(
+                    load_fixture("plain_text"),
+                    self._identity(),
+                    export_root=export_root,
+                )
+
+            self.assertEqual(repository.created_revisions, [])
+            self.assertEqual(repository.audit_events, [])
+            self.assertEqual(tuple(export_root.rglob("record-*")) if export_root.exists() else (), ())
 
     def test_preserve_duplicate_snapshot_returns_existing_record_without_rendering(self) -> None:
         request = load_fixture("duplicate_snapshot")

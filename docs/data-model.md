@@ -291,6 +291,12 @@ fails, the writer rejects the package and removes the partial record folder.
 This keeps cleanup modes dependent on a verified export package instead of a
 best-effort copy.
 
+Preserve Mode can now call the local export package writer from the archive
+coordinator. The coordinator converts the verified written package into the
+existing storage verification result shape, creates the owner-scoped revision,
+records `RENDERED`, `STAGED`, `VERIFIED`, then records `COMPLETED`. Gmail
+finalization stays disabled.
+
 ## Storage Verification Outcome
 
 A storage verification outcome is the coordinator-level record that storage was
@@ -303,9 +309,10 @@ The current coordinator can:
 - return a verification summary with artifact count, total bytes, and verified
   time.
 
-The archive route can now use this outcome as part of the generated PDF
-preservation path before recording `COMPLETED`. It still does not return Gmail
-finalization instructions from the archive route.
+The archive coordinator can now use this outcome for both the generated
+PDF/metadata storage path and the v0.2 local export package path before
+recording `COMPLETED`. The archive route still does not return Gmail
+finalization instructions from the archive response.
 
 ## Archive Completion Outcome
 
@@ -317,9 +324,12 @@ safe transition from `VERIFIED`. It does not append
 `GMAIL_FINALIZATION_PENDING`, return Gmail finalization instructions, or mutate
 Gmail.
 
-The archive route can now return `PRESERVED` after this completed backend state
+The archive route can return `PRESERVED` after this completed backend state
 exists for the generated PDF, metadata JSON, manifest JSON, and any trusted
-permitted attachment-copy artifacts.
+permitted attachment-copy artifacts. The v0.2 local Preserve Mode path can also
+return `PRESERVED` after the local export package writer has verified raw
+`.eml`, metadata JSON, normalized text, manifest JSON, and trusted attachment
+outputs.
 
 ## Gmail Finalization Outcome
 

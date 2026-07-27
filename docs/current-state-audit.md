@@ -128,6 +128,9 @@ scaffold, and a Playwright/Chromium adapter boundary.
 - v0.2 local export package writing now creates raw `.eml`, metadata JSON,
   normalized text, trusted attachment files, and manifest JSON under safe
   route/record folders with checksum verification.
+- Preserve Mode can now run through the local export package writer at the
+  archive coordinator layer and reuse the verified-storage plus completed-state
+  boundary while Gmail finalization stays disabled.
 
 ## Setup and Run Commands
 
@@ -154,8 +157,8 @@ The API skeleton requires optional dependencies.
 - No HTTPS deployment target is selected yet.
 - No public screenshots, demo video, or hosted synthetic walkthrough has been
   added yet.
-- Preserve Mode is not yet wired through the local export package writer in the
-  archive coordinator.
+- The local export package Preserve Mode path is not yet exposed as a dedicated
+  public API/add-on workflow.
 - No executable Free Space Mode trash/delete queue exists yet.
 - No private/public repository split has been executed yet; the recommended
   posture is private core product repo plus public portfolio case study.
@@ -172,10 +175,9 @@ finalization route tests cover the post-completion handoff.
 
 1. Finish the public-facing README/docs polish and add synthetic-only screenshots
    or a short walkthrough if the repo will be shared with non-engineers.
-2. Design and test the verified export package for raw `.eml`, attachments,
-   metadata JSON, readable copy, manifest/checksum files, and normalized text.
-3. Add sender-domain/category routing plus dry-run review before any batch
-   cleanup behavior.
+2. Decide how the local export package Preserve Mode path should be exposed to
+   the add-on, CLI, or desktop/local UI.
+3. Add Clean Inbox Mode intent records while Gmail mutation remains disabled.
 4. Validate the Google verifier and signed add-on archive/finalization flow
    against a real OAuth client before any real-data demo.
 5. Decide the Gmail mutation permission path for label, mark-read, archive,

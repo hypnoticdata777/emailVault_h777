@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from pathlib import Path
 
 from services.api.app.auth.identity import GoogleIdentity
 from services.api.app.core.settings import load_settings
@@ -17,8 +18,12 @@ from services.api.app.domain.contracts import (
     VerificationSummary,
 )
 from services.api.app.domain.contracts import ArchiveThreadRequest
+from services.api.app.domain.export_package import ExportFolderLayout, ExportPackageMode, plan_export_package
 from services.api.app.domain.state import assert_transition_allowed
 from services.api.app.repositories.interfaces import AuditEvent, RevisionRepository
+from services.api.app.services.export_classification import classify_thread
+from services.api.app.services.export_routing import plan_export_route
+from services.api.app.services.export_writer import WrittenExportPackage, write_export_package
 from services.api.app.services.rendering.json_artifacts import (
     build_manifest_json_artifact,
     build_metadata_json_artifact,
@@ -33,7 +38,7 @@ from services.api.app.services.storage.attachments import (
     build_attachment_copy_artifacts,
 )
 from services.api.app.services.storage.rendered_artifacts import stage_and_verify_generated_artifacts
-from services.api.app.services.storage.provider import StageAndVerifyResult
+from services.api.app.services.storage.provider import StageAndVerifyResult, StoredArtifact
 from services.api.app.services.storage.provider import StorageProvider
 
 
@@ -138,6 +143,68 @@ class ArchiveCoordinator:
             storage_provider,
         )
         verified = self.record_verified_storage(identity, plan.gmail_thread_id, plan.reference, storage_result)
+        completed = self.record_completed_preservation(identity, verified.record)
+
+        return ArchiveResult(
+            status=ArchiveStatus.PRESERVED,
+            record=completed.record,
+            verification=verified.verification,
+            gmail_finalization=GmailFinalizationInstructions(enabled=False),
+        )
+
+    def preserve_export_package(
+        self,
+        request: ArchiveThreadRequest,
+        identity: GoogleIdentity,
+        export_root: Path | None = None,
+        attachment_content_provider: AttachmentContentProvider | None = None,
+        layout: ExportFolderLayout = ExportFolderLayout.DOMAIN_FIRST,
+        sender_domain_override: str | None = None,
+    ) -> ArchiveResult:
+        """Run Preserve Mode through the local export package writer."""
+
+        if not identity.email_verified:
+            raise ApiError(
+                ErrorCategory.AUTHENTICATION_AUTHORIZATION,
+                "Verified Google email is required.",
+                "identity.email_verified",
+            )
+
+        settings = load_settings()
+        request.validate(settings)
+        plan = RevisionPlanner(self.repository).plan(identity.subject, request.thread)
+        if plan.status == RevisionPlanStatus.DUPLICATE:
+            return ArchiveResult(
+                status=ArchiveStatus.DUPLICATE,
+                record=plan.reference,
+                gmail_finalization=GmailFinalizationInstructions(enabled=False),
+            )
+
+        classification = classify_thread(request.thread)
+        route = plan_export_route(
+            request.thread,
+            classification.category,
+            layout=layout,
+            sender_domain_override=sender_domain_override,
+        )
+        package = plan_export_package(
+            plan.reference,
+            request.thread,
+            route.route,
+            mode=ExportPackageMode.PRESERVE,
+        )
+        written = write_export_package(
+            export_root or settings.storage_root,
+            package,
+            request.thread,
+            attachment_content_provider,
+        )
+        verified = self.record_verified_storage(
+            identity,
+            plan.gmail_thread_id,
+            plan.reference,
+            _written_package_storage_result(written),
+        )
         completed = self.record_completed_preservation(identity, verified.record)
 
         return ArchiveResult(
@@ -292,3 +359,20 @@ class ArchiveCoordinator:
                 "archive_state",
             )
         return audit_events
+
+
+def _written_package_storage_result(written: WrittenExportPackage) -> StageAndVerifyResult:
+    return StageAndVerifyResult(
+        verified=written.verified,
+        artifacts=tuple(
+            StoredArtifact(
+                trusted_name=artifact.trusted_name,
+                storage_path=artifact.relative_path,
+                sha256=artifact.sha256 or "",
+                size_bytes=artifact.size_bytes or 0,
+            )
+            for artifact in written.artifacts
+            if artifact.generated
+        ),
+        total_bytes=written.total_bytes,
+    )

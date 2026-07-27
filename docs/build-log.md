@@ -74,3 +74,17 @@ easy to follow alongside Git commits.
 - Updated roadmap, data model, traceability, and current-state audit notes.
 - Validation: `python -m unittest discover -s tests` passed with 151 tests and
   17 expected skips.
+
+## 2026-07-27 - v0.2 Preserve Mode Export Package Boundary
+
+- Wired Preserve Mode through the local export package writer at the archive
+  coordinator layer.
+- Reused the existing verified-storage and completed-preservation audit
+  boundary so local packages can record `RENDERED`, `STAGED`, `VERIFIED`, and
+  `COMPLETED` only after checksum-verified output exists.
+- Kept Gmail finalization disabled on Preserve Mode responses.
+- Added tests for successful local package preservation, duplicate short-circuit
+  behavior, and missing attachment-byte rejection without archive state writes.
+- Updated roadmap, data model, traceability, and current-state audit notes.
+- Validation: `python -m unittest discover -s tests` passed with 154 tests and
+  17 expected skips.
