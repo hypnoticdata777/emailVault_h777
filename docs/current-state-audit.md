@@ -122,6 +122,9 @@ scaffold, and a Playwright/Chromium adapter boundary.
   messages.
 - v0.2 deterministic classifier rules now map those synthetic fixtures into
   export categories with evidence and review-required gating.
+- v0.2 dry-run review planning now combines classification, sender-domain
+  routing, export paths, review flags, and planned Gmail actions without writing
+  files or mutating Gmail.
 
 ## Setup and Run Commands
 
@@ -148,8 +151,8 @@ The API skeleton requires optional dependencies.
 - No HTTPS deployment target is selected yet.
 - No public screenshots, demo video, or hosted synthetic walkthrough has been
   added yet.
-- No dry-run batch review, `.eml` writer, local export package writer, or Free
-  Space Mode trash/delete queue exists yet.
+- No `.eml` writer, local export package writer, or executable Free Space Mode
+  trash/delete queue exists yet.
 - No private/public repository split has been executed yet; the recommended
   posture is private core product repo plus public portfolio case study.
 

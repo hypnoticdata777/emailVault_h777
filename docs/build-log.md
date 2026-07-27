@@ -47,3 +47,16 @@ easy to follow alongside Git commits.
 - Updated roadmap, data model, traceability, and current-state audit notes.
 - Validation: `python -m unittest discover -s tests` passed with 141 tests and
   17 expected skips.
+
+## 2026-07-27 - v0.2 Dry-Run Review Planning
+
+- Added dry-run review objects that combine classifier results, sender-domain
+  routing, export paths, and planned Gmail actions without writing files or
+  mutating Gmail.
+- Added summary counts by category, sender domain, export path, and planned
+  Gmail action so a future review UI can show batch impact before cleanup.
+- Kept risky or unknown categories in `needs_review` for Clean Inbox Mode, and
+  kept Free Space Mode behind review-only trash queue planning.
+- Updated roadmap, data model, traceability, and current-state audit notes.
+- Validation: `python -m unittest discover -s tests` passed with 146 tests and
+  17 expected skips.

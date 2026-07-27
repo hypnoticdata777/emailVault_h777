@@ -239,6 +239,29 @@ are review-required. Newsletter and automated categories are lower-risk
 categories, but future cleanup still must pass through dry-run review and
 verified export first.
 
+## Export Dry-Run Plan
+
+An export dry-run plan previews a batch before files are written or Gmail is
+changed. It combines classification and route planning into review items.
+
+Each dry-run item records:
+
+- thread identifiers and subject;
+- selected export category;
+- sender domain and planned export path;
+- classifier evidence;
+- review-required status;
+- planned Gmail action.
+
+The dry-run summary counts items by category, sender domain, export path, and
+planned Gmail action.
+
+Preserve Mode plans `export_only`. Clean Inbox Mode plans label/archive actions
+only for lower-risk categories and sends risky or unknown categories to
+`needs_review`. Free Space Mode never plans direct delete during dry-run; lower
+risk items enter a trash review queue, and risky or unknown items stay in
+`needs_review`.
+
 ## Storage Verification Outcome
 
 A storage verification outcome is the coordinator-level record that storage was
