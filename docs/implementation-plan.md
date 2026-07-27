@@ -89,23 +89,34 @@ separated from Gmail mutation. Open product/deployment decisions are now split
 between answered local POC defaults and private live-demo blockers.
 The product has now been rescoped from a one-thread preservation POC into a
 Gmail offloader and inbox-cleaner direction. The existing preservation path is
-the verified export unit for that broader product. Next implementation should
-focus on portable export packages, domain/category routing, dry-run review, and
-cleanup actions layered after export verification.
+the verified export unit for that broader product.
 ADR 0005 records the local-first decision: v0.2 should target one user's Gmail
 and a user-selected filesystem root first, while keeping boundaries clean enough
 for a later hosted subscription SaaS.
+
+## v0.2 Complete
+
+The first local-first implementation wave is complete. It added export package
+contracts, sender/category route planning, synthetic classifier fixtures,
+deterministic classifier rules, dry-run review planning, the local export
+package writer, Preserve Mode coordinator wiring, and Clean Inbox intent records
+while Gmail mutation remains disabled.
+
+The next implementation should focus on exposing the local Preserve Mode package
+path through a user-facing interface, adding a synthetic walkthrough for public
+review, and designing the Clean Inbox review surface before any live Gmail
+mutation.
 
 ## Later Phases
 
 - Public-readiness polish: screenshots or a short synthetic walkthrough, final
   README/doc alignment, and a secrets/artifact sweep before broad sharing.
-- v0.2 local-first roadmap: see `docs/v0.2-local-first-roadmap.md`.
-- Export package foundation: raw `.eml`, attachment folders, metadata JSON,
-  optional readable copy, manifest/checksum files, and normalized text.
-- Routing and review: sender-domain folders, predefined categories, user
-  overrides, and dry-run review before any batch cleanup action.
-- Clean Inbox Mode: label, archive, and mark-read after verified export.
+- v0.2 local-first closeout and next wave:
+  `docs/v0.2-closeout-and-next-wave.md`.
+- Local Preserve Mode interface: user-selected export root, generated package
+  path, and verification summary.
+- Clean Inbox Mode review: dry-run results, explicit approval, and intent
+  records while Gmail mutation remains disabled.
 - Free Space Mode: reviewed trash/delete queue after verified export, with
   warning copy and reversibility checks.
 - Portable AI/data port: folder and JSON/text outputs that downstream tools can

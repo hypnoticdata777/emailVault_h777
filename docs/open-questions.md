@@ -112,11 +112,12 @@ live add-on demo.
    - Recommended default: public code repo plus README walkthrough first; live
      hosted API/add-on demo only after private OAuth and HTTPS validation.
 
-6. What should the first batch routing rules be?
+6. How should batch routing be validated against real Gmail data?
    - Required before: whole-mailbox or sender-domain cleanup.
-   - Recommended default: sender domain, newsletter headers, no-reply/system
-     patterns, Gmail labels/categories, attachment presence, and manual user
-     overrides.
+   - Current default: synthetic sender-domain, newsletter-header,
+     no-reply/system, attachment-heavy, and review-first routing is implemented
+     and tested. Real mailbox validation must stay private until OAuth,
+     deployment, and consent copy are ready.
 
 7. What private repository and public showcase split should be used?
    - Required before: marketing the product seriously.

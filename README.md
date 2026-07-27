@@ -133,26 +133,36 @@ Done:
   healthcheck, persistent `/data` paths, and CI build validation.
 - GitHub Actions stable Python CI is passing after the Gmail finalization
   callback category regression fix.
+- v0.2 local-first export package contracts for Preserve, Clean Inbox, and Free
+  Space modes.
+- Sender-domain and category routing with safe folder segments and user
+  override support.
+- Deterministic classifier rules for newsletter, automated/no-reply,
+  bank/financial, human, attachment-heavy, and unknown synthetic mail.
+- Dry-run review planning with counts by category, sender domain, export path,
+  and planned Gmail action.
+- Local export package writer for raw `.eml`, metadata JSON, normalized text,
+  trusted attachment files, and manifest JSON with checksum verification.
+- Preserve Mode coordinator path that writes verified local export packages and
+  records completed preservation while Gmail finalization remains disabled.
+- Clean Inbox intent records after completed export while Gmail mutation remains
+  disabled.
 
 Next:
 
-1. Align docs and roadmap around the Gmail offloader/inbox-cleaner product
-   direction.
-2. Build v0.2 as a local-first tool against a user-selected filesystem target
-   so PC folders, USB drives, and OneDrive-synced folders share one storage
-   boundary.
-3. Design the verified export package for `.eml`, attachments, metadata JSON,
-   readable copy, manifests, checksums, and normalized text.
-4. Add domain/category routing rules and dry-run review surfaces before cleanup.
-5. Add Preserve Mode first, then Clean Inbox Mode with label plus archive after
-   export verification.
-6. Defer Free Space Mode trash/delete behavior until review, warning, and
-   reversibility protections are designed and privately validated.
-7. Validate the signed add-on archive/finalization flow against a real HTTPS API
+1. Add a synthetic walkthrough or screenshot set for public portfolio review.
+2. Decide how the local Preserve Mode export package path should be exposed:
+   CLI, local desktop UI, or add-on-triggered local API.
+3. Expose a user-selected export root and show the generated package path plus
+   verification summary.
+4. Add a Clean Inbox review surface that shows dry-run results and records
+   intent while Gmail mutation remains disabled.
+5. Validate the signed add-on archive/finalization flow against a real HTTPS API
    and Google OAuth client in a private environment.
-8. Decide and document the Gmail mutation permission step for label, mark-read,
+6. Decide and document the Gmail mutation permission step for label, mark-read,
    archive, delete/trash queue, and callback success behavior.
-9. Choose the public-demo deployment target before any real-data demo.
+7. Keep Free Space Mode trash/delete behavior deferred until review, warning,
+   and reversibility protections are privately validated.
 
 ## Architecture At A Glance
 
@@ -237,6 +247,7 @@ Key docs:
 - `docs/security-and-privacy.md`
 - `docs/public-poc-readiness.md`
 - `docs/v0.2-local-first-roadmap.md`
+- `docs/v0.2-closeout-and-next-wave.md`
 - `docs/build-log.md`
 - `docs/open-questions.md`
 - `docs/current-state-audit.md`

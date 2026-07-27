@@ -133,6 +133,8 @@ scaffold, and a Playwright/Chromium adapter boundary.
   boundary while Gmail finalization stays disabled.
 - Clean Inbox intent can now be recorded after completed export with Gmail
   mutation still disabled, preserving the explicit finalization boundary.
+- `docs/v0.2-closeout-and-next-wave.md` now records what v0.2 proves and the
+  recommended next blockers before public/live demo work.
 
 ## Setup and Run Commands
 

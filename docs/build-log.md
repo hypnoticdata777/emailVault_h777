@@ -102,3 +102,14 @@ easy to follow alongside Git commits.
 - Updated roadmap, data model, traceability, and current-state audit notes.
 - Validation: `python -m unittest discover -s tests` passed with 157 tests and
   17 expected skips.
+
+## 2026-07-27 - v0.2 Closeout And Public POC Readiness Sweep
+
+- Added a v0.2 closeout and next-wave document that records what the
+  local-first implementation now proves.
+- Updated README and implementation plan so they no longer describe v0.2
+  foundation work as future work.
+- Refreshed public POC readiness notes with the completed v0.2 foundation and
+  the next recommended blockers.
+- Validation: `python -m unittest discover -s tests` passed with 157 tests and
+  17 expected skips.

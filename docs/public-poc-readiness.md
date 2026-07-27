@@ -32,6 +32,9 @@ subscription product implementation.
   domain/category routing, and the portable AI/data port.
 - v0.2 local-first roadmap for one user's Gmail and a user-selected filesystem
   export target.
+- v0.2 local-first foundation: export package contracts, deterministic
+  classification, dry-run review planning, local package writer, Preserve Mode
+  coordinator handoff, and Clean Inbox intent records.
 - Docker runtime boundary for the API.
 - Stable Python CI passing in GitHub Actions.
 - Documentation for development, API behavior, deployment runtime, data model,
@@ -64,6 +67,8 @@ subscription product implementation.
    and are not provided by Gmail archive alone.
 8. Decide whether the core implementation repo should be switched private before
    adding real Gmail sync, deletion, SaaS billing, or commercial roadmap details.
+9. Add a synthetic walkthrough or screenshot set if the repo will be shown to
+   non-engineer portfolio or investor viewers.
 
 ## Before A Live Hosted Demo
 
