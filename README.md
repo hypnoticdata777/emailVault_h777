@@ -237,5 +237,6 @@ Key docs:
 - `docs/security-and-privacy.md`
 - `docs/public-poc-readiness.md`
 - `docs/v0.2-local-first-roadmap.md`
+- `docs/build-log.md`
 - `docs/open-questions.md`
 - `docs/current-state-audit.md`

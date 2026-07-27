@@ -110,9 +110,36 @@ class ContractTests(unittest.TestCase):
             "malicious_html",
             "tracking_pixel",
             "path_traversal_filename",
+            "newsletter_digest",
+            "automated_notice",
+            "bank_notice",
+            "human_message",
+            "attachments_heavy",
+            "unknown_message",
         ):
             text = (load_fixture(fixture).thread.messages[0].from_participant.email)
             self.assertTrue(text.endswith("@example.com"))
+
+    def test_v0_2_classifier_seed_fixtures_validate(self) -> None:
+        for fixture in (
+            "newsletter_digest",
+            "automated_notice",
+            "bank_notice",
+            "human_message",
+            "attachments_heavy",
+            "unknown_message",
+        ):
+            with self.subTest(fixture=fixture):
+                load_fixture(fixture).validate()
+
+    def test_v0_2_classifier_seed_fixtures_include_expected_signals(self) -> None:
+        newsletter = load_fixture("newsletter_digest").thread.messages[0]
+        automated = load_fixture("automated_notice").thread.messages[0]
+        attachment_heavy = load_fixture("attachments_heavy").thread.messages[0]
+
+        self.assertIn("List-Unsubscribe", {header.name for header in newsletter.headers})
+        self.assertIn("Auto-Submitted", {header.name for header in automated.headers})
+        self.assertGreaterEqual(len(attachment_heavy.attachments), 3)
 
 
 if __name__ == "__main__":

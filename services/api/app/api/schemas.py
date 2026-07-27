@@ -21,6 +21,7 @@ from services.api.app.domain.contracts import (
     ClientContext,
     ErrorCategory,
     GmailFinalizationInstructions,
+    MessageHeader,
     MessageSnapshot,
     Participant,
     ThreadSnapshot,
@@ -67,6 +68,23 @@ class BodyRepresentationSchema(BaseModel):
 
     def to_domain(self) -> BodyRepresentation:
         return BodyRepresentation(mime_type=self.mime_type, content=self.content)
+
+
+class MessageHeaderSchema(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    name: str
+    value: str
+
+    @field_validator("name")
+    @classmethod
+    def header_name_must_be_present(cls, value: str) -> str:
+        if not value:
+            raise ValueError("header name is required")
+        return value
+
+    def to_domain(self) -> MessageHeader:
+        return MessageHeader(name=self.name, value=self.value)
 
 
 class AttachmentDescriptorSchema(BaseModel):
@@ -118,6 +136,7 @@ class MessageSnapshotSchema(BaseModel):
     bcc: tuple[ParticipantSchema, ...] = ()
     labels: tuple[str, ...] = ()
     is_read: bool = False
+    headers: tuple[MessageHeaderSchema, ...] = ()
     bodies: tuple[BodyRepresentationSchema, ...]
     attachments: tuple[AttachmentDescriptorSchema, ...] = ()
 
@@ -142,6 +161,7 @@ class MessageSnapshotSchema(BaseModel):
             bcc=tuple(item.to_domain() for item in self.bcc),
             labels=self.labels,
             is_read=self.is_read,
+            headers=tuple(item.to_domain() for item in self.headers),
             bodies=tuple(item.to_domain() for item in self.bodies),
             attachments=tuple(item.to_domain() for item in self.attachments),
         )

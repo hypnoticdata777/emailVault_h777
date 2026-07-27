@@ -16,6 +16,11 @@ A message snapshot is one email message inside a thread. It includes accessible
 metadata such as message identifiers, participants, labels, read state, body
 representations, and attachment descriptors.
 
+Message snapshots may also include accessible message headers. v0.2 uses
+synthetic header fixtures for explainable classifier signals such as newsletter
+list headers and auto-generated message headers. Headers are metadata signals;
+they must not contain tokens or secret values in public fixtures.
+
 ## Thread Snapshot
 
 A thread snapshot is the canonical request payload for one opened Gmail thread.

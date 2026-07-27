@@ -76,6 +76,18 @@ class BodyRepresentation:
 
 
 @dataclass(frozen=True)
+class MessageHeader:
+    name: str
+    value: str
+
+    def validate(self) -> None:
+        if not self.name:
+            raise ApiError(ErrorCategory.INVALID_SCHEMA, "Header name is required.", "headers.name")
+        if "\x00" in self.name or "\x00" in self.value:
+            raise ApiError(ErrorCategory.INVALID_SCHEMA, "Header values cannot contain null bytes.", "headers")
+
+
+@dataclass(frozen=True)
 class AttachmentDescriptor:
     attachment_id: str
     original_filename: str
@@ -112,6 +124,7 @@ class MessageSnapshot:
     bcc: tuple[Participant, ...] = ()
     labels: tuple[str, ...] = ()
     is_read: bool = False
+    headers: tuple[MessageHeader, ...] = ()
     bodies: tuple[BodyRepresentation, ...] = ()
     attachments: tuple[AttachmentDescriptor, ...] = ()
 
@@ -123,6 +136,8 @@ class MessageSnapshot:
         self.from_participant.validate()
         for participant in self.to + self.cc + self.bcc:
             participant.validate()
+        for header in self.headers:
+            header.validate()
         if not self.bodies:
             raise ApiError(ErrorCategory.INVALID_SCHEMA, "At least one body representation is required.", "messages.bodies")
         for body in self.bodies:

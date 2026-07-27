@@ -10,6 +10,7 @@ from services.api.app.domain.contracts import (
     AttachmentDescriptor,
     BodyRepresentation,
     ClientContext,
+    MessageHeader,
     MessageSnapshot,
     Participant,
     ThreadSnapshot,
@@ -33,6 +34,10 @@ def _attachment(raw: dict) -> AttachmentDescriptor:
     )
 
 
+def _header(raw: dict) -> MessageHeader:
+    return MessageHeader(name=raw["name"], value=raw.get("value", ""))
+
+
 def _message(raw: dict) -> MessageSnapshot:
     return MessageSnapshot(
         message_id=raw["message_id"],
@@ -44,6 +49,7 @@ def _message(raw: dict) -> MessageSnapshot:
         bcc=tuple(_participant(item) for item in raw.get("bcc", [])),
         labels=tuple(raw.get("labels", [])),
         is_read=raw.get("is_read", False),
+        headers=tuple(_header(item) for item in raw.get("headers", [])),
         bodies=tuple(BodyRepresentation(**item) for item in raw.get("bodies", [])),
         attachments=tuple(_attachment(item) for item in raw.get("attachments", [])),
     )
@@ -66,4 +72,3 @@ def load_fixture(name: str) -> ArchiveThreadRequest:
             messages=tuple(_message(item) for item in thread["messages"]),
         ),
     )
-

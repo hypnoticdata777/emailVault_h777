@@ -115,6 +115,11 @@ scaffold, and a Playwright/Chromium adapter boundary.
 - ADR 0005 records the local-first-before-SaaS decision, and
   `docs/v0.2-local-first-roadmap.md` breaks that direction into buildable
   milestones.
+- `docs/build-log.md` now records each v0.2 implementation step with validation
+  evidence.
+- v0.2 synthetic classifier seed fixtures exist for newsletter,
+  automated/no-reply, bank/financial, human, attachments-heavy, and unknown
+  messages.
 
 ## Setup and Run Commands
 
@@ -141,8 +146,8 @@ The API skeleton requires optional dependencies.
 - No HTTPS deployment target is selected yet.
 - No public screenshots, demo video, or hosted synthetic walkthrough has been
   added yet.
-- No `.eml` export package, sender-domain routing, dry-run batch review, or
-  Free Space Mode trash/delete queue exists yet.
+- No classifier rules, dry-run batch review, `.eml` writer, or Free Space Mode
+  trash/delete queue exists yet.
 - No private/public repository split has been executed yet; the recommended
   posture is private core product repo plus public portfolio case study.
 

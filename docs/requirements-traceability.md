@@ -74,3 +74,5 @@
 | Export route planning derives sender-domain and category folder layouts before writing files | v0.2 | `test_plan_export_route_uses_primary_sender_domain_for_domain_first_layout`, `test_plan_export_route_supports_category_first_layout` |
 | Export route planning supports user sender-domain overrides and review-first mixed routing | v0.2 | `test_plan_export_route_supports_sender_domain_override`, `test_mixed_layout_routes_review_first_categories_before_domain` |
 | Export route planning rejects invalid sender domains | v0.2 | `test_normalize_sender_domain_rejects_invalid_domain` |
+| v0.2 classifier seed fixtures cover newsletter, automated, bank, human, attachments-heavy, and unknown mail | v0.2 | `test_v0_2_classifier_seed_fixtures_validate` |
+| Message headers can carry synthetic newsletter and automated classifier signals | v0.2 | `test_v0_2_classifier_seed_fixtures_include_expected_signals` |
