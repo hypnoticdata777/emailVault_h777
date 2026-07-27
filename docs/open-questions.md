@@ -37,6 +37,49 @@ live add-on demo.
      transitions. User-facing archive preference categories remain strings so
      the contract does not block early product exploration.
 
+6. Should downstream AI integration be tied to one named tool?
+   - Answer: no.
+   - Current behavior: Email Vault should provide a portable data port through
+     folders, normalized text, metadata JSON, manifests, checksums, and
+     attachment paths. Users can connect their own AI, search, knowledge-base,
+     or research tools later.
+
+7. Are Preserve, Clean Inbox, and Free Space separate products?
+   - Answer: no.
+   - Current behavior: they are toggleable modes. Preserve Mode creates the
+     verified export package. Clean Inbox Mode and Free Space Mode are optional
+     Gmail actions layered after that verified export.
+
+8. Should v0.2 target a local tool or hosted SaaS first?
+   - Answer: local-first tool first, SaaS-ready architecture second.
+   - Current behavior: the next build should run against the user's own Gmail
+     and export to user-controlled storage before adding hosted accounts,
+     billing, multi-tenant workers, or public OAuth review.
+
+9. What should the first storage target be?
+   - Answer: any local filesystem path.
+   - Current behavior: local folders, USB drives, and OneDrive-synced folders
+     can all be represented as user-selected filesystem paths. Direct cloud API
+     integrations are deferred.
+
+10. What Gmail cleanup actions should come first?
+    - Answer: label plus archive after verified export.
+    - Current behavior: mark-read can remain a nearby option, while trash/delete
+      stays behind a later Free Space Mode review queue.
+
+11. What should the first classification rules be?
+    - Answer: newsletters, no-reply/automated, banks/financial, human sender,
+      needs-review, attachments-heavy, and unknown.
+    - Current behavior: start with explainable rules based on sender domain,
+      sender address, newsletter headers, no-reply patterns, Gmail
+      labels/categories, attachment presence, and manual user overrides.
+
+12. Should the commercial core repo be public?
+    - Answer: no, not long term.
+    - Current behavior: use a private core product repo for subscription/SaaS
+      implementation and a public portfolio case study or demo repo for
+      showcasing synthetic screenshots, architecture, and sanitized walkthroughs.
+
 ## Still Pending Before A Live Public Demo
 
 1. Which Google OAuth client ID will be used for the add-on?
@@ -58,7 +101,8 @@ live add-on demo.
 
 4. Which Gmail mutation permissions should be requested?
    - Required before: applying labels, marking messages read, archiving Gmail
-     messages, or recording callback success after live mutation.
+     messages, moving messages to trash, deleting messages, or recording
+     callback success after live mutation.
    - Current default: no Gmail mutation. Keep the add-on read/current-message
      oriented until permission copy, scope review, and private validation are
      complete.
@@ -67,3 +111,15 @@ live add-on demo.
    - Required before: investor/portfolio posting.
    - Recommended default: public code repo plus README walkthrough first; live
      hosted API/add-on demo only after private OAuth and HTTPS validation.
+
+6. What should the first batch routing rules be?
+   - Required before: whole-mailbox or sender-domain cleanup.
+   - Recommended default: sender domain, newsletter headers, no-reply/system
+     patterns, Gmail labels/categories, attachment presence, and manual user
+     overrides.
+
+7. What private repository and public showcase split should be used?
+   - Required before: marketing the product seriously.
+   - Recommended default: make the working core private, then create a public
+     portfolio page or sanitized companion repo that shows the concept without
+     exposing implementation, roadmap, or commercial mechanics.

@@ -87,11 +87,29 @@ The public portfolio readiness pass has started: the README now explains what
 the POC proves, what it intentionally does not do, and how the archive flow is
 separated from Gmail mutation. Open product/deployment decisions are now split
 between answered local POC defaults and private live-demo blockers.
+The product has now been rescoped from a one-thread preservation POC into a
+Gmail offloader and inbox-cleaner direction. The existing preservation path is
+the verified export unit for that broader product. Next implementation should
+focus on portable export packages, domain/category routing, dry-run review, and
+cleanup actions layered after export verification.
+ADR 0005 records the local-first decision: v0.2 should target one user's Gmail
+and a user-selected filesystem root first, while keeping boundaries clean enough
+for a later hosted subscription SaaS.
 
 ## Later Phases
 
 - Public-readiness polish: screenshots or a short synthetic walkthrough, final
   README/doc alignment, and a secrets/artifact sweep before broad sharing.
+- v0.2 local-first roadmap: see `docs/v0.2-local-first-roadmap.md`.
+- Export package foundation: raw `.eml`, attachment folders, metadata JSON,
+  optional readable copy, manifest/checksum files, and normalized text.
+- Routing and review: sender-domain folders, predefined categories, user
+  overrides, and dry-run review before any batch cleanup action.
+- Clean Inbox Mode: label, archive, and mark-read after verified export.
+- Free Space Mode: reviewed trash/delete queue after verified export, with
+  warning copy and reversibility checks.
+- Portable AI/data port: folder and JSON/text outputs that downstream tools can
+  consume without direct Gmail access.
 - P7: HTTPS deployment choice, real signed archive/finalization validation, and
   private OAuth validation.
 - P8: Gmail mutation permission decision for label, mark-read, archive, and

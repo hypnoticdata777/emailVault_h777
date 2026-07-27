@@ -1,10 +1,48 @@
 # Architecture
 
+## Rescoped Product Architecture
+
+Email Vault is now scoped as an email offloader and inbox cleaner built on top
+of the existing preservation engine. The current one-thread archive path remains
+the smallest safe unit of preservation. Later mailbox and sender-domain flows
+should compose that unit into batches instead of bypassing it.
+
+The product modes are layered:
+
+```text
+Preserve Mode
+  -> verified export package
+  -> no Gmail mutation
+
+Clean Inbox Mode
+  -> verified export package
+  -> optional label/archive/mark-read instructions
+
+Free Space Mode
+  -> verified export package
+  -> explicit review and warning
+  -> trash/delete queue where reversible behavior is available
+```
+
+The verified export package is the common prerequisite. It should support raw
+`.eml`, attachments, metadata JSON, readable PDF/HTML, manifest/checksum files,
+and normalized text for downstream search or AI tools.
+
+Folder routing should support sender-domain organization, predefined categories,
+and user overrides. The user should be able to choose domain-first,
+category-first, or mixed layouts before any batch cleanup runs.
+
+Email Vault should expose a portable data port rather than tying exports to one
+AI product. Downstream tools can consume normalized text, metadata, manifests,
+and attachment paths from the storage target without receiving direct Gmail
+access by default.
+
 ## POC Boundary
 
 The transaction boundary is the storage verification result. Gmail labeling,
-mark-read, and archive operations are not permitted until the backend has staged
-artifacts, verified durable storage, and recorded the revision state.
+mark-read, archive, trash, or delete operations are not permitted until the
+backend has staged artifacts, verified durable storage, and recorded the
+revision state.
 
 ## Preferred Flow
 
@@ -25,6 +63,7 @@ API
 Gmail Workspace Add-on
   -> request finalization instructions from separate signed route
   -> later label, optionally mark read/archive only after permission review
+  -> trash/delete only in a separate high-warning Free Space Mode
   -> report finalization outcome through separate signed callback route
 ```
 

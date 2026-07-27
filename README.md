@@ -1,19 +1,23 @@
 # Email Vault POC
 
-Email Vault is a portfolio-quality proof of concept for preserving the accessible
-snapshot of one opened Gmail thread as an immutable archive revision.
+Email Vault is a portfolio-quality proof of concept for a Gmail offloader,
+inbox cleaner, and portable email export tool.
 
-The project demonstrates a safety-first Gmail preservation flow: validate a
-thread snapshot, sanitize message content, render and stage generated artifacts,
-verify storage checksums, persist an owner-scoped revision, and only then allow
-a separate Gmail finalization handoff.
+The product direction is simple: connect to Gmail, save selected emails to
+storage the user controls, organize those exports by sender domain or category,
+and then optionally clean Gmail according to explicit user rules.
+
+The current codebase proves the safety-first preservation engine behind that
+direction: validate a Gmail snapshot, sanitize message content, render and stage
+generated artifacts, verify storage checksums, persist an owner-scoped revision,
+and only then allow a separate Gmail cleanup/finalization handoff.
 
 This repo is public-portfolio oriented. It uses synthetic data by default and
 does not claim to be a production Gmail backup product.
 
 ## Portfolio Snapshot
 
-What this POC proves:
+What this POC proves today:
 
 - A Gmail thread can be modeled as a canonical archive request with stable state
   transitions and controlled API errors.
@@ -26,12 +30,27 @@ What this POC proves:
 - CI can run a stable Python test suite over the core API, state, storage,
   rendering, signing, and add-on boundaries.
 
+What the rescoped product is building toward:
+
+- Preserve Mode: export selected email to local PC, USB, OneDrive-synced folder,
+  or another configured target without changing Gmail.
+- Clean Inbox Mode: export verified copies first, then label, archive, or mark
+  read so Gmail keeps fewer messages in the inbox.
+- Free Space Mode: export verified copies first, then move selected Gmail
+  messages to a trash/delete queue after explicit opt-in review.
+- Domain and category routing so saved email can be organized by sender domain,
+  newsletter/source, bank, human sender, automated system, or needs-review state.
+- A portable data port for search, knowledge-base, or AI tools without locking
+  the user to one downstream product.
+
 What this POC intentionally does not do yet:
 
 - No live Gmail label, mark-read, archive, deletion, or mailbox mutation.
+- No whole-mailbox sync or batch cleanup implementation yet.
 - No committed Google OAuth client, tokens, real email exports, or secrets.
 - No public HTTPS deployment has been selected.
 - No cloud storage provider is wired.
+- No built-in AI summarization, reply generation, or analysis.
 - No legal-grade or byte-perfect backup guarantee is claimed.
 
 Recommended public demo posture:
@@ -117,31 +136,43 @@ Done:
 
 Next:
 
-1. Polish the public portfolio narrative and keep the repo docs aligned.
-2. Validate the signed add-on archive/finalization flow against a real HTTPS API
+1. Align docs and roadmap around the Gmail offloader/inbox-cleaner product
+   direction.
+2. Build v0.2 as a local-first tool against a user-selected filesystem target
+   so PC folders, USB drives, and OneDrive-synced folders share one storage
+   boundary.
+3. Design the verified export package for `.eml`, attachments, metadata JSON,
+   readable copy, manifests, checksums, and normalized text.
+4. Add domain/category routing rules and dry-run review surfaces before cleanup.
+5. Add Preserve Mode first, then Clean Inbox Mode with label plus archive after
+   export verification.
+6. Defer Free Space Mode trash/delete behavior until review, warning, and
+   reversibility protections are designed and privately validated.
+7. Validate the signed add-on archive/finalization flow against a real HTTPS API
    and Google OAuth client in a private environment.
-3. Decide and document the Gmail mutation permission step for label, mark-read,
-   archive, and callback success behavior.
-4. Choose the public-demo deployment target before any real-data demo.
+8. Decide and document the Gmail mutation permission step for label, mark-read,
+   archive, delete/trash queue, and callback success behavior.
+9. Choose the public-demo deployment target before any real-data demo.
 
 ## Architecture At A Glance
 
 ```text
 Gmail Add-on shell
-  -> signed archive request
+  -> signed export/archive request
   -> FastAPI archive route
   -> identity and signature checks
   -> contract validation and duplicate planning
   -> sanitization and renderer-safe snapshot
-  -> PDF, metadata JSON, manifest JSON, trusted attachment copies
+  -> export package: .eml, attachments, metadata, readable copy, manifest
   -> local storage staging and checksum verification
   -> SQLite revision and audit history
   -> completed backend preservation
-  -> separate Gmail finalization request/callback boundary
+  -> optional Gmail cleanup/finalization request/callback boundary
 ```
 
-The archive route completes backend preservation only. Gmail changes stay behind
-the finalization route and remain disabled in the current add-on shell.
+The archive route completes backend preservation only. Gmail changes, including
+label, archive, mark-read, trash, or delete behavior, stay behind explicit
+review and finalization boundaries.
 
 ## Thread vs Email
 
@@ -205,5 +236,6 @@ Key docs:
 - `docs/data-model.md`
 - `docs/security-and-privacy.md`
 - `docs/public-poc-readiness.md`
+- `docs/v0.2-local-first-roadmap.md`
 - `docs/open-questions.md`
 - `docs/current-state-audit.md`

@@ -4,6 +4,15 @@ This checklist separates what is ready for a public portfolio posting from what
 must remain private until Google OAuth, deployment, and Gmail permissions are
 validated.
 
+The product direction has expanded from one-thread preservation into a Gmail
+offloader and inbox cleaner. The current public POC is still the safety engine:
+verified preservation before any Gmail cleanup action.
+
+The recommended commercial posture is private core implementation plus public
+portfolio case study. The public material should use synthetic screenshots,
+architecture notes, and sanitized walkthroughs instead of exposing the full
+subscription product implementation.
+
 ## Ready For Public Portfolio Review
 
 - Synthetic fixtures and invented `example.com` data only.
@@ -19,6 +28,10 @@ validated.
 - Gmail Workspace Add-on shell with preference capture and signed backend helper
   calls.
 - Explicit no-mutation Gmail posture in the current add-on shell.
+- Product documentation for Preserve Mode, Clean Inbox Mode, Free Space Mode,
+  domain/category routing, and the portable AI/data port.
+- v0.2 local-first roadmap for one user's Gmail and a user-selected filesystem
+  export target.
 - Docker runtime boundary for the API.
 - Stable Python CI passing in GitHub Actions.
 - Documentation for development, API behavior, deployment runtime, data model,
@@ -30,8 +43,11 @@ validated.
 - Real OAuth client IDs, tokens, secrets, signing keys, or database credentials.
 - Publicly hosted API connected to real Gmail accounts.
 - Gmail label, mark-read, archive, or callback-success mutation behavior.
+- Gmail trash, delete, permanent delete, or storage-reduction claims.
+- Whole-mailbox background sync or batch cleanup.
 - Marketplace publication or production Workspace Add-on review.
 - Cloud storage or managed database decisions.
+- Built-in AI summaries, research, replies, or automation.
 - Any claim that the POC is a production backup, legal hold, or byte-perfect
   archival product.
 
@@ -44,6 +60,10 @@ validated.
 4. Confirm README and docs describe Gmail mutation as disabled.
 5. Confirm screenshots, if added, use synthetic data only.
 6. Confirm known limitations are visible from the README.
+7. Confirm the README explains that storage savings require delete/trash behavior
+   and are not provided by Gmail archive alone.
+8. Decide whether the core implementation repo should be switched private before
+   adding real Gmail sync, deletion, SaaS billing, or commercial roadmap details.
 
 ## Before A Live Hosted Demo
 
@@ -56,5 +76,7 @@ validated.
 6. Validate signed add-on archive and finalization calls against the deployed
    API.
 7. Decide Gmail mutation scopes and consent copy.
-8. Validate label, mark-read, archive, and callback-success behavior in a
-   private Workspace Add-on deployment before showing real Gmail data.
+8. Validate domain/category batch routing with dry-run review before cleanup.
+9. Validate label, mark-read, archive, trash/delete, and callback-success
+   behavior in a private Workspace Add-on deployment before showing real Gmail
+   data.

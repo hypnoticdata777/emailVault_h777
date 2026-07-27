@@ -14,6 +14,14 @@
 10. Temporary files are deleted on success and every failure path.
 11. Stored paths use server-generated trusted identifiers.
 12. Public demo and repository use synthetic data only.
+13. Cleanup actions are toggles layered after verified export; export must work
+    without any Gmail mutation.
+14. Free Space Mode must never delete Gmail data before export verification,
+    explicit review, warning, and a reversible/trash window where available.
+15. Domain/category routing must be explainable and user-overridable before any
+    batch cleanup action.
+16. AI and downstream data use must work through portable exports, not direct
+    mailbox access granted to a specific AI tool by default.
 
 ## P1 Contract Defaults
 
@@ -27,3 +35,16 @@
 - SQLite is acceptable locally, with repository boundaries designed for
   Postgres later.
 
+## Rescoped Product Defaults
+
+- Preserve Mode exports first and does not change Gmail.
+- Clean Inbox Mode exports first, then may label, archive, or mark read.
+- Free Space Mode exports first, then may move reviewed messages to a
+  trash/delete queue.
+- Export packages should support raw `.eml`, attachments, metadata JSON,
+  optional readable PDF/HTML, manifest/checksum files, and normalized text.
+- Folder routing should support sender-domain folders, predefined categories,
+  and user overrides.
+- Public portfolio demos must show synthetic email only and should avoid claims
+  that Gmail storage is reduced unless deletion/trash behavior is explicitly
+  enabled and validated.

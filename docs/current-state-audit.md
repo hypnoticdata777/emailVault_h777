@@ -109,6 +109,12 @@ scaffold, and a Playwright/Chromium adapter boundary.
 - Public portfolio readiness boundaries are documented in
   `docs/public-poc-readiness.md`, with open decisions tracked in
   `docs/open-questions.md`.
+- ADR 0004 records the product pivot from one-thread preservation into a Gmail
+  offloader, inbox cleaner, verified export package, domain/category routing,
+  and portable AI/data-port direction.
+- ADR 0005 records the local-first-before-SaaS decision, and
+  `docs/v0.2-local-first-roadmap.md` breaks that direction into buildable
+  milestones.
 
 ## Setup and Run Commands
 
@@ -135,6 +141,10 @@ The API skeleton requires optional dependencies.
 - No HTTPS deployment target is selected yet.
 - No public screenshots, demo video, or hosted synthetic walkthrough has been
   added yet.
+- No `.eml` export package, sender-domain routing, dry-run batch review, or
+  Free Space Mode trash/delete queue exists yet.
+- No private/public repository split has been executed yet; the recommended
+  posture is private core product repo plus public portfolio case study.
 
 ## Risky or Conflicting Code
 
@@ -148,8 +158,12 @@ finalization route tests cover the post-completion handoff.
 
 1. Finish the public-facing README/docs polish and add synthetic-only screenshots
    or a short walkthrough if the repo will be shared with non-engineers.
-2. Validate the Google verifier and signed add-on archive/finalization flow
+2. Design and test the verified export package for raw `.eml`, attachments,
+   metadata JSON, readable copy, manifest/checksum files, and normalized text.
+3. Add sender-domain/category routing plus dry-run review before any batch
+   cleanup behavior.
+4. Validate the Google verifier and signed add-on archive/finalization flow
    against a real OAuth client before any real-data demo.
-3. Decide the Gmail mutation permission path for label, mark-read, archive, and
-   callback success behavior.
-4. Select and validate the HTTPS deployment target.
+5. Decide the Gmail mutation permission path for label, mark-read, archive,
+   trash/delete queue, and callback success behavior.
+6. Select and validate the HTTPS deployment target.
