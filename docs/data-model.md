@@ -175,6 +175,29 @@ size details for the PDF, copied attachments, and metadata JSON. Its own
 artifact entry is marked as not yet generated inside the manifest payload to
 avoid self-referential checksum claims.
 
+## Export Package Plan
+
+An export package plan is the v0.2 portable offloader contract. It describes the
+files Email Vault expects to produce before any inbox cleanup action can run.
+
+The current schema can plan:
+
+- raw `.eml` email output;
+- attachment files;
+- metadata JSON;
+- manifest JSON;
+- normalized text;
+- optional readable HTML;
+- optional readable PDF.
+
+The plan also records the mode: Preserve, Clean Inbox, or Free Space. Preserve
+Mode does not allow Gmail cleanup. Clean Inbox and Free Space are cleanup-capable
+only after the same verified export package exists.
+
+Folder routing is explicit. A package can use sender-domain folders,
+category-first folders, or mixed layouts. Route segments are normalized and
+validated so sender-controlled values do not become unsafe paths.
+
 ## Storage Verification Outcome
 
 A storage verification outcome is the coordinator-level record that storage was

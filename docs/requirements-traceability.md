@@ -67,3 +67,7 @@
 | API runtime is packaged for container deployment | P7 | `test_dockerfile_packages_api_runtime`, `.github/workflows/ci.yml` Docker build step |
 | API container runs as non-root and exposes healthcheck | P7 | `test_dockerfile_uses_non_root_user_and_healthcheck` |
 | Runtime image excludes local secrets and non-runtime files | P7 | `test_dockerignore_excludes_local_secrets_and_non_runtime_files` |
+| Export package declares portable `.eml`, metadata, manifest, normalized text, readable copy, and attachment outputs | v0.2 | `test_plan_export_package_declares_portable_artifacts_and_cleanup_gate` |
+| Export routing supports sender-domain and category-first folders with safe segments | v0.2 | `test_category_first_route_keeps_category_and_domain_as_separate_safe_folders`, `test_normalize_route_segment_removes_separators_without_returning_empty_segment` |
+| Cleanup modes remain layered after verified export planning | v0.2 | `test_clean_inbox_and_free_space_modes_are_cleanup_modes_after_export` |
+| Original attachment filenames stay metadata-only in export packages | v0.2 | `test_attachment_artifact_keeps_original_filename_as_metadata_only` |
