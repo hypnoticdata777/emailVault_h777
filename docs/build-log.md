@@ -88,3 +88,17 @@ easy to follow alongside Git commits.
 - Updated roadmap, data model, traceability, and current-state audit notes.
 - Validation: `python -m unittest discover -s tests` passed with 154 tests and
   17 expected skips.
+
+## 2026-07-27 - v0.2 Clean Inbox Intent Records
+
+- Added `CLEAN_INBOX_INTENT_RECORDED` as a post-completion archive state.
+- Added an archive coordinator method that records Clean Inbox intent after a
+  completed archive while returning Gmail cleanup instructions with
+  `enabled=false`.
+- Preserved the explicit Gmail finalization boundary: live label/archive/mark
+  read instructions still require the separate finalization request path.
+- Added tests for completed-only intent recording, disabled mutation
+  instructions, pre-completion rejection, and later explicit finalization.
+- Updated roadmap, data model, traceability, and current-state audit notes.
+- Validation: `python -m unittest discover -s tests` passed with 157 tests and
+  17 expected skips.

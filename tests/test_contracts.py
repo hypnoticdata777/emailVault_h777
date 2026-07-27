@@ -75,6 +75,8 @@ class ContractTests(unittest.TestCase):
             assert_transition_allowed(ArchiveState.VERIFIED, ArchiveState.GMAIL_FINALIZATION_PENDING)
         self.assertEqual(verified.exception.category, ErrorCategory.GMAIL_FINALIZATION)
         assert_transition_allowed(ArchiveState.VERIFIED, ArchiveState.COMPLETED)
+        assert_transition_allowed(ArchiveState.COMPLETED, ArchiveState.CLEAN_INBOX_INTENT_RECORDED)
+        assert_transition_allowed(ArchiveState.CLEAN_INBOX_INTENT_RECORDED, ArchiveState.GMAIL_FINALIZATION_PENDING)
         assert_transition_allowed(ArchiveState.COMPLETED, ArchiveState.GMAIL_FINALIZATION_PENDING)
         assert_transition_allowed(ArchiveState.GMAIL_FINALIZATION_PENDING, ArchiveState.GMAIL_FINALIZED)
         assert_transition_allowed(

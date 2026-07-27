@@ -12,7 +12,10 @@ ALLOWED_TRANSITIONS: dict[ArchiveState, frozenset[ArchiveState]] = {
     ArchiveState.RENDERED: frozenset({ArchiveState.STAGED, ArchiveState.FAILED}),
     ArchiveState.STAGED: frozenset({ArchiveState.VERIFIED, ArchiveState.FAILED}),
     ArchiveState.VERIFIED: frozenset({ArchiveState.COMPLETED}),
-    ArchiveState.COMPLETED: frozenset({ArchiveState.GMAIL_FINALIZATION_PENDING}),
+    ArchiveState.COMPLETED: frozenset(
+        {ArchiveState.CLEAN_INBOX_INTENT_RECORDED, ArchiveState.GMAIL_FINALIZATION_PENDING}
+    ),
+    ArchiveState.CLEAN_INBOX_INTENT_RECORDED: frozenset({ArchiveState.GMAIL_FINALIZATION_PENDING}),
     ArchiveState.GMAIL_FINALIZATION_PENDING: frozenset(
         {ArchiveState.GMAIL_FINALIZED, ArchiveState.PRESERVED_GMAIL_FINALIZATION_FAILED}
     ),

@@ -331,11 +331,25 @@ return `PRESERVED` after the local export package writer has verified raw
 `.eml`, metadata JSON, normalized text, manifest JSON, and trusted attachment
 outputs.
 
+## Clean Inbox Intent Outcome
+
+A Clean Inbox intent outcome records that the user wants Gmail follow-up after
+verified export, without enabling Gmail mutation yet.
+
+It can be recorded only after the archive reaches `COMPLETED`. The coordinator
+then appends `CLEAN_INBOX_INTENT_RECORDED` and returns the intended label,
+mark-read, and archive preferences with `enabled=false`.
+
+This gives the future UI/API a durable review handoff without claiming Gmail was
+changed. A later explicit Gmail finalization request can still move from
+`CLEAN_INBOX_INTENT_RECORDED` to `GMAIL_FINALIZATION_PENDING` when mutation
+permissions and live validation are ready.
+
 ## Gmail Finalization Outcome
 
 Gmail finalization is the post-preservation Gmail mutation boundary. It may
 label the thread, mark it read, or archive it, but only after the backend record
-has reached `COMPLETED`.
+has reached `COMPLETED` or a recorded Clean Inbox intent.
 
 The coordinator records two pieces:
 

@@ -131,6 +131,8 @@ scaffold, and a Playwright/Chromium adapter boundary.
 - Preserve Mode can now run through the local export package writer at the
   archive coordinator layer and reuse the verified-storage plus completed-state
   boundary while Gmail finalization stays disabled.
+- Clean Inbox intent can now be recorded after completed export with Gmail
+  mutation still disabled, preserving the explicit finalization boundary.
 
 ## Setup and Run Commands
 
@@ -177,7 +179,8 @@ finalization route tests cover the post-completion handoff.
    or a short walkthrough if the repo will be shared with non-engineers.
 2. Decide how the local export package Preserve Mode path should be exposed to
    the add-on, CLI, or desktop/local UI.
-3. Add Clean Inbox Mode intent records while Gmail mutation remains disabled.
+3. Decide how Clean Inbox intent should be exposed in the API/add-on UX while
+   Gmail mutation remains disabled.
 4. Validate the Google verifier and signed add-on archive/finalization flow
    against a real OAuth client before any real-data demo.
 5. Decide the Gmail mutation permission path for label, mark-read, archive,

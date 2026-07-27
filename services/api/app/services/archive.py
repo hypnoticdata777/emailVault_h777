@@ -62,6 +62,13 @@ class GmailFinalizationRequestOutcome:
 
 
 @dataclass(frozen=True)
+class CleanInboxIntentOutcome:
+    record: ArchiveRecordReference
+    instructions: GmailFinalizationInstructions
+    recorded_at: datetime
+
+
+@dataclass(frozen=True)
 class GmailFinalizationCallbackOutcome:
     record: ArchiveRecordReference
     state: ArchiveState
@@ -280,6 +287,38 @@ class ArchiveCoordinator:
         )
 
         return ArchiveCompletionOutcome(record=reference, completed_at=active_completed_at)
+
+    def record_clean_inbox_intent(
+        self,
+        identity: GoogleIdentity,
+        record_id: str,
+        preferences: ArchivePreferences,
+        recorded_at: datetime | None = None,
+    ) -> CleanInboxIntentOutcome:
+        """Record Clean Inbox intent after completion without enabling Gmail mutation."""
+
+        reference = self._require_owned_record(identity, record_id)
+        audit_events = self._require_audit_events(reference.record_id)
+        assert_transition_allowed(audit_events[-1].state, ArchiveState.CLEAN_INBOX_INTENT_RECORDED)
+
+        active_recorded_at = recorded_at or datetime.now(UTC)
+        self.repository.append_audit_event(
+            AuditEvent(
+                record_id=reference.record_id,
+                state=ArchiveState.CLEAN_INBOX_INTENT_RECORDED,
+                occurred_at=active_recorded_at,
+            )
+        )
+
+        return CleanInboxIntentOutcome(
+            record=reference,
+            instructions=GmailFinalizationInstructions(
+                mark_read=preferences.mark_read_after_preserve,
+                archive=preferences.archive_after_preserve,
+                enabled=False,
+            ),
+            recorded_at=active_recorded_at,
+        )
 
     def request_gmail_finalization(
         self,

@@ -432,6 +432,94 @@ class ArchiveCoordinatorTests(unittest.TestCase):
             [ArchiveState.COMPLETED, ArchiveState.GMAIL_FINALIZATION_PENDING],
         )
 
+    def test_clean_inbox_intent_records_after_completed_archive_without_mutation_enabled(self) -> None:
+        repository = FakeRevisionRepository()
+        reference = ArchiveRecordReference(
+            vault_thread_id="vault-thread-example",
+            revision=1,
+            record_id="record-clean-inbox-intent",
+            snapshot_sha256="synthetic-sha256",
+        )
+        repository.create_revision("google-subject-example", "gmail-thread-example", reference)
+        completed_at = datetime(2026, 7, 13, 12, 1, tzinfo=UTC)
+        recorded_at = datetime(2026, 7, 13, 12, 2, tzinfo=UTC)
+        repository.audit_events.append(
+            AuditEvent(record_id=reference.record_id, state=ArchiveState.COMPLETED, occurred_at=completed_at)
+        )
+
+        outcome = ArchiveCoordinator(repository).record_clean_inbox_intent(
+            self._identity(),
+            reference.record_id,
+            ArchivePreferences(category="Newsletters", mark_read_after_preserve=True, archive_after_preserve=True),
+            recorded_at=recorded_at,
+        )
+
+        self.assertEqual(outcome.record, reference)
+        self.assertEqual(outcome.recorded_at, recorded_at)
+        self.assertFalse(outcome.instructions.enabled)
+        self.assertTrue(outcome.instructions.mark_read)
+        self.assertTrue(outcome.instructions.archive)
+        self.assertEqual(
+            [event.state for event in repository.audit_events],
+            [ArchiveState.COMPLETED, ArchiveState.CLEAN_INBOX_INTENT_RECORDED],
+        )
+
+    def test_clean_inbox_intent_rejects_before_completed_without_writes(self) -> None:
+        repository = FakeRevisionRepository()
+        reference = ArchiveRecordReference(
+            vault_thread_id="vault-thread-example",
+            revision=1,
+            record_id="record-clean-before-complete",
+            snapshot_sha256="synthetic-sha256",
+        )
+        repository.create_revision("google-subject-example", "gmail-thread-example", reference)
+        repository.audit_events.append(
+            AuditEvent(
+                record_id=reference.record_id,
+                state=ArchiveState.VERIFIED,
+                occurred_at=datetime(2026, 7, 13, 12, 0, tzinfo=UTC),
+            )
+        )
+
+        with self.assertRaises(ApiError):
+            ArchiveCoordinator(repository).record_clean_inbox_intent(
+                self._identity(),
+                reference.record_id,
+                ArchivePreferences(category="Newsletters", mark_read_after_preserve=True, archive_after_preserve=True),
+            )
+
+        self.assertEqual([event.state for event in repository.audit_events], [ArchiveState.VERIFIED])
+
+    def test_gmail_finalization_can_still_be_explicitly_requested_after_clean_inbox_intent(self) -> None:
+        repository = FakeRevisionRepository()
+        reference = ArchiveRecordReference(
+            vault_thread_id="vault-thread-example",
+            revision=1,
+            record_id="record-clean-then-finalize",
+            snapshot_sha256="synthetic-sha256",
+        )
+        repository.create_revision("google-subject-example", "gmail-thread-example", reference)
+        repository.audit_events.append(
+            AuditEvent(
+                record_id=reference.record_id,
+                state=ArchiveState.CLEAN_INBOX_INTENT_RECORDED,
+                occurred_at=datetime(2026, 7, 13, 12, 2, tzinfo=UTC),
+            )
+        )
+
+        outcome = ArchiveCoordinator(repository).request_gmail_finalization(
+            self._identity(),
+            reference.record_id,
+            ArchivePreferences(category="Newsletters", mark_read_after_preserve=True, archive_after_preserve=True),
+            requested_at=datetime(2026, 7, 13, 12, 3, tzinfo=UTC),
+        )
+
+        self.assertTrue(outcome.instructions.enabled)
+        self.assertEqual(
+            [event.state for event in repository.audit_events],
+            [ArchiveState.CLEAN_INBOX_INTENT_RECORDED, ArchiveState.GMAIL_FINALIZATION_PENDING],
+        )
+
     def test_gmail_finalization_request_rejects_before_completed_without_writes(self) -> None:
         repository = FakeRevisionRepository()
         reference = ArchiveRecordReference(
