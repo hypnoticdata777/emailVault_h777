@@ -69,6 +69,40 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["status"], "ok")
 
+    def test_demo_page_renders_synthetic_local_ui_without_auth(self) -> None:
+        response = self.client.get("/demo")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("text/html", response.headers["content-type"])
+        self.assertIn("Email Vault Synthetic Demo", response.text)
+        self.assertIn("Gmail mutation disabled", response.text)
+        self.assertIn("Example Daily Briefing", response.text)
+        self.assertIn("Example Bank secure notice", response.text)
+        self.assertIn("Synthetic ambiguous update", response.text)
+        self.assertIn("python -m services.api.app.cli synthetic-demo", response.text)
+
+    def test_demo_data_is_synthetic_read_only_and_mutation_disabled(self) -> None:
+        response = self.client.get("/demo/data")
+
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertEqual(body["mode"], "synthetic_web_demo")
+        self.assertFalse(body["gmail_mutation_enabled"])
+        self.assertFalse(body["writes_files"])
+        self.assertEqual(body["summary"]["total_threads"], 3)
+        self.assertEqual(body["summary"]["review_required_count"], 2)
+        self.assertEqual(body["summary"]["approvable_count"], 1)
+        self.assertEqual(
+            body["summary"]["by_gmail_action"],
+            {
+                "label_mark_read_archive": 1,
+                "needs_review": 2,
+            },
+        )
+        self.assertEqual([item["category"] for item in body["items"]], ["newsletter", "bank_financial", "unknown"])
+        self.assertEqual(body["items"][0]["intent_policy"], "eligible")
+        self.assertEqual(body["items"][1]["intent_policy"], "held_for_review")
+
     def test_archive_requires_bearer_identity(self) -> None:
         response = self.client.post("/archive/thread", json=self._fixture("plain_text"))
         self.assertEqual(response.status_code, 401)

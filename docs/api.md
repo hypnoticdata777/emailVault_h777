@@ -46,6 +46,40 @@ Example response:
 }
 ```
 
+## `GET /demo`
+
+Returns the read-only synthetic local web demo page.
+
+Current behavior:
+
+- Requires no Gmail credentials.
+- Uses only the canonical synthetic newsletter, bank/financial, and unknown
+  fixtures.
+- Shows Clean Inbox review counts, route planning, planned Gmail actions, and
+  the canonical CLI command for writing local packages.
+- Does not write files, create archive records, label Gmail, mark Gmail read,
+  archive Gmail, trash Gmail, or delete Gmail.
+
+## `GET /demo/data`
+
+Returns the same synthetic demo data as JSON for tests or future local UI work.
+
+Example response shape:
+
+```json
+{
+  "mode": "synthetic_web_demo",
+  "gmail_mutation_enabled": false,
+  "writes_files": false,
+  "summary": {
+    "total_threads": 3,
+    "review_required_count": 2,
+    "approvable_count": 1
+  },
+  "items": []
+}
+```
+
 ## `POST /archive/thread`
 
 Accepts an `ArchiveThreadRequest` payload representing one opened Gmail thread.

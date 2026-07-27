@@ -108,8 +108,9 @@ a one-command local batch workflow that preserves several synthetic requests,
 reviews them, records intent for lower-risk approvable items only, and can
 write a public-safe Markdown report. The canonical `synthetic-demo` shortcut
 now runs that public walkthrough with fewer flags and can be rerun safely. The
-next implementation should focus on the next chosen surface before any live
-Gmail mutation.
+first read-only local web demo now exposes the same synthetic review story at
+`/demo`. The next implementation should focus on the next chosen write-capable
+surface before any live Gmail mutation.
 
 ## Later Phases
 
@@ -117,10 +118,9 @@ Gmail mutation.
   README/doc alignment, and a secrets/artifact sweep before broad sharing.
 - v0.2 local-first closeout and next wave:
   `docs/v0.2-closeout-and-next-wave.md`.
-- Next surface decision: desktop UI, add-on-triggered local API, or richer CLI
-  workflow.
-- Portfolio capture: optional synthetic screenshots from the local batch
-  workflow.
+- Next surface decision: write-capable local web workflow, desktop UI, or
+  add-on-triggered local API.
+- Portfolio capture: optional synthetic screenshots from the local web demo.
 - Free Space Mode: reviewed trash/delete queue after verified export, with
   warning copy and reversibility checks.
 - Portable AI/data port: folder and JSON/text outputs that downstream tools can

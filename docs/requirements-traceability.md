@@ -93,3 +93,4 @@
 | Local batch workflow preserves multiple requests, reviews cleanup, and records only approvable intents | v0.2 | `test_local_batch_preserves_reviews_and_records_only_approvable_intents`, `test_local_batch_without_intent_flag_preserves_and_reviews_only` |
 | Local batch workflow can write public-safe Markdown output without absolute package paths | v0.2 | `test_local_batch_writes_public_safe_markdown_report` |
 | Canonical synthetic demo command runs the public walkthrough and tolerates reruns | v0.2 | `test_synthetic_demo_runs_canonical_batch_with_short_command`, `test_synthetic_demo_can_be_rerun_after_approvable_intent_exists` |
+| Read-only local web demo exposes synthetic review data without mutation or file writes | v0.2 | `test_demo_page_renders_synthetic_local_ui_without_auth`, `test_demo_data_is_synthetic_read_only_and_mutation_disabled` |

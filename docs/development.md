@@ -231,6 +231,23 @@ Authorization: Bearer synthetic-valid-token
 This token is not production authentication. In Google verifier mode, the bearer
 credential must be a Google ID token for the configured OAuth client ID.
 
+## Run The Local Web Demo
+
+After starting the API, open:
+
+```text
+http://127.0.0.1:8000/demo
+```
+
+The page is read-only and synthetic-only. It shows the canonical demo review
+queue, category/action counts, route planning, and the CLI command for writing
+verified local packages. It does not write files or mutate Gmail. The backing
+JSON endpoint is:
+
+```text
+http://127.0.0.1:8000/demo/data
+```
+
 ## Current Limits
 
 The archive route can render the generated PDF path, generate metadata and
@@ -241,5 +258,6 @@ to a selected folder. The local Clean Inbox review and intent commands can
 preview cleanup and record post-preservation intent. The local batch command
 chains those pieces for synthetic demos and can write a Markdown report without
 absolute package paths. The `synthetic-demo` shortcut runs the canonical public
-demo fixtures with fewer flags. None of these paths labels Gmail, marks messages
-read, archives Gmail, trashes Gmail, or deletes Gmail messages.
+demo fixtures with fewer flags. The local web demo is a read-only synthetic
+preview. None of these paths labels Gmail, marks messages read, archives Gmail,
+trashes Gmail, or deletes Gmail messages.

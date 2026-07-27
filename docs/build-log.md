@@ -209,3 +209,21 @@ easy to follow alongside Git commits.
   public readiness, closeout notes, implementation plan, and traceability.
 - Validation: `python -m unittest discover -s tests` passed with 170 tests and
   17 expected skips.
+
+## 2026-07-27 - Read-Only Local Web Demo
+
+- Added `GET /demo` as the first local web UI surface for the public-safe
+  synthetic walkthrough.
+- Added `GET /demo/data` so the same canonical newsletter, bank/financial, and
+  unknown review data can be consumed as JSON by tests or future UI work.
+- Kept the web demo read-only: it does not write export packages, append audit
+  events, require Gmail credentials, or mutate Gmail.
+- Included summary counts, review queue rows, route planning, planned Gmail
+  actions, and the canonical `synthetic-demo` CLI handoff command.
+- Added API tests for the HTML page and JSON data safety flags.
+- Updated README, API docs, development docs, current-state audit, public
+  readiness, closeout notes, implementation plan, and traceability.
+- Validation: `python -m unittest discover -s tests` passed locally with 172
+  tests and 19 skips because API optional dependencies are not installed in this
+  local shell. The new FastAPI demo route tests run when `.[api,test]` is
+  installed.

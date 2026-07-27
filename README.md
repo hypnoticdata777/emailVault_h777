@@ -163,11 +163,13 @@ Done:
   can show summary tables without absolute local package paths.
 - Canonical `synthetic-demo` CLI shortcut that runs the public-safe newsletter,
   bank/financial, and unknown-mail walkthrough with fewer flags.
+- Local read-only web demo at `/demo` with synthetic review queue data,
+  summary counts, and the canonical CLI handoff command.
 
 Next:
 
-1. Decide whether the next user-facing surface should be desktop UI,
-   add-on-triggered local API, or a richer CLI workflow.
+1. Expand the local web demo from read-only synthetic preview into a small
+   workflow surface only if it remains useful after screenshots.
 2. Add optional synthetic screenshots for the public portfolio walkthrough.
 3. Validate the signed add-on archive/finalization flow against a real HTTPS API
    and Google OAuth client in a private environment.
@@ -222,6 +224,12 @@ python -m pip install -e ".[api,test]"
 python -m services.api.app.cli init-db
 python -m pytest
 python -m uvicorn services.api.app.main:app --reload
+```
+
+Open the read-only synthetic local web demo:
+
+```text
+http://127.0.0.1:8000/demo
 ```
 
 Run the local Preserve Mode CLI against a synthetic no-attachment fixture:

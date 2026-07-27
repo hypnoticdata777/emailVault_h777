@@ -157,6 +157,9 @@ scaffold, and a Playwright/Chromium adapter boundary.
 - The canonical `synthetic-demo` shortcut runs the public-safe newsletter,
   bank/financial, and unknown-mail walkthrough with fewer flags and can be
   rerun safely against the same local database.
+- The first local web UI is exposed through `GET /demo`, backed by
+  `GET /demo/data`, and shows the canonical synthetic review queue without
+  writing files or mutating Gmail.
 
 ## Setup and Run Commands
 
@@ -184,7 +187,7 @@ The API skeleton requires optional dependencies.
 - No public screenshot assets, demo video, or hosted walkthrough page has been
   added yet.
 - The local export package Preserve Mode and Clean Inbox review paths are not
-  yet exposed as a desktop, public API, or add-on workflow.
+  yet exposed as a write-capable desktop, public API, or add-on workflow.
 - No executable Free Space Mode trash/delete queue exists yet.
 - No private/public repository split has been executed yet; the recommended
   posture is private core product repo plus public portfolio case study.
@@ -201,9 +204,9 @@ finalization route tests cover the post-completion handoff.
 
 1. Add optional synthetic-only screenshots if the repo will be shown to
    non-engineers.
-2. Decide whether the next local Preserve Mode surface should be desktop UI,
-   public API, or add-on-triggered local API.
-3. Capture optional screenshots from the synthetic batch workflow if the repo
+2. Decide whether the next local Preserve Mode surface should become a
+   write-capable local web workflow, desktop UI, or add-on-triggered local API.
+3. Capture optional screenshots from the synthetic web demo if the repo
    will be shown in a portfolio review.
 4. Validate the Google verifier and signed add-on archive/finalization flow
    against a real OAuth client before any real-data demo.

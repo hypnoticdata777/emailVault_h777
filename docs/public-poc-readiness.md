@@ -43,6 +43,8 @@ subscription product implementation.
   local package paths omitted.
 - Canonical `synthetic-demo` CLI shortcut for the public newsletter,
   bank/financial, and unknown-mail walkthrough.
+- Read-only local web demo at `/demo` backed by synthetic data and no mutation
+  or file writes.
 - Docker runtime boundary for the API.
 - Stable Python CI passing in GitHub Actions.
 - Documentation for development, API behavior, deployment runtime, data model,
