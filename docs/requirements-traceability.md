@@ -71,3 +71,6 @@
 | Export routing supports sender-domain and category-first folders with safe segments | v0.2 | `test_category_first_route_keeps_category_and_domain_as_separate_safe_folders`, `test_normalize_route_segment_removes_separators_without_returning_empty_segment` |
 | Cleanup modes remain layered after verified export planning | v0.2 | `test_clean_inbox_and_free_space_modes_are_cleanup_modes_after_export` |
 | Original attachment filenames stay metadata-only in export packages | v0.2 | `test_attachment_artifact_keeps_original_filename_as_metadata_only` |
+| Export route planning derives sender-domain and category folder layouts before writing files | v0.2 | `test_plan_export_route_uses_primary_sender_domain_for_domain_first_layout`, `test_plan_export_route_supports_category_first_layout` |
+| Export route planning supports user sender-domain overrides and review-first mixed routing | v0.2 | `test_plan_export_route_supports_sender_domain_override`, `test_mixed_layout_routes_review_first_categories_before_domain` |
+| Export route planning rejects invalid sender domains | v0.2 | `test_normalize_sender_domain_rejects_invalid_domain` |

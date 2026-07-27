@@ -158,11 +158,13 @@ def plan_export_package(
 
 def domain_first_route(sender_domain: str, category: ExportCategory = ExportCategory.UNKNOWN) -> ExportRoute:
     safe_domain = normalize_route_segment(sender_domain)
+    safe_category = normalize_route_segment(category.value)
+    relative_parts = (safe_domain,) if category == ExportCategory.UNKNOWN else (safe_domain, safe_category)
     return ExportRoute(
         layout=ExportFolderLayout.DOMAIN_FIRST,
         category=category,
         sender_domain=safe_domain,
-        relative_parts=(safe_domain,),
+        relative_parts=relative_parts,
     )
 
 

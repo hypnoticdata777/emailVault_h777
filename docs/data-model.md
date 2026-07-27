@@ -198,6 +198,24 @@ Folder routing is explicit. A package can use sender-domain folders,
 category-first folders, or mixed layouts. Route segments are normalized and
 validated so sender-controlled values do not become unsafe paths.
 
+## Export Routing Plan
+
+An export routing plan chooses where a future package should land before any
+files are written. It derives the primary sender domain from the thread, accepts
+an explicit sender-domain override when the user wants to batch a source
+differently, and applies the selected folder layout.
+
+The current routing layer supports:
+
+- domain-first routes such as `example.com/newsletter`;
+- category-first routes such as `bank_financial/example.com`;
+- mixed routes that push unknown or needs-review messages into review-first
+  folders;
+- sender-domain overrides for user-controlled batching.
+
+Routing is deterministic and explainable. It does not classify messages by
+itself, write files, or mutate Gmail.
+
 ## Storage Verification Outcome
 
 A storage verification outcome is the coordinator-level record that storage was

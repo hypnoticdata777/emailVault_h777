@@ -56,7 +56,7 @@ class ExportPackageSchemaTests(unittest.TestCase):
         self.assertEqual(package.mode, ExportPackageMode.PRESERVE)
         self.assertFalse(package.cleanup_allowed)
         self.assertEqual(package.route.layout, ExportFolderLayout.DOMAIN_FIRST)
-        self.assertEqual(package.route.relative_path, "news.example.com")
+        self.assertEqual(package.route.relative_path, "news.example.com/newsletter")
         self.assertEqual(
             [(artifact.kind, artifact.trusted_name, artifact.content_type, artifact.required) for artifact in package.artifacts],
             [
