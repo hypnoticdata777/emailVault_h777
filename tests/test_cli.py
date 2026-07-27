@@ -269,6 +269,38 @@ class CliTests(unittest.TestCase):
             },
         )
 
+    def test_local_batch_writes_public_safe_markdown_report(self) -> None:
+        report_path = self.root / "demo-report.md"
+
+        exit_code, stdout, stderr = self._run(
+            "local-batch",
+            "--request",
+            str(FIXTURE_ROOT / "newsletter_digest.json"),
+            "--request",
+            str(FIXTURE_ROOT / "bank_notice.json"),
+            "--export-root",
+            str(self.export_root),
+            "--database-url",
+            self.database_url,
+            "--mark-read",
+            "--record-approvable-intents",
+            "--report-markdown",
+            str(report_path),
+        )
+
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(stderr, "")
+        self.assertIn("Email Vault local batch workflow", stdout)
+        report = report_path.read_text(encoding="utf-8")
+        self.assertIn("# Email Vault Local Batch Report", report)
+        self.assertIn("Gmail mutation is disabled", report)
+        self.assertIn("| Example Daily Briefing | `newsletter` |", report)
+        self.assertIn("| Example Bank secure notice | `bank_financial` |", report)
+        self.assertIn("`label_mark_read_archive`", report)
+        self.assertIn("`needs_review`", report)
+        self.assertIn("not intent-recorded", report)
+        self.assertNotIn(str(self.export_root), report)
+
 
 if __name__ == "__main__":
     unittest.main()

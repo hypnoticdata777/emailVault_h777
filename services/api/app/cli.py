@@ -178,6 +178,11 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Record Clean Inbox intent only for lower-risk items that do not require review.",
     )
+    batch.add_argument(
+        "--report-markdown",
+        type=Path,
+        help="Write a public-safe Markdown summary without absolute local package paths.",
+    )
     batch.add_argument("--json", action="store_true", help="Print the batch workflow result as JSON.")
     return parser
 
@@ -232,6 +237,8 @@ def main(argv: list[str] | None = None) -> int:
         except ApiError as exc:
             print(f"Email Vault error: {exc.category.value}: {exc.message}", file=sys.stderr)
             return 2
+        if args.report_markdown:
+            _write_local_batch_report(outcome, args.report_markdown)
         if args.json:
             print(json.dumps(_local_batch_payload(outcome), sort_keys=True, indent=2))
         else:
@@ -543,6 +550,81 @@ def _local_batch_payload(outcome: LocalBatchWorkflowOutcome) -> dict[str, Any]:
             for item in outcome.items
         ],
     }
+
+
+def _write_local_batch_report(outcome: LocalBatchWorkflowOutcome, path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(_local_batch_markdown_report(outcome), encoding="utf-8")
+
+
+def _local_batch_markdown_report(outcome: LocalBatchWorkflowOutcome) -> str:
+    payload = _local_batch_payload(outcome)
+    summary = payload["review"]["summary"]
+    lines = [
+        "# Email Vault Local Batch Report",
+        "",
+        "Public-safe synthetic demo output. Gmail mutation is disabled.",
+        "",
+        "## Summary",
+        "",
+        f"- Threads reviewed: {summary['total_threads']}",
+        f"- Threads requiring review: {summary['review_required_count']}",
+        f"- Intent records created: {payload['recorded_intent_count']}",
+        f"- Gmail mutation enabled: {payload['gmail_mutation_enabled']}",
+        "",
+        "## Planned Gmail Actions",
+        "",
+        "| Action | Count |",
+        "| --- | ---: |",
+    ]
+    for action, count in summary["by_gmail_action"].items():
+        lines.append(f"| `{_markdown_cell(action)}` | {count} |")
+
+    lines.extend(
+        [
+            "",
+            "## Batch Items",
+            "",
+            "| Subject | Category | Sender Domain | Export Path | Planned Gmail Action | Preservation | Intent |",
+            "| --- | --- | --- | --- | --- | --- | --- |",
+        ]
+    )
+    for item in payload["items"]:
+        review = item["review"]
+        preserve = item["preserve"]
+        intent = "recorded" if item["intent"] is not None else "not recorded"
+        lines.append(
+            "| "
+            + " | ".join(
+                (
+                    _markdown_cell(review["subject"]),
+                    f"`{_markdown_cell(review['category'])}`",
+                    f"`{_markdown_cell(review['sender_domain'])}`",
+                    f"`{_markdown_cell(review['export_path'])}`",
+                    f"`{_markdown_cell(review['planned_gmail_action'])}`",
+                    f"`{_markdown_cell(preserve['status'])}`",
+                    _markdown_cell(intent),
+                )
+            )
+            + " |"
+        )
+
+    lines.extend(
+        [
+            "",
+            "## Safety Notes",
+            "",
+            "- This report omits absolute local package paths.",
+            "- Review-required items are preserved but not intent-recorded by the approvable intent flag.",
+            "- No Gmail label, mark-read, archive, trash, or delete action is executed by this workflow.",
+            "",
+        ]
+    )
+    return "\n".join(lines)
+
+
+def _markdown_cell(value: Any) -> str:
+    return str(value).replace("|", "\\|").replace("\n", " ").replace("\r", " ")
 
 
 def _print_local_preserve_summary(outcome: LocalPreservePackageOutcome) -> None:

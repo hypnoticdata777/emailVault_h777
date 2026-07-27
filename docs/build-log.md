@@ -178,3 +178,18 @@ easy to follow alongside Git commits.
   traceability.
 - Validation: `python -m unittest discover -s tests` passed with 167 tests and
   17 expected skips.
+
+## 2026-07-27 - Public-Safe Batch Report Output
+
+- Added `--report-markdown` to `python -m services.api.app.cli local-batch`.
+- The report writes a readable Markdown summary with batch counts, planned Gmail
+  action counts, per-thread category/route/action rows, preservation status, and
+  intent status.
+- Omitted absolute local package paths from the report so synthetic portfolio
+  demos can be shared without exposing user machine paths.
+- Kept JSON output unchanged for automation and tests.
+- Added CLI coverage for report generation and path omission.
+- Updated README, development docs, synthetic walkthrough, current-state audit,
+  public readiness, closeout notes, implementation plan, and traceability.
+- Validation: `python -m unittest discover -s tests` passed with 168 tests and
+  17 expected skips.

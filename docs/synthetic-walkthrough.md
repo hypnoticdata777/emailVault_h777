@@ -17,12 +17,13 @@ label/archive/mark-read/delete actions remain disabled in the public POC.
 Current local demo command:
 
 ```powershell
-python -m services.api.app.cli local-batch --request tests/fixtures/emails/newsletter_digest.json --request tests/fixtures/emails/bank_notice.json --request tests/fixtures/emails/unknown_message.json --export-root .local/EmailVault --mark-read --record-approvable-intents --json
+python -m services.api.app.cli local-batch --request tests/fixtures/emails/newsletter_digest.json --request tests/fixtures/emails/bank_notice.json --request tests/fixtures/emails/unknown_message.json --export-root .local/EmailVault --mark-read --record-approvable-intents --report-markdown .local/demo-report.md --json
 ```
 
 This command uses synthetic fixtures only. It writes verified local export
 packages, previews Clean Inbox actions, and records intent only for lower-risk
-approvable items while Gmail mutation remains disabled.
+approvable items while Gmail mutation remains disabled. The optional Markdown
+report gives reviewers a readable summary without absolute local package paths.
 
 ## Synthetic Demo Dataset
 
@@ -138,7 +139,8 @@ Use this checklist for future synthetic screenshots or a portfolio page:
 5. Manifest JSON snippet showing checksums and generated status.
 6. Clean Inbox intent screen showing label/archive/mark-read intent with Gmail
    mutation disabled.
-7. Limitations screen: no real Gmail data, no live mutation, no delete/storage
+7. Markdown demo report showing summary counts and review table.
+8. Limitations screen: no real Gmail data, no live mutation, no delete/storage
    reduction claims.
 
 ## Public Demo Script

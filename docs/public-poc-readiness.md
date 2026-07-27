@@ -39,6 +39,8 @@ subscription product implementation.
   post-preservation Clean Inbox intent records.
 - Local batch CLI that demonstrates synthetic preserve, review, and lower-risk
   intent recording in one mutation-disabled command.
+- Public-safe Markdown report output from the local batch CLI, with absolute
+  local package paths omitted.
 - Docker runtime boundary for the API.
 - Stable Python CI passing in GitHub Actions.
 - Documentation for development, API behavior, deployment runtime, data model,

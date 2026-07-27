@@ -148,13 +148,14 @@ into the selected export root, produces one Clean Inbox review summary, and can
 record intent only for lower-risk items that do not require review.
 
 ```powershell
-python -m services.api.app.cli local-batch --request tests/fixtures/emails/newsletter_digest.json --request tests/fixtures/emails/bank_notice.json --request tests/fixtures/emails/unknown_message.json --export-root .local/EmailVault --mark-read --record-approvable-intents --json
+python -m services.api.app.cli local-batch --request tests/fixtures/emails/newsletter_digest.json --request tests/fixtures/emails/bank_notice.json --request tests/fixtures/emails/unknown_message.json --export-root .local/EmailVault --mark-read --record-approvable-intents --report-markdown .local/demo-report.md --json
 ```
 
 The command is still local-only and mutation-disabled. Bank, human,
 attachment-heavy, unknown, and other review-required categories are preserved
 and reported, but they do not receive intent records from
-`--record-approvable-intents`.
+`--record-approvable-intents`. The optional Markdown report is public-safe for
+synthetic demos because it omits absolute local package paths.
 
 ## Run Tests
 
@@ -223,5 +224,6 @@ provider supplies bytes, stage and verify local storage, and record a completed
 backend revision. The local Preserve Mode CLI can write portable export packages
 to a selected folder. The local Clean Inbox review and intent commands can
 preview cleanup and record post-preservation intent. The local batch command
-chains those pieces for synthetic demos. None of these paths labels Gmail, marks
-messages read, archives Gmail, trashes Gmail, or deletes Gmail messages.
+chains those pieces for synthetic demos and can write a Markdown report without
+absolute package paths. None of these paths labels Gmail, marks messages read,
+archives Gmail, trashes Gmail, or deletes Gmail messages.
