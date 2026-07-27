@@ -107,6 +107,106 @@ class CliTests(unittest.TestCase):
         self.assertIn("storage_unavailable", stderr)
         self.assertFalse(any(self.export_root.rglob("record-*")) if self.export_root.exists() else False)
 
+    def test_clean_inbox_review_prints_batch_plan_without_gmail_mutation(self) -> None:
+        exit_code, stdout, stderr = self._run(
+            "clean-inbox-review",
+            "--request",
+            str(FIXTURE_ROOT / "newsletter_digest.json"),
+            "--request",
+            str(FIXTURE_ROOT / "bank_notice.json"),
+            "--request",
+            str(FIXTURE_ROOT / "unknown_message.json"),
+            "--layout",
+            "mixed",
+            "--mark-read",
+            "--json",
+        )
+
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(stderr, "")
+        payload = json.loads(stdout)
+        self.assertEqual(payload["mode"], "clean_inbox")
+        self.assertEqual(payload["layout"], "mixed")
+        self.assertTrue(payload["mark_read"])
+        self.assertTrue(payload["archive"])
+        self.assertFalse(payload["gmail_mutation_enabled"])
+        self.assertEqual(payload["summary"]["total_threads"], 3)
+        self.assertEqual(payload["summary"]["review_required_count"], 2)
+        self.assertEqual(
+            payload["summary"]["by_gmail_action"],
+            {
+                "label_mark_read_archive": 1,
+                "needs_review": 2,
+            },
+        )
+        self.assertEqual(payload["items"][0]["category"], "newsletter")
+        self.assertTrue(payload["items"][0]["approved_by_default"])
+        self.assertFalse(payload["items"][1]["approved_by_default"])
+        self.assertEqual(payload["items"][2]["planned_gmail_action"], "needs_review")
+
+    def test_clean_inbox_review_accepts_sender_domain_override(self) -> None:
+        exit_code, stdout, stderr = self._run(
+            "clean-inbox-review",
+            "--request",
+            str(FIXTURE_ROOT / "newsletter_digest.json"),
+            "--sender-domain-override",
+            "gmail-thread-newsletter-001=daily.news.example.com",
+            "--json",
+        )
+
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(stderr, "")
+        payload = json.loads(stdout)
+        self.assertEqual(payload["items"][0]["sender_domain"], "daily.news.example.com")
+        self.assertEqual(payload["items"][0]["export_path"], "daily.news.example.com/newsletter")
+
+    def test_record_clean_inbox_intent_adds_audit_marker_without_enabling_gmail_mutation(self) -> None:
+        preserve_exit_code, preserve_stdout, preserve_stderr = self._run(
+            "preserve-local",
+            "--request",
+            str(FIXTURE_ROOT / "unknown_message.json"),
+            "--export-root",
+            str(self.export_root),
+            "--database-url",
+            self.database_url,
+            "--json",
+        )
+        record_id = json.loads(preserve_stdout)["record_id"]
+
+        exit_code, stdout, stderr = self._run(
+            "record-clean-inbox-intent",
+            "--record-id",
+            record_id,
+            "--database-url",
+            self.database_url,
+            "--mark-read",
+            "--json",
+        )
+
+        self.assertEqual(preserve_exit_code, 0)
+        self.assertEqual(preserve_stderr, "")
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(stderr, "")
+        payload = json.loads(stdout)
+        self.assertEqual(payload["record_id"], record_id)
+        self.assertEqual(payload["state"], "CLEAN_INBOX_INTENT_RECORDED")
+        self.assertTrue(payload["gmail_finalization"]["mark_read"])
+        self.assertTrue(payload["gmail_finalization"]["archive"])
+        self.assertFalse(payload["gmail_finalization"]["enabled"])
+
+    def test_record_clean_inbox_intent_rejects_unknown_or_unowned_record(self) -> None:
+        exit_code, stdout, stderr = self._run(
+            "record-clean-inbox-intent",
+            "--record-id",
+            "record-does-not-exist",
+            "--database-url",
+            self.database_url,
+        )
+
+        self.assertEqual(exit_code, 2)
+        self.assertEqual(stdout, "")
+        self.assertIn("authentication_authorization", stderr)
+
 
 if __name__ == "__main__":
     unittest.main()

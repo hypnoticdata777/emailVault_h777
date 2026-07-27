@@ -102,10 +102,10 @@ deterministic classifier rules, dry-run review planning, the local export
 package writer, Preserve Mode coordinator wiring, and Clean Inbox intent records
 while Gmail mutation remains disabled.
 
-The next implementation should focus on exposing the local Preserve Mode package
-path through a user-facing interface, adding a synthetic walkthrough for public
-review, and designing the Clean Inbox review surface before any live Gmail
-mutation.
+The first user-facing CLI wave now exposes local Preserve Mode package writing,
+Clean Inbox dry-run review, and post-preservation Clean Inbox intent recording.
+The next implementation should focus on a smoother batch demo path or the next
+chosen surface before any live Gmail mutation.
 
 ## Later Phases
 
@@ -113,10 +113,11 @@ mutation.
   README/doc alignment, and a secrets/artifact sweep before broad sharing.
 - v0.2 local-first closeout and next wave:
   `docs/v0.2-closeout-and-next-wave.md`.
-- Local Preserve Mode interface: user-selected export root, generated package
-  path, and verification summary.
-- Clean Inbox Mode review: dry-run results, explicit approval, and intent
-  records while Gmail mutation remains disabled.
+- Local batch workflow polish: preserve several synthetic requests, review
+  planned Clean Inbox results, and record safe intent markers with fewer manual
+  steps.
+- Next surface decision: desktop UI, add-on-triggered local API, or richer CLI
+  workflow.
 - Free Space Mode: reviewed trash/delete queue after verified export, with
   warning copy and reversibility checks.
 - Portable AI/data port: folder and JSON/text outputs that downstream tools can

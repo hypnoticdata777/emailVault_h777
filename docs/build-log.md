@@ -140,3 +140,22 @@ easy to follow alongside Git commits.
 - Updated README, development docs, closeout notes, and current-state audit.
 - Validation: `python -m unittest discover -s tests` passed with 161 tests and
   17 expected skips.
+
+## 2026-07-27 - Local Clean Inbox Review CLI
+
+- Added `python -m services.api.app.cli clean-inbox-review` so local demos can
+  preview Clean Inbox category, sender-domain route, export path, planned Gmail
+  action, review-required flag, and classifier evidence for one or more
+  synthetic request files.
+- Added `python -m services.api.app.cli record-clean-inbox-intent` so completed
+  Preserve Mode records can receive a local `CLEAN_INBOX_INTENT_RECORDED` audit
+  marker.
+- Kept Gmail mutation disabled in both commands. The review command does not
+  write files, and the intent command returns Gmail finalization instructions
+  with `enabled=false`.
+- Added CLI tests for review summaries, sender-domain overrides, intent
+  recording after completed preservation, and controlled rejection of unknown
+  records.
+- Updated README, development docs, closeout notes, and current-state audit.
+- Validation: `python -m unittest discover -s tests` passed with 165 tests and
+  17 expected skips.

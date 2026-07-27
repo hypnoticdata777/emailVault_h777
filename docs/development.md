@@ -108,6 +108,39 @@ The attachment descriptor in the request must match the supplied byte size and
 SHA-256 checksum. If bytes are missing or mismatched, the CLI rejects the package
 and removes partial output.
 
+## Run Local Clean Inbox Review
+
+Clean Inbox review previews what Email Vault would do after verified export. It
+does not write export packages, label Gmail, mark Gmail read, archive Gmail, or
+delete Gmail messages.
+
+```powershell
+python -m services.api.app.cli clean-inbox-review --request tests/fixtures/emails/newsletter_digest.json --request tests/fixtures/emails/bank_notice.json --request tests/fixtures/emails/unknown_message.json --mark-read --json
+```
+
+The command prints batch counts plus one item per thread: category,
+sender-domain route, planned export path, planned Gmail action, classifier
+evidence, and whether the item requires review.
+
+Sender-domain routing can be overridden per thread for local batching tests:
+
+```powershell
+python -m services.api.app.cli clean-inbox-review --request tests/fixtures/emails/newsletter_digest.json --sender-domain-override gmail-thread-newsletter-001=daily.news.example.com --json
+```
+
+## Record Local Clean Inbox Intent
+
+After `preserve-local` returns a completed record id, Clean Inbox intent can be
+recorded as an audit marker:
+
+```powershell
+python -m services.api.app.cli record-clean-inbox-intent --record-id <record-id-from-preserve-local> --mark-read --json
+```
+
+The command returns Gmail finalization instructions with `enabled=false`. It is
+safe for the public POC because it records the user's intended cleanup choice
+without mutating Gmail.
+
 ## Run Tests
 
 ```powershell
@@ -173,5 +206,7 @@ The archive route can render the generated PDF path, generate metadata and
 manifest JSON artifacts, copy permitted attachments when a trusted content
 provider supplies bytes, stage and verify local storage, and record a completed
 backend revision. The local Preserve Mode CLI can write portable export packages
-to a selected folder. Neither path labels Gmail, marks messages read, archives
-Gmail, trashes Gmail, or deletes Gmail messages.
+to a selected folder. The local Clean Inbox review and intent commands can
+preview cleanup and record post-preservation intent. None of these paths labels
+Gmail, marks messages read, archives Gmail, trashes Gmail, or deletes Gmail
+messages.

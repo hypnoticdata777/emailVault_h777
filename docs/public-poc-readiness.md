@@ -35,6 +35,8 @@ subscription product implementation.
 - v0.2 local-first foundation: export package contracts, deterministic
   classification, dry-run review planning, local package writer, Preserve Mode
   coordinator handoff, and Clean Inbox intent records.
+- Local CLI surfaces for Preserve Mode, Clean Inbox dry-run review, and
+  post-preservation Clean Inbox intent records.
 - Docker runtime boundary for the API.
 - Stable Python CI passing in GitHub Actions.
 - Documentation for development, API behavior, deployment runtime, data model,
@@ -70,6 +72,8 @@ subscription product implementation.
    adding real Gmail sync, deletion, SaaS billing, or commercial roadmap details.
 9. If screenshots are added, confirm they follow the synthetic walkthrough and
    use synthetic data only.
+10. Confirm `.local/EmailVault`, local SQLite files, and any generated export
+    packages remain untracked.
 
 ## Before A Live Hosted Demo
 

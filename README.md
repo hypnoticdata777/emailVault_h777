@@ -150,13 +150,20 @@ Done:
 - Local Preserve Mode CLI that accepts a request JSON file, user-selected export
   root, optional trusted attachment byte mappings, and prints package path plus
   verification summary.
+- Local Clean Inbox review CLI that previews batch category, sender-domain
+  route, export path, planned Gmail action, and review-required flags without
+  writing files or mutating Gmail.
+- Local Clean Inbox intent CLI that records post-preservation cleanup intent
+  for a completed record while still returning `enabled=false` Gmail
+  finalization instructions.
 
 Next:
 
 1. Decide whether the next user-facing surface should be desktop UI,
    add-on-triggered local API, or a richer CLI workflow.
-2. Add a Clean Inbox review surface that shows dry-run results and records
-   intent while Gmail mutation remains disabled.
+2. Add batch Preserve-to-review workflow polish so a user can export several
+   synthetic requests, inspect review results, and record intents in one
+   documented demo path.
 3. Validate the signed add-on archive/finalization flow against a real HTTPS API
    and Google OAuth client in a private environment.
 4. Decide and document the Gmail mutation permission step for label, mark-read,
@@ -221,6 +228,25 @@ python -m services.api.app.cli preserve-local --request tests/fixtures/emails/un
 The command writes a verified package under the selected export root and prints
 the record id, package path, artifact count, byte total, and Gmail finalization
 status. It does not mutate Gmail.
+
+Preview Clean Inbox Mode against synthetic fixtures:
+
+```powershell
+python -m services.api.app.cli clean-inbox-review --request tests/fixtures/emails/newsletter_digest.json --request tests/fixtures/emails/bank_notice.json --request tests/fixtures/emails/unknown_message.json --mark-read --json
+```
+
+The review command reports category, sender domain, planned export path,
+planned Gmail action, and whether each item needs review. It does not write
+files and does not mutate Gmail.
+
+After a thread has already been preserved, record Clean Inbox intent locally:
+
+```powershell
+python -m services.api.app.cli record-clean-inbox-intent --record-id <record-id-from-preserve-local> --mark-read --json
+```
+
+This appends the intent audit marker for the completed record while Gmail
+finalization remains disabled.
 
 To prepare local PDF rendering, install the renderer optional dependency and
 Chromium browser runtime:
