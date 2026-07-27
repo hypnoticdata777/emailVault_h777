@@ -125,6 +125,9 @@ scaffold, and a Playwright/Chromium adapter boundary.
 - v0.2 dry-run review planning now combines classification, sender-domain
   routing, export paths, review flags, and planned Gmail actions without writing
   files or mutating Gmail.
+- v0.2 local export package writing now creates raw `.eml`, metadata JSON,
+  normalized text, trusted attachment files, and manifest JSON under safe
+  route/record folders with checksum verification.
 
 ## Setup and Run Commands
 
@@ -151,8 +154,9 @@ The API skeleton requires optional dependencies.
 - No HTTPS deployment target is selected yet.
 - No public screenshots, demo video, or hosted synthetic walkthrough has been
   added yet.
-- No `.eml` writer, local export package writer, or executable Free Space Mode
-  trash/delete queue exists yet.
+- Preserve Mode is not yet wired through the local export package writer in the
+  archive coordinator.
+- No executable Free Space Mode trash/delete queue exists yet.
 - No private/public repository split has been executed yet; the recommended
   posture is private core product repo plus public portfolio case study.
 

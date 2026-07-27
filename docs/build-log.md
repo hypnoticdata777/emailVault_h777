@@ -60,3 +60,17 @@ easy to follow alongside Git commits.
 - Updated roadmap, data model, traceability, and current-state audit notes.
 - Validation: `python -m unittest discover -s tests` passed with 146 tests and
   17 expected skips.
+
+## 2026-07-27 - v0.2 Local Export Package Writer
+
+- Added a local export package writer that writes planned packages under the
+  selected export root, sender/category route, and server-owned record folder.
+- Generated required portable outputs for raw `.eml`, metadata JSON,
+  normalized text, trusted attachment files, and export manifest JSON.
+- Added checksum and size verification for every generated file, while keeping
+  original attachment filenames as metadata only.
+- Rejected missing or mismatched trusted attachment bytes and cleaned partial
+  package folders on failure.
+- Updated roadmap, data model, traceability, and current-state audit notes.
+- Validation: `python -m unittest discover -s tests` passed with 151 tests and
+  17 expected skips.

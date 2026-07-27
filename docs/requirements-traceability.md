@@ -80,3 +80,6 @@
 | Classifier rules expose evidence and keep risky categories review-required | v0.2 | `test_bank_fixture_classifies_as_review_required_financial_mail`, `test_no_reply_sender_wins_before_human_question_text` |
 | Dry-run review reports category, sender, export path, and Gmail action counts before cleanup | v0.2 | `test_preserve_mode_summarizes_categories_routes_and_export_only_actions`, `test_clean_inbox_mode_holds_review_required_items_before_gmail_cleanup` |
 | Free Space Mode dry-run does not plan direct Gmail deletion | v0.2 | `test_free_space_mode_never_plans_direct_delete_in_dry_run` |
+| Local export package writer creates raw `.eml`, metadata, normalized text, attachment, and manifest outputs under safe route folders | v0.2 | `test_write_export_package_creates_required_files_and_checksum_manifest` |
+| Local export package manifest records generated file checksums while original filenames remain metadata-only | v0.2 | `test_write_export_package_creates_required_files_and_checksum_manifest`, `test_metadata_keeps_original_attachment_filename_as_metadata_only` |
+| Local export package writer rejects missing or mismatched trusted attachment bytes and cleans partial output | v0.2 | `test_missing_trusted_attachment_bytes_rejects_and_removes_partial_package`, `test_attachment_checksum_mismatch_rejects_and_removes_partial_package` |

@@ -262,6 +262,35 @@ only for lower-risk categories and sends risky or unknown categories to
 risk items enter a trash review queue, and risky or unknown items stay in
 `needs_review`.
 
+## Local Export Package
+
+A local export package is the first filesystem output for the v0.2 offloader
+path. It is written under:
+
+```text
+<export-root>/<sender-or-category-route>/<record-id>/
+```
+
+The writer creates required portable outputs for:
+
+- raw `.eml`;
+- metadata JSON;
+- normalized text;
+- trusted attachment files when attachment bytes are supplied;
+- manifest JSON.
+
+The manifest records planned artifacts, generated status, SHA-256 checksum, and
+byte size. Optional readable HTML/PDF artifacts can remain planned but skipped
+until their generators are connected.
+
+Original attachment filenames stay metadata only. File paths use trusted
+server-generated names from the export package plan.
+
+If a required attachment has no trusted bytes, or if size/checksum verification
+fails, the writer rejects the package and removes the partial record folder.
+This keeps cleanup modes dependent on a verified export package instead of a
+best-effort copy.
+
 ## Storage Verification Outcome
 
 A storage verification outcome is the coordinator-level record that storage was
