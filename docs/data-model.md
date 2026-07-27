@@ -221,6 +221,24 @@ The current routing layer supports:
 Routing is deterministic and explainable. It does not classify messages by
 itself, write files, or mutate Gmail.
 
+## Export Classification Result
+
+An export classification result is the deterministic category decision for a
+thread before route planning and dry-run review. It records:
+
+- the selected export category;
+- evidence explaining which rule matched;
+- whether the category requires user review before cleanup.
+
+The current classifier uses transparent local rules only. It can recognize
+newsletter list headers, automated/no-reply signals, bank/financial language,
+human question/request language, attachment-heavy messages, and unknown mail.
+
+Bank/financial, human, attachment-heavy, needs-review, and unknown categories
+are review-required. Newsletter and automated categories are lower-risk
+categories, but future cleanup still must pass through dry-run review and
+verified export first.
+
 ## Storage Verification Outcome
 
 A storage verification outcome is the coordinator-level record that storage was

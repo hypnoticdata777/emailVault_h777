@@ -76,3 +76,5 @@
 | Export route planning rejects invalid sender domains | v0.2 | `test_normalize_sender_domain_rejects_invalid_domain` |
 | v0.2 classifier seed fixtures cover newsletter, automated, bank, human, attachments-heavy, and unknown mail | v0.2 | `test_v0_2_classifier_seed_fixtures_validate` |
 | Message headers can carry synthetic newsletter and automated classifier signals | v0.2 | `test_v0_2_classifier_seed_fixtures_include_expected_signals` |
+| Deterministic classifier maps synthetic seed fixtures into export categories | v0.2 | `test_newsletter_fixture_classifies_from_list_headers_without_review`, `test_automated_fixture_classifies_from_headers_and_no_reply_sender_without_review`, `test_bank_fixture_classifies_as_review_required_financial_mail`, `test_human_fixture_classifies_as_review_required_human_mail`, `test_attachments_heavy_fixture_classifies_as_review_required_bulk_attachment_mail`, `test_unknown_fixture_defaults_to_review_required_unknown_mail` |
+| Classifier rules expose evidence and keep risky categories review-required | v0.2 | `test_bank_fixture_classifies_as_review_required_financial_mail`, `test_no_reply_sender_wins_before_human_question_text` |
