@@ -241,3 +241,5 @@ easy to follow alongside Git commits.
 - Documented that `/admin` is the future private live Gmail control surface, but
   it does not connect Gmail, store OAuth tokens, write files, or mutate Gmail
   yet.
+- Fixed the admin page grid so long local command snippets scroll inside their
+  panels instead of pushing the page off-center on wide browser windows.

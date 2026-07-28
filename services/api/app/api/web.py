@@ -385,7 +385,7 @@ def _render_admin_html() -> str:
     .button.secondary, button.secondary { background: var(--accent-2); }
     .grid {
       display: grid;
-      grid-template-columns: 1.35fr 1fr;
+      grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
       gap: 16px;
       margin-top: 18px;
       align-items: start;
@@ -395,7 +395,10 @@ def _render_admin_html() -> str:
       border: 1px solid var(--line);
       border-radius: 8px;
     }
-    section { padding: 18px; }
+    section {
+      min-width: 0;
+      padding: 18px;
+    }
     .metrics {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -403,6 +406,7 @@ def _render_admin_html() -> str:
       margin-top: 18px;
     }
     .metric {
+      min-width: 0;
       min-height: 92px;
       padding: 14px;
     }
@@ -428,6 +432,7 @@ def _render_admin_html() -> str:
     }
     code {
       display: block;
+      max-width: 100%;
       padding: 11px;
       overflow-x: auto;
       border-radius: 8px;
