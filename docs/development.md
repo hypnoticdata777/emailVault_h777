@@ -64,6 +64,18 @@ GOOGLE_OAUTH_CLIENT_ID=<your-google-oauth-client-id>
 Do not commit real OAuth client IDs, tokens, or exported email data. The test
 suite uses fake verifier functions and does not call Google.
 
+Private read-only Gmail OAuth readiness uses separate local settings:
+
+```text
+GOOGLE_OAUTH_CLIENT_ID=<your-google-oauth-client-id>
+GOOGLE_OAUTH_CLIENT_SECRET=<your-google-oauth-client-secret>
+EMAIL_VAULT_OAUTH_REDIRECT_URI=http://127.0.0.1:8000/oauth/google/callback
+EMAIL_VAULT_GMAIL_OAUTH_SCOPES=https://www.googleapis.com/auth/gmail.readonly
+```
+
+The readiness panel checks configuration only. It does not exchange tokens,
+read Gmail, request cleanup scopes, or mutate Gmail.
+
 Add-on request signing is off by default for local development. Configure a
 private shared secret only when testing the add-on-to-backend boundary:
 
@@ -284,6 +296,12 @@ http://127.0.0.1:8000/admin
 It is intentionally not live Gmail yet. The next private step is OAuth, HTTPS
 callback configuration, encrypted token storage, and review controls.
 
+The admin-only OAuth readiness JSON endpoint is:
+
+```text
+http://127.0.0.1:8000/admin/gmail/oauth/readiness
+```
+
 ## Current Limits
 
 The archive route can render the generated PDF path, generate metadata and
@@ -296,7 +314,7 @@ chains those pieces for synthetic demos and can write a Markdown report without
 absolute package paths. The `synthetic-demo` shortcut runs the canonical public
 demo fixtures with fewer flags. The local web demo is a read-only synthetic
 preview, and `/login` plus `/admin` now separate public-safe demo access from a
-private owner console shell. The admin shell still does not connect Gmail,
-store OAuth tokens, write files, or mutate Gmail. None of these paths labels
-Gmail, marks messages read, archives Gmail, trashes Gmail, or deletes Gmail
-messages.
+private owner console shell. The admin shell now reports read-only Gmail OAuth
+readiness, but it still does not connect Gmail, store OAuth tokens, write files,
+or mutate Gmail. None of these paths labels Gmail, marks messages read,
+archives Gmail, trashes Gmail, or deletes Gmail messages.

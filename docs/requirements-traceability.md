@@ -95,3 +95,4 @@
 | Canonical synthetic demo command runs the public walkthrough and tolerates reruns | v0.2 | `test_synthetic_demo_runs_canonical_batch_with_short_command`, `test_synthetic_demo_can_be_rerun_after_approvable_intent_exists` |
 | Read-only local web demo exposes synthetic review data without mutation or file writes | v0.2 | `test_demo_page_renders_synthetic_local_ui_without_auth`, `test_demo_data_is_synthetic_read_only_and_mutation_disabled` |
 | Local web access separates public-safe demo from owner-only admin console | v0.2 | `test_login_page_exposes_demo_and_admin_paths`, `test_admin_console_redirects_without_admin_session`, `test_admin_login_sets_signed_session_cookie_and_opens_console` |
+| Admin-only Gmail OAuth readiness reports private read-only setup before token exchange | v0.2 | `test_readiness_accepts_read_only_gmail_oauth_configuration`, `test_admin_oauth_readiness_reports_read_only_config` |

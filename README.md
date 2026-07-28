@@ -169,19 +169,23 @@ Done:
   summary counts, and the canonical CLI handoff command.
 - Local access split with `/login`, demo access, and an HMAC-signed
   owner-only `/admin` console shell for future live Gmail controls.
+- Admin-only Gmail OAuth readiness panel and JSON endpoint that show whether
+  the private read-only Gmail OAuth setup is configured.
 
 Next:
 
-1. Wire the admin console to a private live Gmail OAuth flow only after secrets,
-   HTTPS, and token storage are ready.
-2. Expand the local web demo from read-only synthetic preview into a small
+1. Add private OAuth callback handling and encrypted token storage after the
+   read-only Gmail OAuth setup is configured.
+2. Wire read-only Gmail import/listing behind `/admin` before any cleanup
+   controls.
+3. Expand the local web demo from read-only synthetic preview into a small
    workflow surface only if it remains useful after screenshots.
-3. Add optional synthetic screenshots for the public portfolio walkthrough.
-4. Validate the signed add-on archive/finalization flow against a real HTTPS API
+4. Add optional synthetic screenshots for the public portfolio walkthrough.
+5. Validate the signed add-on archive/finalization flow against a real HTTPS API
    and Google OAuth client in a private environment.
-5. Decide and document the Gmail mutation permission step for label, mark-read,
+6. Decide and document the Gmail mutation permission step for label, mark-read,
    archive, delete/trash queue, and callback success behavior.
-6. Keep Free Space Mode trash/delete behavior deferred until review, warning,
+7. Keep Free Space Mode trash/delete behavior deferred until review, warning,
    and reversibility protections are privately validated.
 
 ## Architecture At A Glance
@@ -256,6 +260,19 @@ python -m uvicorn services.api.app.main:app --reload
 Then open `http://127.0.0.1:8000/login` and use the admin password to reach
 `/admin`. The admin page is a private owner console shell today; it does not
 connect Gmail or mutate Gmail yet.
+
+To prepare the private read-only Gmail OAuth step, configure these outside Git:
+
+```powershell
+$env:GOOGLE_OAUTH_CLIENT_ID = "your-google-oauth-client-id"
+$env:GOOGLE_OAUTH_CLIENT_SECRET = "your-google-oauth-client-secret"
+$env:EMAIL_VAULT_OAUTH_REDIRECT_URI = "http://127.0.0.1:8000/oauth/google/callback"
+$env:EMAIL_VAULT_GMAIL_OAUTH_SCOPES = "https://www.googleapis.com/auth/gmail.readonly"
+```
+
+The admin console and `/admin/gmail/oauth/readiness` will report whether those
+private values are ready. Token exchange and real Gmail reading are still the
+next private implementation steps.
 
 Run the local Preserve Mode CLI against a synthetic no-attachment fixture:
 

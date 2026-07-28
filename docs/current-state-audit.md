@@ -164,6 +164,9 @@ scaffold, and a Playwright/Chromium adapter boundary.
   synthetic read-only demo and owner admin access requires local
   `EMAIL_VAULT_ADMIN_PASSWORD` plus `EMAIL_VAULT_WEB_SESSION_SECRET` before
   opening the `/admin` console shell.
+- The admin console now reports private read-only Gmail OAuth readiness,
+  including missing env vars, configured scopes, and mutation-scope warnings,
+  and exposes the same state at `GET /admin/gmail/oauth/readiness`.
 
 ## Setup and Run Commands
 

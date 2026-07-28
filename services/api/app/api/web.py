@@ -9,6 +9,7 @@ from urllib.parse import parse_qs
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 
+from services.api.app.auth.oauth_readiness import GmailOAuthReadiness, inspect_gmail_oauth_readiness
 from services.api.app.core.settings import load_settings
 
 
@@ -64,7 +65,15 @@ async def admin_console(request: Request) -> Response:
     if _session_role(request) != "admin":
         return RedirectResponse("/login", status_code=303)
 
-    return HTMLResponse(_render_admin_html())
+    return HTMLResponse(_render_admin_html(inspect_gmail_oauth_readiness(load_settings())))
+
+
+@router.get("/admin/gmail/oauth/readiness")
+async def gmail_oauth_readiness(request: Request) -> Response | dict[str, object]:
+    if _session_role(request) != "admin":
+        return RedirectResponse("/login", status_code=303)
+
+    return inspect_gmail_oauth_readiness(load_settings()).to_dict()
 
 
 def _admin_login_configured(admin_password: str, web_session_secret: str) -> bool:
@@ -120,7 +129,7 @@ def _sign_payload(payload: str, secret: str) -> str:
 def _render_login_html(message: str = "") -> str:
     safe_message = html.escape(message)
     message_html = f'<p class="notice">{safe_message}</p>' if safe_message else ""
-    return f"""<!doctype html>
+    template = """<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -308,8 +317,19 @@ def _render_login_html(message: str = "") -> str:
 </html>"""
 
 
-def _render_admin_html() -> str:
-    return """<!doctype html>
+def _render_admin_html(readiness: GmailOAuthReadiness) -> str:
+    oauth_status = "Ready" if readiness.configured else "Needs config"
+    missing_items = "".join(f"<li>{html.escape(item)}</li>" for item in readiness.missing)
+    missing_html = f"<ul>{missing_items}</ul>" if missing_items else "<p>Read-only Gmail OAuth config is present.</p>"
+    scope_items = "".join(f"<li>{html.escape(scope)}</li>" for scope in readiness.scopes)
+    scope_html = f"<ul>{scope_items}</ul>" if scope_items else "<p>No Gmail scopes are configured.</p>"
+    mutation_copy = (
+        "Mutation-capable scopes are present. Review before live use."
+        if readiness.mutation_scopes_requested
+        else "Read-only import scope only. Cleanup/mutation scopes are not requested."
+    )
+    readiness_json_link = "/admin/gmail/oauth/readiness"
+    template = """<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -470,7 +490,7 @@ def _render_admin_html() -> str:
     </header>
     <div class="metrics">
       <div class="metric"><span>Session</span><strong>Admin</strong></div>
-      <div class="metric"><span>Gmail OAuth</span><strong>Not connected</strong></div>
+      <div class="metric"><span>Gmail OAuth</span><strong>__OAUTH_STATUS__</strong></div>
       <div class="metric"><span>Mailbox mutation</span><strong>Disabled</strong></div>
     </div>
     <div class="grid">
@@ -491,6 +511,18 @@ def _render_admin_html() -> str:
         <p>Real Gmail connection stays blocked until a private Google OAuth project, HTTPS callback URL, token storage, and explicit cleanup review are configured.</p>
       </section>
       <section>
+        <h2>OAuth Readiness</h2>
+        __MISSING_HTML__
+        <div class="actions">
+          <a class="button secondary" href="__READINESS_JSON_LINK__">View OAuth Readiness JSON</a>
+        </div>
+      </section>
+      <section>
+        <h2>Requested Gmail Scopes</h2>
+        __SCOPE_HTML__
+        <p>__MUTATION_COPY__</p>
+      </section>
+      <section>
         <h2>Local Preserve Command</h2>
         <code>python -m services.api.app.cli preserve-local --request tests/fixtures/emails/unknown_message.json --export-root .local/EmailVault --json</code>
       </section>
@@ -502,3 +534,10 @@ def _render_admin_html() -> str:
   </main>
 </body>
 </html>"""
+    return (
+        template.replace("__OAUTH_STATUS__", html.escape(oauth_status))
+        .replace("__MISSING_HTML__", missing_html)
+        .replace("__READINESS_JSON_LINK__", readiness_json_link)
+        .replace("__SCOPE_HTML__", scope_html)
+        .replace("__MUTATION_COPY__", html.escape(mutation_copy))
+    )

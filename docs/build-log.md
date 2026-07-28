@@ -243,3 +243,16 @@ easy to follow alongside Git commits.
   yet.
 - Fixed the admin page grid so long local command snippets scroll inside their
   panels instead of pushing the page off-center on wide browser windows.
+
+## 2026-07-27 - Admin Gmail OAuth Readiness
+
+- Added private read-only Gmail OAuth readiness settings for client id, client
+  secret, redirect URI, and Gmail scopes.
+- Added a standard-library OAuth readiness helper that reports missing private
+  setup, builds a future authorization URL only when configured, and flags
+  mutation-capable Gmail scopes.
+- Added an admin-only `/admin/gmail/oauth/readiness` JSON endpoint.
+- Updated `/admin` so the owner console shows OAuth readiness, missing setup,
+  requested scopes, and whether cleanup/mutation scopes are present.
+- Kept the first Gmail OAuth scope read-only and kept token exchange, real Gmail
+  reads, file writes, and Gmail mutation out of this step.

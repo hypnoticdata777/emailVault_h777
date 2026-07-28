@@ -20,6 +20,11 @@ the password and HMAC session secret. This protects the local owner console
 during development, but it is not production multi-user authentication and does
 not replace Google OAuth verification.
 
+The admin console can report Gmail OAuth readiness for the private read-only
+scope. Readiness does not exchange tokens, read Gmail, or grant Gmail mutation.
+Mutation-capable scopes must remain out of the default local configuration until
+the review and consent path is designed.
+
 ## Data That Must Not Enter Logs
 
 Application logs must not contain:
@@ -146,6 +151,11 @@ passwords, tokens, and real email exports must not be committed.
 `EMAIL_VAULT_WEB_SESSION_SECRET` and `EMAIL_VAULT_ADMIN_PASSWORD` are local
 owner secrets. They belong in the user's environment or private hosting secret
 store only.
+
+`GOOGLE_OAUTH_CLIENT_SECRET` is also a private secret and must not be committed.
+The default Gmail OAuth scope should remain
+`https://www.googleapis.com/auth/gmail.readonly` until live cleanup behavior is
+explicitly approved and tested.
 
 ## Public-Ready Checklist
 

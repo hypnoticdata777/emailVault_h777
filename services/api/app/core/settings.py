@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import os
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
 
 PLACEHOLDER_GOOGLE_CLIENT_ID = "replace-with-google-oauth-client-id"
+DEFAULT_GMAIL_OAUTH_SCOPES = ("https://www.googleapis.com/auth/gmail.readonly",)
 DEFAULT_ALLOWED_MIME_TYPES = frozenset(
     {
         "application/pdf",
@@ -29,6 +31,9 @@ class Settings:
     allowed_extensions: frozenset[str] = field(default_factory=lambda: DEFAULT_ALLOWED_EXTENSIONS)
     identity_verifier: str = "synthetic"
     google_oauth_client_id: str = PLACEHOLDER_GOOGLE_CLIENT_ID
+    google_oauth_client_secret: str = ""
+    oauth_redirect_uri: str = "http://127.0.0.1:8000/oauth/google/callback"
+    gmail_oauth_scopes: tuple[str, ...] = DEFAULT_GMAIL_OAUTH_SCOPES
     addon_signing_secret: str = ""
     addon_signature_max_age_seconds: int = 300
     database_url: str = "sqlite:///./email_vault.db"
@@ -38,6 +43,10 @@ class Settings:
 
 def _split_csv(value: str) -> frozenset[str]:
     return frozenset(item.strip() for item in value.split(",") if item.strip())
+
+
+def _split_scopes(value: str) -> tuple[str, ...]:
+    return tuple(scope for scope in re.split(r"[\s,]+", value.strip()) if scope)
 
 
 def load_settings() -> Settings:
@@ -55,6 +64,14 @@ def load_settings() -> Settings:
         ),
         identity_verifier=os.getenv("EMAIL_VAULT_IDENTITY_VERIFIER", "synthetic").strip().lower(),
         google_oauth_client_id=os.getenv("GOOGLE_OAUTH_CLIENT_ID", PLACEHOLDER_GOOGLE_CLIENT_ID),
+        google_oauth_client_secret=os.getenv("GOOGLE_OAUTH_CLIENT_SECRET", ""),
+        oauth_redirect_uri=os.getenv(
+            "EMAIL_VAULT_OAUTH_REDIRECT_URI",
+            "http://127.0.0.1:8000/oauth/google/callback",
+        ),
+        gmail_oauth_scopes=_split_scopes(
+            os.getenv("EMAIL_VAULT_GMAIL_OAUTH_SCOPES", " ".join(DEFAULT_GMAIL_OAUTH_SCOPES))
+        ),
         addon_signing_secret=os.getenv("EMAIL_VAULT_ADDON_SIGNING_SECRET", ""),
         addon_signature_max_age_seconds=int(os.getenv("EMAIL_VAULT_ADDON_SIGNATURE_MAX_AGE_SECONDS", "300")),
         database_url=os.getenv("DATABASE_URL", "sqlite:///./email_vault.db"),

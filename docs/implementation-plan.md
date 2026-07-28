@@ -112,8 +112,10 @@ first read-only local web demo now exposes the same synthetic review story at
 `/demo`. A local access split now adds `/login`, demo access, and an
 HMAC-signed owner-only `/admin` console shell. The admin shell is the bridge
 toward private live Gmail use, but it still does not connect Gmail, store OAuth
-tokens, or mutate Gmail. The next implementation should focus on OAuth/token
-storage and review controls before any live Gmail mutation.
+tokens, or mutate Gmail. The admin shell now reports read-only Gmail OAuth
+readiness and exposes the same status through an admin-only JSON endpoint. The
+next implementation should focus on OAuth callback/token storage and review
+controls before any live Gmail mutation.
 
 ## Later Phases
 
@@ -123,8 +125,8 @@ storage and review controls before any live Gmail mutation.
   `docs/v0.2-closeout-and-next-wave.md`.
 - Next surface decision: write-capable local web workflow, desktop UI, or
   add-on-triggered local API.
-- Private admin live path: Google OAuth app, HTTPS callback, encrypted token
-  storage, and owner controls wired behind `/admin`.
+- Private admin live path: Google OAuth callback, encrypted token storage,
+  read-only Gmail import/listing, and owner controls wired behind `/admin`.
 - Portfolio capture: optional synthetic screenshots from the local web demo.
 - Free Space Mode: reviewed trash/delete queue after verified export, with
   warning copy and reversibility checks.

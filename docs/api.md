@@ -96,8 +96,31 @@ redirects to `/admin`. If either value is missing, admin login is disabled.
 
 Returns the private owner console shell only when the signed admin session is
 present. The current page shows the safe live-work status and links back to the
-synthetic demo/CLI commands. It does not connect Gmail, store OAuth tokens, or
-execute Gmail cleanup.
+synthetic demo/CLI commands. It also shows private Gmail OAuth readiness:
+missing environment variables, configured scopes, and whether mutation-capable
+scopes are present. It does not connect Gmail, store OAuth tokens, or execute
+Gmail cleanup.
+
+## `GET /admin/gmail/oauth/readiness`
+
+Requires the signed admin session. Returns the private read-only Gmail OAuth
+configuration status as JSON.
+
+Current readiness checks:
+
+- `GOOGLE_OAUTH_CLIENT_ID` is set and is not the placeholder value.
+- `GOOGLE_OAUTH_CLIENT_SECRET` is set outside Git.
+- `EMAIL_VAULT_OAUTH_REDIRECT_URI` is present.
+- `EMAIL_VAULT_GMAIL_OAUTH_SCOPES` has at least one scope.
+
+Default scope:
+
+```text
+https://www.googleapis.com/auth/gmail.readonly
+```
+
+The endpoint flags mutation-capable Gmail scopes if they are configured, but it
+does not start OAuth, exchange tokens, read Gmail, or mutate Gmail.
 
 ## `POST /logout`
 

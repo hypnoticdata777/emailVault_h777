@@ -152,6 +152,56 @@ class ApiTests(unittest.TestCase):
         self.assertIn("Email Vault Admin Console", admin_response.text)
         self.assertIn("Gmail OAuth", admin_response.text)
         self.assertIn("Mailbox mutation", admin_response.text)
+        self.assertIn("OAuth Readiness", admin_response.text)
+
+    def test_admin_oauth_readiness_requires_admin_session(self) -> None:
+        response = self.client.get("/admin/gmail/oauth/readiness", follow_redirects=False)
+
+        self.assertEqual(response.status_code, 303)
+        self.assertEqual(response.headers["location"], "/login")
+
+    def test_admin_oauth_readiness_reports_missing_private_config(self) -> None:
+        with patch.dict(
+            "os.environ",
+            {
+                "EMAIL_VAULT_ADMIN_PASSWORD": "owner-pass",
+                "EMAIL_VAULT_WEB_SESSION_SECRET": "test-session-secret",
+                "GOOGLE_OAUTH_CLIENT_ID": "replace-with-google-oauth-client-id",
+                "GOOGLE_OAUTH_CLIENT_SECRET": "",
+            },
+        ):
+            self.client.post("/login/admin", data={"password": "owner-pass"}, follow_redirects=False)
+            response = self.client.get("/admin/gmail/oauth/readiness")
+
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertFalse(body["configured"])
+        self.assertIn("GOOGLE_OAUTH_CLIENT_ID", body["missing"])
+        self.assertIn("GOOGLE_OAUTH_CLIENT_SECRET", body["missing"])
+        self.assertEqual(body["scopes"], ["https://www.googleapis.com/auth/gmail.readonly"])
+        self.assertFalse(body["mutation_scopes_requested"])
+
+    def test_admin_oauth_readiness_reports_read_only_config(self) -> None:
+        with patch.dict(
+            "os.environ",
+            {
+                "EMAIL_VAULT_ADMIN_PASSWORD": "owner-pass",
+                "EMAIL_VAULT_WEB_SESSION_SECRET": "test-session-secret",
+                "GOOGLE_OAUTH_CLIENT_ID": "client-id.apps.googleusercontent.com",
+                "GOOGLE_OAUTH_CLIENT_SECRET": "client-secret",
+                "EMAIL_VAULT_OAUTH_REDIRECT_URI": "http://127.0.0.1:8000/oauth/google/callback",
+                "EMAIL_VAULT_GMAIL_OAUTH_SCOPES": "https://www.googleapis.com/auth/gmail.readonly",
+            },
+        ):
+            self.client.post("/login/admin", data={"password": "owner-pass"}, follow_redirects=False)
+            response = self.client.get("/admin/gmail/oauth/readiness")
+
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertTrue(body["configured"])
+        self.assertEqual(body["missing"], [])
+        self.assertTrue(body["authorization_url_available"])
+        self.assertFalse(body["mutation_scopes_requested"])
 
     def test_archive_requires_bearer_identity(self) -> None:
         response = self.client.post("/archive/thread", json=self._fixture("plain_text"))
