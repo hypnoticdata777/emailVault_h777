@@ -279,3 +279,18 @@ easy to follow alongside Git commits.
   review, and locked cleanup.
 - Kept the polish honest: Gmail stays locked, token exchange remains pending,
   and no live Gmail read/write behavior was added.
+
+## 2026-07-27 - Local Web Import Fix
+
+- Fixed FastAPI response-model inference for the admin readiness JSON routes so
+  Uvicorn can import the app under FastAPI.
+- Restored the login page HTML return after the template cleanup pass.
+
+## 2026-07-27 - Admin Console Tabs And Category Flow
+
+- Added a sticky top tab rail for owner-console sections: Overview, Modes,
+  Categories, Readiness, and Commands.
+- Added a Category Flow panel that visually starts from the strongest synthetic
+  category signal and shows how categories feed review gates.
+- Kept the new polish inside the real admin tool surface without claiming live
+  Gmail access or cleanup behavior.

@@ -75,7 +75,7 @@ async def admin_console(request: Request) -> Response:
     )
 
 
-@router.get("/admin/gmail/oauth/readiness")
+@router.get("/admin/gmail/oauth/readiness", response_model=None)
 async def gmail_oauth_readiness(request: Request) -> Response | dict[str, object]:
     if _session_role(request) != "admin":
         return RedirectResponse("/login", status_code=303)
@@ -83,7 +83,7 @@ async def gmail_oauth_readiness(request: Request) -> Response | dict[str, object
     return inspect_gmail_oauth_readiness(load_settings()).to_dict()
 
 
-@router.get("/admin/gmail/token-storage/readiness")
+@router.get("/admin/gmail/token-storage/readiness", response_model=None)
 async def gmail_token_storage_readiness(request: Request) -> Response | dict[str, object]:
     if _session_role(request) != "admin":
         return RedirectResponse("/login", status_code=303)
@@ -161,7 +161,7 @@ def _sign_payload(payload: str, secret: str) -> str:
 def _render_login_html(message: str = "") -> str:
     safe_message = html.escape(message)
     message_html = f'<p class="notice">{safe_message}</p>' if safe_message else ""
-    template = """<!doctype html>
+    return f"""<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -350,6 +350,7 @@ def _render_login_html(message: str = "") -> str:
 
 
 def _render_admin_html(readiness: GmailOAuthReadiness, token_storage: TokenStorageReadiness) -> str:
+    category_flow = _admin_category_flow()
     oauth_status = "Ready" if readiness.configured else "Needs config"
     missing_items = "".join(f"<li>{html.escape(item)}</li>" for item in readiness.missing)
     missing_html = f"<ul>{missing_items}</ul>" if missing_items else "<p>Read-only Gmail OAuth config is present.</p>"
@@ -390,6 +391,7 @@ def _render_admin_html(readiness: GmailOAuthReadiness, token_storage: TokenStora
       --blue-soft: #eaf1fb;
       --green-soft: #e8f5ef;
       --gold-soft: #fff6e5;
+      --rose-soft: #fff0ec;
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
     * { box-sizing: border-box; }
@@ -421,6 +423,35 @@ def _render_admin_html(readiness: GmailOAuthReadiness, token_storage: TokenStora
       border: 1px solid #cbd7d2;
       border-radius: 8px;
       background: linear-gradient(135deg, #ffffff 0%, #e8f5ef 46%, #eaf1fb 100%);
+    }
+    .tabbar {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255,255,255,.88);
+      backdrop-filter: blur(10px);
+    }
+    .tabbar a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 7px 10px;
+      border-radius: 8px;
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .tabbar a:first-child {
+      background: #17201b;
+      color: #ffffff;
     }
     .brand-line {
       display: flex;
@@ -618,8 +649,50 @@ def _render_admin_html(readiness: GmailOAuthReadiness, token_storage: TokenStora
     .warning {
       border-left: 4px solid var(--danger);
     }
+    .category-flow {
+      display: grid;
+      grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+      gap: 16px;
+      align-items: center;
+    }
+    .focus-card {
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--rose-soft);
+    }
+    .focus-card span {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .focus-card strong {
+      display: block;
+      margin-top: 8px;
+      font-size: 26px;
+      line-height: 1.1;
+    }
+    .arc-panel {
+      min-width: 0;
+      overflow: hidden;
+    }
+    .arc-panel svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .arc-label {
+      font-size: 13px;
+      font-weight: 700;
+      fill: #17201b;
+    }
+    .arc-muted {
+      font-size: 11px;
+      fill: #64706c;
+    }
     @media (max-width: 760px) {
-      header, .hero-band, .grid, .metrics, .mode-grid, .pipeline { grid-template-columns: 1fr; }
+      header, .hero-band, .grid, .metrics, .mode-grid, .pipeline, .category-flow { grid-template-columns: 1fr; }
       main { width: min(100% - 24px, 1100px); }
     }
   </style>
@@ -635,7 +708,14 @@ def _render_admin_html(readiness: GmailOAuthReadiness, token_storage: TokenStora
         <button type="submit">Log Out</button>
       </form>
     </header>
-    <section class="hero-band">
+    <nav class="tabbar" aria-label="Admin sections">
+      <a href="#overview">Overview</a>
+      <a href="#modes">Modes</a>
+      <a href="#categories">Categories</a>
+      <a href="#readiness">Readiness</a>
+      <a href="#commands">Commands</a>
+    </nav>
+    <section class="hero-band" id="overview">
       <div>
         <div class="brand-line">
           <span class="brand-mark">EV</span>
@@ -657,7 +737,7 @@ def _render_admin_html(readiness: GmailOAuthReadiness, token_storage: TokenStora
       <div class="metric"><span>Token Storage</span><strong>__TOKEN_STATUS__</strong></div>
     </div>
     <div class="grid">
-      <section>
+      <section id="modes">
         <h2>Vault Modes</h2>
         <div class="mode-grid">
           <div class="mode-card">
@@ -683,6 +763,19 @@ def _render_admin_html(readiness: GmailOAuthReadiness, token_storage: TokenStora
           <div class="step"><strong>Clean</strong><span>Mutation remains locked.</span></div>
         </div>
       </section>
+      <section id="categories">
+        <h2>Category Flow</h2>
+        <div class="category-flow">
+          <div class="focus-card">
+            <span>Current strongest signal</span>
+            <strong>__TOP_CATEGORY__</strong>
+            <p>__CATEGORY_NOTE__</p>
+          </div>
+          <div class="arc-panel">
+            __CATEGORY_ARC__
+          </div>
+        </div>
+      </section>
       <section>
         <h2>Private Workflow</h2>
         <ul>
@@ -699,7 +792,7 @@ def _render_admin_html(readiness: GmailOAuthReadiness, token_storage: TokenStora
         <h2>Live Gmail Gate</h2>
         <p>Real Gmail connection stays blocked until a private Google OAuth project, HTTPS callback URL, token storage, and explicit cleanup review are configured.</p>
       </section>
-      <section>
+      <section id="readiness">
         <h2>OAuth Readiness</h2>
         __MISSING_HTML__
         <div class="actions">
@@ -724,7 +817,7 @@ def _render_admin_html(readiness: GmailOAuthReadiness, token_storage: TokenStora
         <p>The callback route is registered at <code>http://127.0.0.1:8000/oauth/google/callback</code></p>
         <p>Authorization codes are not stored until token exchange and encrypted storage are implemented.</p>
       </section>
-      <section>
+      <section id="commands">
         <h2>Local Preserve Command</h2>
         <code>python -m services.api.app.cli preserve-local --request tests/fixtures/emails/unknown_message.json --export-root .local/EmailVault --json</code>
       </section>
@@ -745,7 +838,39 @@ def _render_admin_html(readiness: GmailOAuthReadiness, token_storage: TokenStora
         .replace("__MUTATION_COPY__", html.escape(mutation_copy))
         .replace("__TOKEN_MISSING_HTML__", token_missing_html)
         .replace("__TOKEN_READINESS_JSON_LINK__", token_readiness_json_link)
+        .replace("__TOP_CATEGORY__", html.escape(category_flow["top_category"]))
+        .replace("__CATEGORY_NOTE__", html.escape(category_flow["note"]))
+        .replace("__CATEGORY_ARC__", category_flow["arc_html"])
     )
+
+
+def _admin_category_flow() -> dict[str, str]:
+    categories = (
+        ("newsletter", 1, "#b6472f"),
+        ("bank_financial", 1, "#365f91"),
+        ("unknown", 1, "#256f5b"),
+    )
+    top_category = max(categories, key=lambda item: item[1])[0]
+    note = "Synthetic demo data is tied today; the live view will start from the highest-volume category."
+    arc_html = """
+<svg viewBox="0 0 430 190" role="img" aria-label="Category flow starts from the strongest category">
+  <path d="M48 142 C92 34, 196 22, 248 92 S340 162, 386 64" fill="none" stroke="#d7dfda" stroke-width="18" stroke-linecap="round"/>
+  <path d="M48 142 C92 34, 196 22, 248 92" fill="none" stroke="#b6472f" stroke-width="18" stroke-linecap="round"/>
+  <circle cx="48" cy="142" r="18" fill="#b6472f"/>
+  <circle cx="248" cy="92" r="15" fill="#365f91"/>
+  <circle cx="386" cy="64" r="15" fill="#256f5b"/>
+  <text x="28" y="178" class="arc-label">newsletter</text>
+  <text x="28" y="188" class="arc-muted">current top signal</text>
+  <text x="206" y="70" class="arc-label">bank</text>
+  <text x="206" y="84" class="arc-muted">review gate</text>
+  <text x="330" y="42" class="arc-label">unknown</text>
+  <text x="330" y="56" class="arc-muted">hold queue</text>
+</svg>"""
+    return {
+        "top_category": top_category,
+        "note": note,
+        "arc_html": arc_html,
+    }
 
 
 def _render_oauth_callback_html(
