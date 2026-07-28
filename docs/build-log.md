@@ -269,3 +269,13 @@ easy to follow alongside Git commits.
   authorization-code redirect.
 - Kept the callback safe by discarding authorization codes until token exchange
   and encrypted storage are implemented.
+
+## 2026-07-27 - Admin Console Visual Polish
+
+- Updated the owner admin console so it reads more like a working inbox command
+  center instead of a plain status page.
+- Added a stronger product header, visible Preserve/Clean Inbox/Free Space mode
+  cards, and a safety pipeline from read-only connection through preservation,
+  review, and locked cleanup.
+- Kept the polish honest: Gmail stays locked, token exchange remains pending,
+  and no live Gmail read/write behavior was added.

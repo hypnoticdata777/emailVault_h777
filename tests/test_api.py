@@ -153,6 +153,8 @@ class ApiTests(unittest.TestCase):
         self.assertIn("Gmail OAuth", admin_response.text)
         self.assertIn("Token Storage", admin_response.text)
         self.assertIn("OAuth Readiness", admin_response.text)
+        self.assertIn("Vault Modes", admin_response.text)
+        self.assertIn("Safety Pipeline", admin_response.text)
 
     def test_admin_oauth_readiness_requires_admin_session(self) -> None:
         response = self.client.get("/admin/gmail/oauth/readiness", follow_redirects=False)

@@ -386,6 +386,10 @@ def _render_admin_html(readiness: GmailOAuthReadiness, token_storage: TokenStora
       --accent: #256f5b;
       --accent-2: #365f91;
       --danger: #b6472f;
+      --gold: #c08a2d;
+      --blue-soft: #eaf1fb;
+      --green-soft: #e8f5ef;
+      --gold-soft: #fff6e5;
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
     * { box-sizing: border-box; }
@@ -406,6 +410,60 @@ def _render_admin_html(readiness: GmailOAuthReadiness, token_storage: TokenStora
       align-items: start;
       padding-bottom: 20px;
       border-bottom: 1px solid var(--line);
+    }
+    .hero-band {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 20px;
+      align-items: center;
+      margin-top: 18px;
+      padding: 18px;
+      border: 1px solid #cbd7d2;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #ffffff 0%, #e8f5ef 46%, #eaf1fb 100%);
+    }
+    .brand-line {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .brand-mark {
+      display: inline-grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 8px;
+      background: #17201b;
+      color: #ffffff;
+      font-size: 22px;
+      font-weight: 800;
+    }
+    .hero-band strong {
+      display: block;
+      font-size: 16px;
+      line-height: 1.25;
+    }
+    .hero-band p {
+      max-width: 720px;
+    }
+    .hero-stat {
+      display: grid;
+      gap: 4px;
+      min-width: 172px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255,255,255,.72);
+    }
+    .hero-stat span {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .hero-stat strong {
+      font-size: 24px;
     }
     h1 {
       margin: 0;
@@ -483,6 +541,55 @@ def _render_admin_html(readiness: GmailOAuthReadiness, token_storage: TokenStora
       font-size: 22px;
       line-height: 1.15;
     }
+    .mode-grid, .pipeline {
+      display: grid;
+      gap: 10px;
+    }
+    .mode-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .mode-card {
+      min-width: 0;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--green-soft);
+    }
+    .mode-card.clean { background: var(--blue-soft); }
+    .mode-card.free { background: var(--gold-soft); }
+    .mode-card span, .step span {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+    .pipeline {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      counter-reset: pipeline;
+    }
+    .step {
+      position: relative;
+      min-width: 0;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+    }
+    .step::before {
+      counter-increment: pipeline;
+      content: counter(pipeline);
+      display: inline-grid;
+      place-items: center;
+      width: 24px;
+      height: 24px;
+      margin-bottom: 8px;
+      border-radius: 999px;
+      background: #17201b;
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 800;
+    }
     ul {
       margin: 0;
       padding-left: 18px;
@@ -512,7 +619,7 @@ def _render_admin_html(readiness: GmailOAuthReadiness, token_storage: TokenStora
       border-left: 4px solid var(--danger);
     }
     @media (max-width: 760px) {
-      header, .grid, .metrics { grid-template-columns: 1fr; }
+      header, .hero-band, .grid, .metrics, .mode-grid, .pipeline { grid-template-columns: 1fr; }
       main { width: min(100% - 24px, 1100px); }
     }
   </style>
@@ -528,12 +635,54 @@ def _render_admin_html(readiness: GmailOAuthReadiness, token_storage: TokenStora
         <button type="submit">Log Out</button>
       </form>
     </header>
+    <section class="hero-band">
+      <div>
+        <div class="brand-line">
+          <span class="brand-mark">EV</span>
+          <div>
+            <strong>Personal inbox offloader and cleanup cockpit</strong>
+            <p>Preserve useful mail outside Gmail first, then review what can leave the inbox.</p>
+          </div>
+        </div>
+      </div>
+      <div class="hero-stat">
+        <span>Live Gmail</span>
+        <strong>Locked</strong>
+        <p>Read-only OAuth path is being prepared.</p>
+      </div>
+    </section>
     <div class="metrics">
       <div class="metric"><span>Session</span><strong>Admin</strong></div>
       <div class="metric"><span>Gmail OAuth</span><strong>__OAUTH_STATUS__</strong></div>
       <div class="metric"><span>Token Storage</span><strong>__TOKEN_STATUS__</strong></div>
     </div>
     <div class="grid">
+      <section>
+        <h2>Vault Modes</h2>
+        <div class="mode-grid">
+          <div class="mode-card">
+            <strong>Preserve</strong>
+            <span>Save portable copies without changing Gmail.</span>
+          </div>
+          <div class="mode-card clean">
+            <strong>Clean Inbox</strong>
+            <span>Review saved mail before labels or archive.</span>
+          </div>
+          <div class="mode-card free">
+            <strong>Free Space</strong>
+            <span>Deferred until delete review and recovery rules exist.</span>
+          </div>
+        </div>
+      </section>
+      <section>
+        <h2>Safety Pipeline</h2>
+        <div class="pipeline">
+          <div class="step"><strong>Connect</strong><span>Read-only OAuth setup.</span></div>
+          <div class="step"><strong>Preserve</strong><span>Export package and checksum.</span></div>
+          <div class="step"><strong>Review</strong><span>Category and route decision.</span></div>
+          <div class="step"><strong>Clean</strong><span>Mutation remains locked.</span></div>
+        </div>
+      </section>
       <section>
         <h2>Private Workflow</h2>
         <ul>
