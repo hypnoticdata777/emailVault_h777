@@ -7,6 +7,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 
 HAS_FASTAPI = importlib.util.find_spec("fastapi") is not None and importlib.util.find_spec("httpx") is not None
@@ -102,6 +103,55 @@ class ApiTests(unittest.TestCase):
         self.assertEqual([item["category"] for item in body["items"]], ["newsletter", "bank_financial", "unknown"])
         self.assertEqual(body["items"][0]["intent_policy"], "eligible")
         self.assertEqual(body["items"][1]["intent_policy"], "held_for_review")
+
+    def test_login_page_exposes_demo_and_admin_paths(self) -> None:
+        response = self.client.get("/login")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("text/html", response.headers["content-type"])
+        self.assertIn("Email Vault Access", response.text)
+        self.assertIn("Demo Access", response.text)
+        self.assertIn("Admin Access", response.text)
+
+    def test_demo_login_redirects_to_synthetic_demo_without_gmail_access(self) -> None:
+        with patch.dict("os.environ", {"EMAIL_VAULT_WEB_SESSION_SECRET": "test-session-secret"}):
+            response = self.client.post("/login/demo", follow_redirects=False)
+
+        self.assertEqual(response.status_code, 303)
+        self.assertEqual(response.headers["location"], "/demo")
+        self.assertIn("email_vault_session=", response.headers["set-cookie"])
+
+    def test_admin_console_redirects_without_admin_session(self) -> None:
+        response = self.client.get("/admin", follow_redirects=False)
+
+        self.assertEqual(response.status_code, 303)
+        self.assertEqual(response.headers["location"], "/login")
+
+    def test_admin_login_is_disabled_until_local_credentials_are_configured(self) -> None:
+        with patch.dict("os.environ", {"EMAIL_VAULT_ADMIN_PASSWORD": "", "EMAIL_VAULT_WEB_SESSION_SECRET": ""}):
+            response = self.client.post("/login/admin", data={"password": "owner-pass"}, follow_redirects=False)
+
+        self.assertEqual(response.status_code, 503)
+        self.assertIn("Admin login is disabled", response.text)
+
+    def test_admin_login_sets_signed_session_cookie_and_opens_console(self) -> None:
+        with patch.dict(
+            "os.environ",
+            {
+                "EMAIL_VAULT_ADMIN_PASSWORD": "owner-pass",
+                "EMAIL_VAULT_WEB_SESSION_SECRET": "test-session-secret",
+            },
+        ):
+            login_response = self.client.post("/login/admin", data={"password": "owner-pass"}, follow_redirects=False)
+            admin_response = self.client.get("/admin")
+
+        self.assertEqual(login_response.status_code, 303)
+        self.assertEqual(login_response.headers["location"], "/admin")
+        self.assertIn("email_vault_session=", login_response.headers["set-cookie"])
+        self.assertEqual(admin_response.status_code, 200)
+        self.assertIn("Email Vault Admin Console", admin_response.text)
+        self.assertIn("Gmail OAuth", admin_response.text)
+        self.assertIn("Mailbox mutation", admin_response.text)
 
     def test_archive_requires_bearer_identity(self) -> None:
         response = self.client.post("/archive/thread", json=self._fixture("plain_text"))

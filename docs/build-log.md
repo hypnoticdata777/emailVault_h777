@@ -227,3 +227,17 @@ easy to follow alongside Git commits.
   tests and 19 skips because API optional dependencies are not installed in this
   local shell. The new FastAPI demo route tests run when `.[api,test]` is
   installed.
+
+## 2026-07-27 - Local Demo/Admin Access Split
+
+- Added `/login` as the local web access page with separate Demo Access and
+  Admin Access paths.
+- Kept Demo Access synthetic and safe by redirecting to the existing read-only
+  `/demo` page.
+- Added an owner-only `/admin` console shell protected by an HMAC-signed browser
+  session cookie.
+- Kept admin login disabled until `EMAIL_VAULT_ADMIN_PASSWORD` and
+  `EMAIL_VAULT_WEB_SESSION_SECRET` are configured outside Git.
+- Documented that `/admin` is the future private live Gmail control surface, but
+  it does not connect Gmail, store OAuth tokens, write files, or mutate Gmail
+  yet.

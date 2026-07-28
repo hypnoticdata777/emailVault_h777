@@ -12,8 +12,10 @@ direction: validate a Gmail snapshot, sanitize message content, render and stage
 generated artifacts, verify storage checksums, persist an owner-scoped revision,
 and only then allow a separate Gmail cleanup/finalization handoff.
 
-This repo is public-portfolio oriented. It uses synthetic data by default and
-does not claim to be a production Gmail backup product.
+This repo can remain private for commercial work while the portfolio story uses
+synthetic screenshots, the local web demo, and selected documentation. It uses
+synthetic data by default and does not claim to be a production Gmail backup
+product.
 
 ## Portfolio Snapshot
 
@@ -165,17 +167,21 @@ Done:
   bank/financial, and unknown-mail walkthrough with fewer flags.
 - Local read-only web demo at `/demo` with synthetic review queue data,
   summary counts, and the canonical CLI handoff command.
+- Local access split with `/login`, demo access, and an HMAC-signed
+  owner-only `/admin` console shell for future live Gmail controls.
 
 Next:
 
-1. Expand the local web demo from read-only synthetic preview into a small
+1. Wire the admin console to a private live Gmail OAuth flow only after secrets,
+   HTTPS, and token storage are ready.
+2. Expand the local web demo from read-only synthetic preview into a small
    workflow surface only if it remains useful after screenshots.
-2. Add optional synthetic screenshots for the public portfolio walkthrough.
-3. Validate the signed add-on archive/finalization flow against a real HTTPS API
+3. Add optional synthetic screenshots for the public portfolio walkthrough.
+4. Validate the signed add-on archive/finalization flow against a real HTTPS API
    and Google OAuth client in a private environment.
-4. Decide and document the Gmail mutation permission step for label, mark-read,
+5. Decide and document the Gmail mutation permission step for label, mark-read,
    archive, delete/trash queue, and callback success behavior.
-5. Keep Free Space Mode trash/delete behavior deferred until review, warning,
+6. Keep Free Space Mode trash/delete behavior deferred until review, warning,
    and reversibility protections are privately validated.
 
 ## Architecture At A Glance
@@ -231,6 +237,25 @@ Open the read-only synthetic local web demo:
 ```text
 http://127.0.0.1:8000/demo
 ```
+
+Open the local access page:
+
+```text
+http://127.0.0.1:8000/login
+```
+
+Demo access redirects to the same synthetic read-only demo. Admin access is
+disabled until local-only owner credentials are configured:
+
+```powershell
+$env:EMAIL_VAULT_WEB_SESSION_SECRET = "replace-with-a-long-local-random-secret"
+$env:EMAIL_VAULT_ADMIN_PASSWORD = "replace-with-your-local-admin-password"
+python -m uvicorn services.api.app.main:app --reload
+```
+
+Then open `http://127.0.0.1:8000/login` and use the admin password to reach
+`/admin`. The admin page is a private owner console shell today; it does not
+connect Gmail or mutate Gmail yet.
 
 Run the local Preserve Mode CLI against a synthetic no-attachment fixture:
 

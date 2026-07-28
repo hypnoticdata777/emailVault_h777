@@ -20,6 +20,13 @@ ID token issued for the configured OAuth client ID.
 Backend ownership must come from the verified Google identity, never from a
 request body field.
 
+The local web UI has a separate browser-session boundary. `/login/demo` can
+open the synthetic demo, while `/login/admin` requires
+`EMAIL_VAULT_ADMIN_PASSWORD` and `EMAIL_VAULT_WEB_SESSION_SECRET` before it
+sets an HMAC-signed owner session cookie for `/admin`. This is local owner
+access only; it is not a replacement for Google OAuth or production account
+management.
+
 Archive and Gmail finalization requests may also require add-on request signing.
 When `EMAIL_VAULT_ADDON_SIGNING_SECRET` is configured, these mutating routes
 expect matching headers:
@@ -59,6 +66,42 @@ Current behavior:
   the canonical CLI command for writing local packages.
 - Does not write files, create archive records, label Gmail, mark Gmail read,
   archive Gmail, trash Gmail, or delete Gmail.
+
+## `GET /login`
+
+Returns the local access page with two paths:
+
+- Demo access for the synthetic read-only walkthrough.
+- Admin access for the private owner console when local credentials are
+  configured.
+
+## `POST /login/demo`
+
+Sets a demo browser session cookie when a web session secret is configured and
+redirects to `/demo`. The demo path still uses synthetic data only.
+
+## `POST /login/admin`
+
+Requires both local environment variables:
+
+```text
+EMAIL_VAULT_WEB_SESSION_SECRET=<private-local-session-secret>
+EMAIL_VAULT_ADMIN_PASSWORD=<private-local-admin-password>
+```
+
+On a matching password, it sets an HMAC-signed admin session cookie and
+redirects to `/admin`. If either value is missing, admin login is disabled.
+
+## `GET /admin`
+
+Returns the private owner console shell only when the signed admin session is
+present. The current page shows the safe live-work status and links back to the
+synthetic demo/CLI commands. It does not connect Gmail, store OAuth tokens, or
+execute Gmail cleanup.
+
+## `POST /logout`
+
+Clears the local browser session cookie and redirects to `/login`.
 
 ## `GET /demo/data`
 

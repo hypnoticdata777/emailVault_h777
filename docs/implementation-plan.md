@@ -109,8 +109,11 @@ reviews them, records intent for lower-risk approvable items only, and can
 write a public-safe Markdown report. The canonical `synthetic-demo` shortcut
 now runs that public walkthrough with fewer flags and can be rerun safely. The
 first read-only local web demo now exposes the same synthetic review story at
-`/demo`. The next implementation should focus on the next chosen write-capable
-surface before any live Gmail mutation.
+`/demo`. A local access split now adds `/login`, demo access, and an
+HMAC-signed owner-only `/admin` console shell. The admin shell is the bridge
+toward private live Gmail use, but it still does not connect Gmail, store OAuth
+tokens, or mutate Gmail. The next implementation should focus on OAuth/token
+storage and review controls before any live Gmail mutation.
 
 ## Later Phases
 
@@ -120,6 +123,8 @@ surface before any live Gmail mutation.
   `docs/v0.2-closeout-and-next-wave.md`.
 - Next surface decision: write-capable local web workflow, desktop UI, or
   add-on-triggered local API.
+- Private admin live path: Google OAuth app, HTTPS callback, encrypted token
+  storage, and owner controls wired behind `/admin`.
 - Portfolio capture: optional synthetic screenshots from the local web demo.
 - Free Space Mode: reviewed trash/delete queue after verified export, with
   warning copy and reversibility checks.

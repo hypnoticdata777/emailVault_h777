@@ -160,6 +160,10 @@ scaffold, and a Playwright/Chromium adapter boundary.
 - The first local web UI is exposed through `GET /demo`, backed by
   `GET /demo/data`, and shows the canonical synthetic review queue without
   writing files or mutating Gmail.
+- Local web access now starts at `GET /login`, where demo access routes to the
+  synthetic read-only demo and owner admin access requires local
+  `EMAIL_VAULT_ADMIN_PASSWORD` plus `EMAIL_VAULT_WEB_SESSION_SECRET` before
+  opening the `/admin` console shell.
 
 ## Setup and Run Commands
 
@@ -187,10 +191,14 @@ The API skeleton requires optional dependencies.
 - No public screenshot assets, demo video, or hosted walkthrough page has been
   added yet.
 - The local export package Preserve Mode and Clean Inbox review paths are not
-  yet exposed as a write-capable desktop, public API, or add-on workflow.
+  yet exposed as a write-capable desktop, public API, add-on workflow, or
+  Gmail-connected admin workflow.
+- The admin console shell does not yet connect Gmail, store OAuth tokens,
+  trigger live sync, or execute Gmail cleanup.
 - No executable Free Space Mode trash/delete queue exists yet.
-- No private/public repository split has been executed yet; the recommended
-  posture is private core product repo plus public portfolio case study.
+- The core product repo has moved toward the recommended private posture; public
+  portfolio material should remain synthetic screenshots, walkthroughs, and
+  selected documentation rather than full commercial implementation exposure.
 
 ## Risky or Conflicting Code
 
@@ -204,8 +212,8 @@ finalization route tests cover the post-completion handoff.
 
 1. Add optional synthetic-only screenshots if the repo will be shown to
    non-engineers.
-2. Decide whether the next local Preserve Mode surface should become a
-   write-capable local web workflow, desktop UI, or add-on-triggered local API.
+2. Decide whether the next local Preserve Mode surface should become an
+   admin-gated web workflow, desktop UI, or add-on-triggered local API.
 3. Capture optional screenshots from the synthetic web demo if the repo
    will be shown in a portfolio review.
 4. Validate the Google verifier and signed add-on archive/finalization flow
@@ -213,3 +221,5 @@ finalization route tests cover the post-completion handoff.
 5. Decide the Gmail mutation permission path for label, mark-read, archive,
    trash/delete queue, and callback success behavior.
 6. Select and validate the HTTPS deployment target.
+7. Add private OAuth callback, token storage, and owner controls before using
+   real Gmail data through `/admin`.

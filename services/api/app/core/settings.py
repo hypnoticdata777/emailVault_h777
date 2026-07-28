@@ -32,6 +32,8 @@ class Settings:
     addon_signing_secret: str = ""
     addon_signature_max_age_seconds: int = 300
     database_url: str = "sqlite:///./email_vault.db"
+    web_session_secret: str = ""
+    admin_password: str = ""
 
 
 def _split_csv(value: str) -> frozenset[str]:
@@ -56,4 +58,6 @@ def load_settings() -> Settings:
         addon_signing_secret=os.getenv("EMAIL_VAULT_ADDON_SIGNING_SECRET", ""),
         addon_signature_max_age_seconds=int(os.getenv("EMAIL_VAULT_ADDON_SIGNATURE_MAX_AGE_SECONDS", "300")),
         database_url=os.getenv("DATABASE_URL", "sqlite:///./email_vault.db"),
+        web_session_secret=os.getenv("EMAIL_VAULT_WEB_SESSION_SECRET", ""),
+        admin_password=os.getenv("EMAIL_VAULT_ADMIN_PASSWORD", ""),
     )

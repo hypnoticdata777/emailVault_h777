@@ -45,6 +45,8 @@ subscription product implementation.
   bank/financial, and unknown-mail walkthrough.
 - Read-only local web demo at `/demo` backed by synthetic data and no mutation
   or file writes.
+- Local `/login` page that separates public-safe demo access from an
+  owner-only `/admin` console shell.
 - Docker runtime boundary for the API.
 - Stable Python CI passing in GitHub Actions.
 - Documentation for development, API behavior, deployment runtime, data model,
@@ -56,6 +58,7 @@ subscription product implementation.
 - Real Gmail messages or exports.
 - Real OAuth client IDs, tokens, secrets, signing keys, or database credentials.
 - Publicly hosted API connected to real Gmail accounts.
+- Admin credentials, session secrets, or hosted owner console access.
 - Gmail label, mark-read, archive, or callback-success mutation behavior.
 - Gmail trash, delete, permanent delete, or storage-reduction claims.
 - Whole-mailbox background sync or batch cleanup.
@@ -76,11 +79,13 @@ subscription product implementation.
 6. Confirm known limitations are visible from the README.
 7. Confirm the README explains that storage savings require delete/trash behavior
    and are not provided by Gmail archive alone.
-8. Decide whether the core implementation repo should be switched private before
-   adding real Gmail sync, deletion, SaaS billing, or commercial roadmap details.
-9. If screenshots are added, confirm they follow the synthetic walkthrough and
+8. Keep the core implementation private before adding real Gmail sync,
+   deletion, SaaS billing, or commercial roadmap details.
+9. Confirm `EMAIL_VAULT_WEB_SESSION_SECRET` and
+   `EMAIL_VAULT_ADMIN_PASSWORD` are not committed or shown in screenshots.
+10. If screenshots are added, confirm they follow the synthetic walkthrough and
    use synthetic data only.
-10. Confirm `.local/EmailVault`, local SQLite files, and any generated export
+11. Confirm `.local/EmailVault`, local SQLite files, and any generated export
     packages remain untracked.
 
 ## Before A Live Hosted Demo
@@ -93,8 +98,10 @@ subscription product implementation.
 5. Configure `EMAIL_VAULT_ADDON_SIGNING_SECRET` privately.
 6. Validate signed add-on archive and finalization calls against the deployed
    API.
-7. Decide Gmail mutation scopes and consent copy.
-8. Validate domain/category batch routing with dry-run review before cleanup.
-9. Validate label, mark-read, archive, trash/delete, and callback-success
+7. Replace local admin-password access with production-grade account/session
+   management before exposing owner controls on the internet.
+8. Decide Gmail mutation scopes and consent copy.
+9. Validate domain/category batch routing with dry-run review before cleanup.
+10. Validate label, mark-read, archive, trash/delete, and callback-success
    behavior in a private Workspace Add-on deployment before showing real Gmail
    data.

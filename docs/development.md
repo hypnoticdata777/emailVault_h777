@@ -78,6 +78,16 @@ The default local database URL is:
 sqlite:///./email_vault.db
 ```
 
+The local web admin console is disabled unless both owner-only values are set:
+
+```text
+EMAIL_VAULT_WEB_SESSION_SECRET=<long-local-random-secret>
+EMAIL_VAULT_ADMIN_PASSWORD=<local-admin-password>
+```
+
+Keep these out of Git. The current admin console is a private owner shell for
+future live Gmail controls; it does not connect Gmail yet.
+
 ## Bootstrap the Local Database
 
 ```powershell
@@ -248,6 +258,32 @@ JSON endpoint is:
 http://127.0.0.1:8000/demo/data
 ```
 
+## Run The Local Access Pages
+
+After starting the API, open:
+
+```text
+http://127.0.0.1:8000/login
+```
+
+Use Demo Access for the public-safe synthetic walkthrough. To use Admin Access
+locally, set the session secret and admin password before starting Uvicorn:
+
+```powershell
+$env:EMAIL_VAULT_WEB_SESSION_SECRET = "replace-with-a-long-local-random-secret"
+$env:EMAIL_VAULT_ADMIN_PASSWORD = "replace-with-your-local-admin-password"
+python -m uvicorn services.api.app.main:app --reload
+```
+
+The admin page is available at:
+
+```text
+http://127.0.0.1:8000/admin
+```
+
+It is intentionally not live Gmail yet. The next private step is OAuth, HTTPS
+callback configuration, encrypted token storage, and review controls.
+
 ## Current Limits
 
 The archive route can render the generated PDF path, generate metadata and
@@ -259,5 +295,8 @@ preview cleanup and record post-preservation intent. The local batch command
 chains those pieces for synthetic demos and can write a Markdown report without
 absolute package paths. The `synthetic-demo` shortcut runs the canonical public
 demo fixtures with fewer flags. The local web demo is a read-only synthetic
-preview. None of these paths labels Gmail, marks messages read, archives Gmail,
-trashes Gmail, or deletes Gmail messages.
+preview, and `/login` plus `/admin` now separate public-safe demo access from a
+private owner console shell. The admin shell still does not connect Gmail,
+store OAuth tokens, write files, or mutate Gmail. None of these paths labels
+Gmail, marks messages read, archives Gmail, trashes Gmail, or deletes Gmail
+messages.

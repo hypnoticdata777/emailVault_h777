@@ -14,6 +14,12 @@ headers when script properties are configured. The API also exposes signed
 Gmail finalization request and callback routes. The project does not deploy
 publicly, mark messages read, apply labels, archive Gmail, or delete Gmail.
 
+The local web access layer now separates synthetic demo access from an
+owner-only admin console. Admin login requires local environment variables for
+the password and HMAC session secret. This protects the local owner console
+during development, but it is not production multi-user authentication and does
+not replace Google OAuth verification.
+
 ## Data That Must Not Enter Logs
 
 Application logs must not contain:
@@ -26,6 +32,7 @@ Application logs must not contain:
 - attachment content;
 - generated PDFs;
 - OAuth tokens or ID tokens;
+- admin passwords or session secrets;
 - raw Gmail payloads.
 
 Logs should use request IDs, record IDs, state names, controlled error
@@ -136,6 +143,10 @@ project.
 `.env.example` may contain placeholders only. Real OAuth credentials, database
 passwords, tokens, and real email exports must not be committed.
 
+`EMAIL_VAULT_WEB_SESSION_SECRET` and `EMAIL_VAULT_ADMIN_PASSWORD` are local
+owner secrets. They belong in the user's environment or private hosting secret
+store only.
+
 ## Public-Ready Checklist
 
 Before any public demo:
@@ -144,6 +155,8 @@ Before any public demo:
   client ID in a private environment;
 - keep demo data synthetic unless a private local-only flow is clearly marked;
 - confirm logs redact sensitive fields;
+- confirm admin/demo access uses synthetic data publicly and keeps owner
+  credentials private;
 - confirm renderer blocks scripts and remote fetches;
 - confirm storage verification happens before Gmail finalization;
 - confirm Gmail mutation scopes and callback success behavior are validated in a
