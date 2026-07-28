@@ -71,10 +71,14 @@ GOOGLE_OAUTH_CLIENT_ID=<your-google-oauth-client-id>
 GOOGLE_OAUTH_CLIENT_SECRET=<your-google-oauth-client-secret>
 EMAIL_VAULT_OAUTH_REDIRECT_URI=http://127.0.0.1:8000/oauth/google/callback
 EMAIL_VAULT_GMAIL_OAUTH_SCOPES=https://www.googleapis.com/auth/gmail.readonly
+EMAIL_VAULT_TOKEN_STORE_PATH=.local/email-vault-token-store.json
+EMAIL_VAULT_TOKEN_ENCRYPTION_KEY=<long-private-local-key>
 ```
 
 The readiness panel checks configuration only. It does not exchange tokens,
-read Gmail, request cleanup scopes, or mutate Gmail.
+read Gmail, request cleanup scopes, or mutate Gmail. The token-storage readiness
+panel checks only that a private encrypted-store path and key are configured;
+it does not store plaintext tokens.
 
 Add-on request signing is off by default for local development. Configure a
 private shared secret only when testing the add-on-to-backend boundary:
@@ -302,6 +306,22 @@ The admin-only OAuth readiness JSON endpoint is:
 http://127.0.0.1:8000/admin/gmail/oauth/readiness
 ```
 
+The admin-only token-storage readiness JSON endpoint is:
+
+```text
+http://127.0.0.1:8000/admin/gmail/token-storage/readiness
+```
+
+The local OAuth callback shell is:
+
+```text
+http://127.0.0.1:8000/oauth/google/callback
+```
+
+It can receive Google callback query parameters while you are logged in as
+admin, but it discards authorization codes until token exchange and encrypted
+storage are implemented.
+
 ## Current Limits
 
 The archive route can render the generated PDF path, generate metadata and
@@ -315,6 +335,7 @@ absolute package paths. The `synthetic-demo` shortcut runs the canonical public
 demo fixtures with fewer flags. The local web demo is a read-only synthetic
 preview, and `/login` plus `/admin` now separate public-safe demo access from a
 private owner console shell. The admin shell now reports read-only Gmail OAuth
-readiness, but it still does not connect Gmail, store OAuth tokens, write files,
-or mutate Gmail. None of these paths labels Gmail, marks messages read,
-archives Gmail, trashes Gmail, or deletes Gmail messages.
+readiness and token-storage readiness, but it still does not connect Gmail,
+store OAuth tokens, write files, or mutate Gmail. None of these paths labels
+Gmail, marks messages read, archives Gmail, trashes Gmail, or deletes Gmail
+messages.

@@ -151,7 +151,7 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(admin_response.status_code, 200)
         self.assertIn("Email Vault Admin Console", admin_response.text)
         self.assertIn("Gmail OAuth", admin_response.text)
-        self.assertIn("Mailbox mutation", admin_response.text)
+        self.assertIn("Token Storage", admin_response.text)
         self.assertIn("OAuth Readiness", admin_response.text)
 
     def test_admin_oauth_readiness_requires_admin_session(self) -> None:
@@ -202,6 +202,57 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(body["missing"], [])
         self.assertTrue(body["authorization_url_available"])
         self.assertFalse(body["mutation_scopes_requested"])
+
+    def test_admin_token_storage_readiness_requires_admin_session(self) -> None:
+        response = self.client.get("/admin/gmail/token-storage/readiness", follow_redirects=False)
+
+        self.assertEqual(response.status_code, 303)
+        self.assertEqual(response.headers["location"], "/login")
+
+    def test_admin_token_storage_readiness_reports_missing_private_key(self) -> None:
+        with patch.dict(
+            "os.environ",
+            {
+                "EMAIL_VAULT_ADMIN_PASSWORD": "owner-pass",
+                "EMAIL_VAULT_WEB_SESSION_SECRET": "test-session-secret",
+                "EMAIL_VAULT_TOKEN_STORE_PATH": ".local/email-vault-token-store.json",
+                "EMAIL_VAULT_TOKEN_ENCRYPTION_KEY": "",
+            },
+        ):
+            self.client.post("/login/admin", data={"password": "owner-pass"}, follow_redirects=False)
+            response = self.client.get("/admin/gmail/token-storage/readiness")
+
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertFalse(body["configured"])
+        self.assertIn("EMAIL_VAULT_TOKEN_ENCRYPTION_KEY", body["missing"])
+        self.assertFalse(body["stores_plaintext_tokens"])
+
+    def test_oauth_callback_requires_admin_session(self) -> None:
+        response = self.client.get("/oauth/google/callback?code=secret-code&state=state-123", follow_redirects=False)
+
+        self.assertEqual(response.status_code, 303)
+        self.assertEqual(response.headers["location"], "/login")
+
+    def test_oauth_callback_discards_authorization_code_until_token_exchange_exists(self) -> None:
+        with patch.dict(
+            "os.environ",
+            {
+                "EMAIL_VAULT_ADMIN_PASSWORD": "owner-pass",
+                "EMAIL_VAULT_WEB_SESSION_SECRET": "test-session-secret",
+                "GOOGLE_OAUTH_CLIENT_ID": "client-id.apps.googleusercontent.com",
+                "GOOGLE_OAUTH_CLIENT_SECRET": "client-secret",
+                "EMAIL_VAULT_TOKEN_ENCRYPTION_KEY": "local-development-key",
+            },
+        ):
+            self.client.post("/login/admin", data={"password": "owner-pass"}, follow_redirects=False)
+            response = self.client.get("/oauth/google/callback?code=secret-code&state=state-123")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("OAuth Callback Received", response.text)
+        self.assertIn("Authorization code was received and deliberately discarded", response.text)
+        self.assertIn("Authorization code present: yes", response.text)
+        self.assertNotIn("secret-code", response.text)
 
     def test_archive_requires_bearer_identity(self) -> None:
         response = self.client.post("/archive/thread", json=self._fixture("plain_text"))

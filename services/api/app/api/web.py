@@ -10,6 +10,7 @@ from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 
 from services.api.app.auth.oauth_readiness import GmailOAuthReadiness, inspect_gmail_oauth_readiness
+from services.api.app.auth.token_storage import TokenStorageReadiness, inspect_token_storage_readiness
 from services.api.app.core.settings import load_settings
 
 
@@ -65,7 +66,13 @@ async def admin_console(request: Request) -> Response:
     if _session_role(request) != "admin":
         return RedirectResponse("/login", status_code=303)
 
-    return HTMLResponse(_render_admin_html(inspect_gmail_oauth_readiness(load_settings())))
+    settings = load_settings()
+    return HTMLResponse(
+        _render_admin_html(
+            inspect_gmail_oauth_readiness(settings),
+            inspect_token_storage_readiness(settings),
+        )
+    )
 
 
 @router.get("/admin/gmail/oauth/readiness")
@@ -74,6 +81,31 @@ async def gmail_oauth_readiness(request: Request) -> Response | dict[str, object
         return RedirectResponse("/login", status_code=303)
 
     return inspect_gmail_oauth_readiness(load_settings()).to_dict()
+
+
+@router.get("/admin/gmail/token-storage/readiness")
+async def gmail_token_storage_readiness(request: Request) -> Response | dict[str, object]:
+    if _session_role(request) != "admin":
+        return RedirectResponse("/login", status_code=303)
+
+    return inspect_token_storage_readiness(load_settings()).to_dict()
+
+
+@router.get("/oauth/google/callback", response_class=HTMLResponse)
+async def google_oauth_callback(request: Request) -> Response:
+    if _session_role(request) != "admin":
+        return RedirectResponse("/login", status_code=303)
+
+    settings = load_settings()
+    return HTMLResponse(
+        _render_oauth_callback_html(
+            error=request.query_params.get("error", ""),
+            code_present=bool(request.query_params.get("code", "")),
+            state_present=bool(request.query_params.get("state", "")),
+            oauth_readiness=inspect_gmail_oauth_readiness(settings),
+            token_storage_readiness=inspect_token_storage_readiness(settings),
+        )
+    )
 
 
 def _admin_login_configured(admin_password: str, web_session_secret: str) -> bool:
@@ -317,7 +349,7 @@ def _render_login_html(message: str = "") -> str:
 </html>"""
 
 
-def _render_admin_html(readiness: GmailOAuthReadiness) -> str:
+def _render_admin_html(readiness: GmailOAuthReadiness, token_storage: TokenStorageReadiness) -> str:
     oauth_status = "Ready" if readiness.configured else "Needs config"
     missing_items = "".join(f"<li>{html.escape(item)}</li>" for item in readiness.missing)
     missing_html = f"<ul>{missing_items}</ul>" if missing_items else "<p>Read-only Gmail OAuth config is present.</p>"
@@ -329,6 +361,14 @@ def _render_admin_html(readiness: GmailOAuthReadiness) -> str:
         else "Read-only import scope only. Cleanup/mutation scopes are not requested."
     )
     readiness_json_link = "/admin/gmail/oauth/readiness"
+    token_status = "Ready" if token_storage.configured else "Needs config"
+    token_missing_items = "".join(f"<li>{html.escape(item)}</li>" for item in token_storage.missing)
+    token_missing_html = (
+        f"<ul>{token_missing_items}</ul>"
+        if token_missing_items
+        else "<p>Token storage config is present. Token exchange is still not enabled.</p>"
+    )
+    token_readiness_json_link = "/admin/gmail/token-storage/readiness"
     template = """<!doctype html>
 <html lang="en">
 <head>
@@ -491,7 +531,7 @@ def _render_admin_html(readiness: GmailOAuthReadiness) -> str:
     <div class="metrics">
       <div class="metric"><span>Session</span><strong>Admin</strong></div>
       <div class="metric"><span>Gmail OAuth</span><strong>__OAUTH_STATUS__</strong></div>
-      <div class="metric"><span>Mailbox mutation</span><strong>Disabled</strong></div>
+      <div class="metric"><span>Token Storage</span><strong>__TOKEN_STATUS__</strong></div>
     </div>
     <div class="grid">
       <section>
@@ -523,6 +563,19 @@ def _render_admin_html(readiness: GmailOAuthReadiness) -> str:
         <p>__MUTATION_COPY__</p>
       </section>
       <section>
+        <h2>Token Storage Readiness</h2>
+        __TOKEN_MISSING_HTML__
+        <p>Plaintext token storage remains disabled.</p>
+        <div class="actions">
+          <a class="button secondary" href="__TOKEN_READINESS_JSON_LINK__">View Token Storage JSON</a>
+        </div>
+      </section>
+      <section>
+        <h2>OAuth Callback Shell</h2>
+        <p>The callback route is registered at <code>http://127.0.0.1:8000/oauth/google/callback</code></p>
+        <p>Authorization codes are not stored until token exchange and encrypted storage are implemented.</p>
+      </section>
+      <section>
         <h2>Local Preserve Command</h2>
         <code>python -m services.api.app.cli preserve-local --request tests/fixtures/emails/unknown_message.json --export-root .local/EmailVault --json</code>
       </section>
@@ -536,8 +589,78 @@ def _render_admin_html(readiness: GmailOAuthReadiness) -> str:
 </html>"""
     return (
         template.replace("__OAUTH_STATUS__", html.escape(oauth_status))
+        .replace("__TOKEN_STATUS__", html.escape(token_status))
         .replace("__MISSING_HTML__", missing_html)
         .replace("__READINESS_JSON_LINK__", readiness_json_link)
         .replace("__SCOPE_HTML__", scope_html)
         .replace("__MUTATION_COPY__", html.escape(mutation_copy))
+        .replace("__TOKEN_MISSING_HTML__", token_missing_html)
+        .replace("__TOKEN_READINESS_JSON_LINK__", token_readiness_json_link)
     )
+
+
+def _render_oauth_callback_html(
+    *,
+    error: str,
+    code_present: bool,
+    state_present: bool,
+    oauth_readiness: GmailOAuthReadiness,
+    token_storage_readiness: TokenStorageReadiness,
+) -> str:
+    if error:
+        title = "OAuth Callback Error"
+        detail = f"Google returned an OAuth error: {html.escape(error)}."
+    elif code_present:
+        title = "OAuth Callback Received"
+        detail = "Authorization code was received and deliberately discarded because token exchange is not enabled yet."
+    else:
+        title = "OAuth Callback Ready"
+        detail = "Callback route is reachable. No authorization code was supplied."
+
+    checks = (
+        ("OAuth config", oauth_readiness.configured),
+        ("Token storage config", token_storage_readiness.configured),
+        ("State parameter present", state_present),
+        ("Authorization code present", code_present),
+    )
+    check_rows = "".join(
+        f"<li>{html.escape(label)}: {'yes' if value else 'no'}</li>"
+        for label, value in checks
+    )
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Email Vault OAuth Callback</title>
+  <style>
+    :root {{
+      color-scheme: light;
+      --ink: #16201d;
+      --muted: #64706c;
+      --line: #d8dfdc;
+      --paper: #ffffff;
+      --page: #edf2ef;
+      --accent: #256f5b;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }}
+    * {{ box-sizing: border-box; }}
+    body {{ margin: 0; background: var(--page); color: var(--ink); }}
+    main {{ width: min(860px, calc(100vw - 32px)); margin: 0 auto; padding: 36px 0; }}
+    section {{ background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 18px; }}
+    h1 {{ margin: 0 0 8px; font-size: 28px; line-height: 1.15; letter-spacing: 0; }}
+    p, li {{ color: var(--muted); font-size: 14px; line-height: 1.5; }}
+    a.button {{ display: inline-flex; align-items: center; min-height: 38px; padding: 8px 12px; border-radius: 8px; background: var(--accent); color: #fff; font-weight: 700; text-decoration: none; }}
+  </style>
+</head>
+<body>
+  <main>
+    <section>
+      <h1>{html.escape(title)}</h1>
+      <p>{detail}</p>
+      <ul>{check_rows}</ul>
+      <a class="button" href="/admin">Back To Admin</a>
+    </section>
+  </main>
+</body>
+</html>"""

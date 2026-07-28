@@ -256,3 +256,16 @@ easy to follow alongside Git commits.
   requested scopes, and whether cleanup/mutation scopes are present.
 - Kept the first Gmail OAuth scope read-only and kept token exchange, real Gmail
   reads, file writes, and Gmail mutation out of this step.
+
+## 2026-07-27 - OAuth Callback And Token Storage Readiness
+
+- Added token-storage readiness settings for `EMAIL_VAULT_TOKEN_STORE_PATH` and
+  `EMAIL_VAULT_TOKEN_ENCRYPTION_KEY`.
+- Added a standard-library token-storage readiness helper that reports missing
+  private token-store setup and explicitly keeps plaintext token storage
+  disabled.
+- Added admin-only `/admin/gmail/token-storage/readiness`.
+- Added local `/oauth/google/callback` shell for the future Google OAuth
+  authorization-code redirect.
+- Kept the callback safe by discarding authorization codes until token exchange
+  and encrypted storage are implemented.

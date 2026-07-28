@@ -48,6 +48,8 @@ subscription product implementation.
 - Local `/login` page that separates public-safe demo access from an
   owner-only `/admin` console shell.
 - Admin-only Gmail OAuth readiness panel for private read-only setup checks.
+- Admin-only token-storage readiness panel and OAuth callback shell that do not
+  store authorization codes or tokens.
 - Docker runtime boundary for the API.
 - Stable Python CI passing in GitHub Actions.
 - Documentation for development, API behavior, deployment runtime, data model,
@@ -61,6 +63,7 @@ subscription product implementation.
 - Publicly hosted API connected to real Gmail accounts.
 - Admin credentials, session secrets, or hosted owner console access.
 - Google OAuth client secrets or real OAuth token material.
+- Token encryption keys or local token-store files.
 - Gmail label, mark-read, archive, or callback-success mutation behavior.
 - Gmail trash, delete, permanent delete, or storage-reduction claims.
 - Whole-mailbox background sync or batch cleanup.
@@ -99,13 +102,16 @@ subscription product implementation.
 4. Configure a real `GOOGLE_OAUTH_CLIENT_ID` privately.
 5. Configure a real `GOOGLE_OAUTH_CLIENT_SECRET` privately.
 6. Confirm the first Gmail OAuth scope remains read-only.
-7. Configure `EMAIL_VAULT_ADDON_SIGNING_SECRET` privately.
-8. Validate signed add-on archive and finalization calls against the deployed
+7. Configure `EMAIL_VAULT_TOKEN_ENCRYPTION_KEY` privately before token exchange.
+8. Confirm the callback route discards authorization codes until encrypted
+   storage is implemented.
+9. Configure `EMAIL_VAULT_ADDON_SIGNING_SECRET` privately.
+10. Validate signed add-on archive and finalization calls against the deployed
    API.
-9. Replace local admin-password access with production-grade account/session
+11. Replace local admin-password access with production-grade account/session
    management before exposing owner controls on the internet.
-10. Decide Gmail mutation scopes and consent copy.
-11. Validate domain/category batch routing with dry-run review before cleanup.
-12. Validate label, mark-read, archive, trash/delete, and callback-success
+12. Decide Gmail mutation scopes and consent copy.
+13. Validate domain/category batch routing with dry-run review before cleanup.
+14. Validate label, mark-read, archive, trash/delete, and callback-success
    behavior in a private Workspace Add-on deployment before showing real Gmail
    data.

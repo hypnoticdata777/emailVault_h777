@@ -34,6 +34,8 @@ class Settings:
     google_oauth_client_secret: str = ""
     oauth_redirect_uri: str = "http://127.0.0.1:8000/oauth/google/callback"
     gmail_oauth_scopes: tuple[str, ...] = DEFAULT_GMAIL_OAUTH_SCOPES
+    token_store_path: Path = Path(".local/email-vault-token-store.json")
+    token_encryption_key: str = ""
     addon_signing_secret: str = ""
     addon_signature_max_age_seconds: int = 300
     database_url: str = "sqlite:///./email_vault.db"
@@ -72,6 +74,8 @@ def load_settings() -> Settings:
         gmail_oauth_scopes=_split_scopes(
             os.getenv("EMAIL_VAULT_GMAIL_OAUTH_SCOPES", " ".join(DEFAULT_GMAIL_OAUTH_SCOPES))
         ),
+        token_store_path=Path(os.getenv("EMAIL_VAULT_TOKEN_STORE_PATH", ".local/email-vault-token-store.json")),
+        token_encryption_key=os.getenv("EMAIL_VAULT_TOKEN_ENCRYPTION_KEY", ""),
         addon_signing_secret=os.getenv("EMAIL_VAULT_ADDON_SIGNING_SECRET", ""),
         addon_signature_max_age_seconds=int(os.getenv("EMAIL_VAULT_ADDON_SIGNATURE_MAX_AGE_SECONDS", "300")),
         database_url=os.getenv("DATABASE_URL", "sqlite:///./email_vault.db"),

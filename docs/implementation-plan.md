@@ -114,8 +114,10 @@ HMAC-signed owner-only `/admin` console shell. The admin shell is the bridge
 toward private live Gmail use, but it still does not connect Gmail, store OAuth
 tokens, or mutate Gmail. The admin shell now reports read-only Gmail OAuth
 readiness and exposes the same status through an admin-only JSON endpoint. The
-next implementation should focus on OAuth callback/token storage and review
-controls before any live Gmail mutation.
+admin shell now also reports token-storage readiness, and the local OAuth
+callback shell can receive but discard authorization codes until token exchange
+is implemented. The next implementation should focus on real token exchange
+into encrypted storage before read-only Gmail import/listing.
 
 ## Later Phases
 
@@ -125,7 +127,7 @@ controls before any live Gmail mutation.
   `docs/v0.2-closeout-and-next-wave.md`.
 - Next surface decision: write-capable local web workflow, desktop UI, or
   add-on-triggered local API.
-- Private admin live path: Google OAuth callback, encrypted token storage,
+- Private admin live path: OAuth token exchange into encrypted storage,
   read-only Gmail import/listing, and owner controls wired behind `/admin`.
 - Portfolio capture: optional synthetic screenshots from the local web demo.
 - Free Space Mode: reviewed trash/delete queue after verified export, with

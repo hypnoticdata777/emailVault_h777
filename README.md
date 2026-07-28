@@ -171,11 +171,14 @@ Done:
   owner-only `/admin` console shell for future live Gmail controls.
 - Admin-only Gmail OAuth readiness panel and JSON endpoint that show whether
   the private read-only Gmail OAuth setup is configured.
+- Admin-only token-storage readiness panel and OAuth callback shell so the
+  private read-only Gmail connection can be wired without storing plaintext
+  tokens or authorization codes.
 
 Next:
 
-1. Add private OAuth callback handling and encrypted token storage after the
-   read-only Gmail OAuth setup is configured.
+1. Implement real OAuth token exchange into encrypted local storage after the
+   callback shell and token-storage readiness are configured.
 2. Wire read-only Gmail import/listing behind `/admin` before any cleanup
    controls.
 3. Expand the local web demo from read-only synthetic preview into a small
@@ -268,11 +271,15 @@ $env:GOOGLE_OAUTH_CLIENT_ID = "your-google-oauth-client-id"
 $env:GOOGLE_OAUTH_CLIENT_SECRET = "your-google-oauth-client-secret"
 $env:EMAIL_VAULT_OAUTH_REDIRECT_URI = "http://127.0.0.1:8000/oauth/google/callback"
 $env:EMAIL_VAULT_GMAIL_OAUTH_SCOPES = "https://www.googleapis.com/auth/gmail.readonly"
+$env:EMAIL_VAULT_TOKEN_STORE_PATH = ".local/email-vault-token-store.json"
+$env:EMAIL_VAULT_TOKEN_ENCRYPTION_KEY = "replace-with-a-long-private-local-key"
 ```
 
 The admin console and `/admin/gmail/oauth/readiness` will report whether those
-private values are ready. Token exchange and real Gmail reading are still the
-next private implementation steps.
+private values are ready. `/admin/gmail/token-storage/readiness` reports the
+token-storage side. The callback route exists at
+`/oauth/google/callback`, but token exchange and real Gmail reading are still
+the next private implementation steps.
 
 Run the local Preserve Mode CLI against a synthetic no-attachment fixture:
 

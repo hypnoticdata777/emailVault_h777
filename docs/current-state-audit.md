@@ -167,6 +167,10 @@ scaffold, and a Playwright/Chromium adapter boundary.
 - The admin console now reports private read-only Gmail OAuth readiness,
   including missing env vars, configured scopes, and mutation-scope warnings,
   and exposes the same state at `GET /admin/gmail/oauth/readiness`.
+- The admin console now reports token-storage readiness at
+  `GET /admin/gmail/token-storage/readiness`, and the local OAuth callback
+  shell at `GET /oauth/google/callback` discards authorization codes until
+  encrypted token exchange is implemented.
 
 ## Setup and Run Commands
 
@@ -224,5 +228,5 @@ finalization route tests cover the post-completion handoff.
 5. Decide the Gmail mutation permission path for label, mark-read, archive,
    trash/delete queue, and callback success behavior.
 6. Select and validate the HTTPS deployment target.
-7. Add private OAuth callback, token storage, and owner controls before using
+7. Implement real OAuth token exchange into encrypted token storage before using
    real Gmail data through `/admin`.

@@ -98,8 +98,9 @@ Returns the private owner console shell only when the signed admin session is
 present. The current page shows the safe live-work status and links back to the
 synthetic demo/CLI commands. It also shows private Gmail OAuth readiness:
 missing environment variables, configured scopes, and whether mutation-capable
-scopes are present. It does not connect Gmail, store OAuth tokens, or execute
-Gmail cleanup.
+scopes are present. It also shows token-storage readiness for the future
+encrypted local token store. It does not connect Gmail, store OAuth tokens, or
+execute Gmail cleanup.
 
 ## `GET /admin/gmail/oauth/readiness`
 
@@ -121,6 +122,33 @@ https://www.googleapis.com/auth/gmail.readonly
 
 The endpoint flags mutation-capable Gmail scopes if they are configured, but it
 does not start OAuth, exchange tokens, read Gmail, or mutate Gmail.
+
+## `GET /admin/gmail/token-storage/readiness`
+
+Requires the signed admin session. Returns the private token-storage readiness
+status as JSON.
+
+Current readiness checks:
+
+- `EMAIL_VAULT_TOKEN_STORE_PATH` is present.
+- `EMAIL_VAULT_TOKEN_ENCRYPTION_KEY` is present outside Git.
+- plaintext token storage remains disabled.
+
+The endpoint does not store, encrypt, decrypt, or return OAuth token material.
+
+## `GET /oauth/google/callback`
+
+Requires the signed admin session. This is the local OAuth callback shell for
+future Google authorization-code handling.
+
+Current behavior:
+
+- reports whether an OAuth error was returned;
+- detects whether `code` and `state` query parameters are present;
+- deliberately discards the authorization code;
+- does not exchange the code for tokens;
+- does not store tokens;
+- does not read or mutate Gmail.
 
 ## `POST /logout`
 

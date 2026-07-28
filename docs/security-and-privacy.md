@@ -25,6 +25,11 @@ scope. Readiness does not exchange tokens, read Gmail, or grant Gmail mutation.
 Mutation-capable scopes must remain out of the default local configuration until
 the review and consent path is designed.
 
+The OAuth callback shell may receive an authorization code in a query
+parameter, but this step deliberately discards it. Token exchange must not be
+enabled until encrypted storage is implemented and plaintext token storage
+remains blocked.
+
 ## Data That Must Not Enter Logs
 
 Application logs must not contain:
@@ -156,6 +161,10 @@ store only.
 The default Gmail OAuth scope should remain
 `https://www.googleapis.com/auth/gmail.readonly` until live cleanup behavior is
 explicitly approved and tested.
+
+`EMAIL_VAULT_TOKEN_ENCRYPTION_KEY` is a private local secret. OAuth token
+material must never be committed, logged, rendered in HTML, or stored in
+plaintext.
 
 ## Public-Ready Checklist
 
