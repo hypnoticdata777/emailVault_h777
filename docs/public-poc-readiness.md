@@ -48,8 +48,9 @@ subscription product implementation.
 - Local `/login` page that separates public-safe demo access from an
   owner-only `/admin` console shell.
 - Admin-only Gmail OAuth readiness panel for private read-only setup checks.
-- Admin-only token-storage readiness panel and OAuth callback shell that do not
-  store authorization codes or tokens.
+- Admin-only token-storage readiness panel and OAuth callback handling that
+  exchanges authorization codes only after signed-state validation and stores
+  token material in encrypted local storage.
 - Docker runtime boundary for the API.
 - Stable Python CI passing in GitHub Actions.
 - Documentation for development, API behavior, deployment runtime, data model,
@@ -103,8 +104,8 @@ subscription product implementation.
 5. Configure a real `GOOGLE_OAUTH_CLIENT_SECRET` privately.
 6. Confirm the first Gmail OAuth scope remains read-only.
 7. Configure `EMAIL_VAULT_TOKEN_ENCRYPTION_KEY` privately before token exchange.
-8. Confirm the callback route discards authorization codes until encrypted
-   storage is implemented.
+8. Confirm the callback route never renders authorization codes or token values
+   and only stores encrypted token material after signed-state validation.
 9. Configure `EMAIL_VAULT_ADDON_SIGNING_SECRET` privately.
 10. Validate signed add-on archive and finalization calls against the deployed
    API.

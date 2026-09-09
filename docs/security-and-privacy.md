@@ -21,13 +21,16 @@ during development, but it is not production multi-user authentication and does
 not replace Google OAuth verification.
 
 The admin console can report Gmail OAuth readiness for the private read-only
-scope. Readiness does not exchange tokens, read Gmail, or grant Gmail mutation.
-Mutation-capable scopes must remain out of the default local configuration until
-the review and consent path is designed.
+scope. When OAuth and token-storage readiness are complete, the admin console
+can start a read-only Google consent flow with a signed state value. It still
+does not read Gmail or grant Gmail mutation. Mutation-capable scopes must remain
+out of the default local configuration until the review and consent path is
+designed.
 
-The OAuth callback shell may receive an authorization code in a query
-parameter, but this step deliberately discards it. Token exchange must not be
-enabled until encrypted storage is implemented and plaintext token storage
+The OAuth callback may receive an authorization code in a query parameter. It
+exchanges that code only after OAuth config, token-storage config, and signed
+admin-session state validation pass. Successful exchange writes encrypted local
+token storage and renders only safe token summaries. Plaintext token storage
 remains blocked.
 
 ## Data That Must Not Enter Logs
@@ -164,7 +167,8 @@ explicitly approved and tested.
 
 `EMAIL_VAULT_TOKEN_ENCRYPTION_KEY` is a private local secret. OAuth token
 material must never be committed, logged, rendered in HTML, or stored in
-plaintext.
+plaintext. Local token storage uses Fernet encryption with a PBKDF2-derived key
+from the private encryption secret.
 
 ## Public-Ready Checklist
 

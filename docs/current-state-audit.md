@@ -169,8 +169,8 @@ scaffold, and a Playwright/Chromium adapter boundary.
   and exposes the same state at `GET /admin/gmail/oauth/readiness`.
 - The admin console now reports token-storage readiness at
   `GET /admin/gmail/token-storage/readiness`, and the local OAuth callback
-  shell at `GET /oauth/google/callback` discards authorization codes until
-  encrypted token exchange is implemented.
+  at `GET /oauth/google/callback` exchanges authorization codes into encrypted
+  local token storage only after signed admin-session state validation passes.
 
 ## Setup and Run Commands
 
@@ -200,8 +200,8 @@ The API skeleton requires optional dependencies.
 - The local export package Preserve Mode and Clean Inbox review paths are not
   yet exposed as a write-capable desktop, public API, add-on workflow, or
   Gmail-connected admin workflow.
-- The admin console shell does not yet connect Gmail, store OAuth tokens,
-  trigger live sync, or execute Gmail cleanup.
+- The admin console shell does not yet list Gmail messages, trigger live sync,
+  or execute Gmail cleanup.
 - No executable Free Space Mode trash/delete queue exists yet.
 - The core product repo has moved toward the recommended private posture; public
   portfolio material should remain synthetic screenshots, walkthroughs, and
@@ -228,5 +228,5 @@ finalization route tests cover the post-completion handoff.
 5. Decide the Gmail mutation permission path for label, mark-read, archive,
    trash/delete queue, and callback success behavior.
 6. Select and validate the HTTPS deployment target.
-7. Implement real OAuth token exchange into encrypted token storage before using
-   real Gmail data through `/admin`.
+7. Use the encrypted token store to implement the first read-only Gmail listing
+   before using real Gmail data for Preserve Mode.

@@ -4,20 +4,29 @@ import hashlib
 import hmac
 import html
 import time
+from dataclasses import dataclass
 from urllib.parse import parse_qs
 
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 
+from services.api.app.auth.oauth_exchange import GoogleOAuthTokenExchanger, OAuthExchangeError
 from services.api.app.auth.oauth_readiness import GmailOAuthReadiness, inspect_gmail_oauth_readiness
-from services.api.app.auth.token_storage import TokenStorageReadiness, inspect_token_storage_readiness
-from services.api.app.core.settings import load_settings
+from services.api.app.auth.token_storage import (
+    EncryptedLocalTokenStore,
+    TokenStorageError,
+    TokenStorageReadiness,
+    inspect_token_storage_readiness,
+    stored_google_oauth_token,
+)
+from services.api.app.core.settings import Settings, load_settings
 
 
 router = APIRouter()
 
 SESSION_COOKIE = "email_vault_session"
 SESSION_MAX_AGE_SECONDS = 12 * 60 * 60
+OAUTH_STATE_MAX_AGE_SECONDS = 10 * 60
 
 
 @router.get("/login", response_class=HTMLResponse)
@@ -67,10 +76,13 @@ async def admin_console(request: Request) -> Response:
         return RedirectResponse("/login", status_code=303)
 
     settings = load_settings()
+    oauth_readiness = inspect_gmail_oauth_readiness(settings)
+    token_storage_readiness = inspect_token_storage_readiness(settings)
     return HTMLResponse(
         _render_admin_html(
-            inspect_gmail_oauth_readiness(settings),
-            inspect_token_storage_readiness(settings),
+            oauth_readiness,
+            token_storage_readiness,
+            _admin_authorization_url(settings, oauth_readiness, token_storage_readiness),
         )
     )
 
@@ -97,15 +109,36 @@ async def google_oauth_callback(request: Request) -> Response:
         return RedirectResponse("/login", status_code=303)
 
     settings = load_settings()
+    error = request.query_params.get("error", "")
+    code = request.query_params.get("code", "")
+    state = request.query_params.get("state", "")
+    oauth_readiness = inspect_gmail_oauth_readiness(settings)
+    token_storage_readiness = inspect_token_storage_readiness(settings)
+    exchange_result = _handle_google_oauth_callback(
+        settings=settings,
+        error=error,
+        code=code,
+        state=state,
+        oauth_readiness=oauth_readiness,
+        token_storage_readiness=token_storage_readiness,
+    )
     return HTMLResponse(
         _render_oauth_callback_html(
-            error=request.query_params.get("error", ""),
-            code_present=bool(request.query_params.get("code", "")),
-            state_present=bool(request.query_params.get("state", "")),
-            oauth_readiness=inspect_gmail_oauth_readiness(settings),
-            token_storage_readiness=inspect_token_storage_readiness(settings),
+            exchange_result=exchange_result,
+            code_present=bool(code),
+            state_present=bool(state),
+            oauth_readiness=oauth_readiness,
+            token_storage_readiness=token_storage_readiness,
         )
     )
+
+
+@dataclass(frozen=True)
+class OAuthCallbackExchangeResult:
+    status: str
+    title: str
+    detail: str
+    token_summary: dict[str, object] | None = None
 
 
 def _admin_login_configured(admin_password: str, web_session_secret: str) -> bool:
@@ -156,6 +189,106 @@ def _session_role(request: Request) -> str | None:
 
 def _sign_payload(payload: str, secret: str) -> str:
     return hmac.new(secret.encode("utf-8"), payload.encode("utf-8"), hashlib.sha256).hexdigest()
+
+
+def _admin_authorization_url(
+    settings: Settings,
+    readiness: GmailOAuthReadiness,
+    token_storage: TokenStorageReadiness,
+) -> str | None:
+    if not readiness.configured or not token_storage.configured:
+        return None
+    return readiness.authorization_url(_build_oauth_state(settings))
+
+
+def _build_oauth_state(settings: Settings) -> str:
+    issued_at = str(int(time.time()))
+    payload = f"gmail-oauth:{issued_at}"
+    signature = _sign_payload(payload, settings.web_session_secret)
+    return f"{payload}:{signature}"
+
+
+def _oauth_state_valid(state: str, settings: Settings) -> bool:
+    secret = settings.web_session_secret.strip()
+    if not state or not secret:
+        return False
+    try:
+        purpose, issued_at, signature = state.split(":", 2)
+        issued_timestamp = int(issued_at)
+    except ValueError:
+        return False
+    if purpose != "gmail-oauth":
+        return False
+    if int(time.time()) - issued_timestamp > OAUTH_STATE_MAX_AGE_SECONDS:
+        return False
+    expected_signature = _sign_payload(f"{purpose}:{issued_at}", secret)
+    return hmac.compare_digest(signature, expected_signature)
+
+
+def _handle_google_oauth_callback(
+    *,
+    settings: Settings,
+    error: str,
+    code: str,
+    state: str,
+    oauth_readiness: GmailOAuthReadiness,
+    token_storage_readiness: TokenStorageReadiness,
+) -> OAuthCallbackExchangeResult:
+    if error:
+        return OAuthCallbackExchangeResult(
+            status="error",
+            title="OAuth Callback Error",
+            detail=f"Google returned an OAuth error: {error}.",
+        )
+    if not code:
+        return OAuthCallbackExchangeResult(
+            status="ready",
+            title="OAuth Callback Ready",
+            detail="Callback route is reachable. No authorization code was supplied.",
+        )
+    if not oauth_readiness.configured or not token_storage_readiness.configured:
+        return OAuthCallbackExchangeResult(
+            status="blocked",
+            title="OAuth Callback Blocked",
+            detail="Authorization code was received, but token exchange is blocked until OAuth and token-storage config are complete.",
+        )
+    if not _oauth_state_valid(state, settings):
+        return OAuthCallbackExchangeResult(
+            status="blocked",
+            title="OAuth State Rejected",
+            detail="Authorization code was received, but the OAuth state parameter did not match this admin session.",
+        )
+
+    try:
+        token_summary = _exchange_and_store_google_tokens(settings, code)
+    except (OAuthExchangeError, TokenStorageError) as exc:
+        return OAuthCallbackExchangeResult(
+            status="error",
+            title="OAuth Token Exchange Failed",
+            detail=str(exc),
+        )
+    return OAuthCallbackExchangeResult(
+        status="stored",
+        title="Gmail Token Stored",
+        detail="Authorization code was exchanged and encrypted token storage was updated locally.",
+        token_summary=token_summary,
+    )
+
+
+def _exchange_and_store_google_tokens(settings: Settings, code: str) -> dict[str, object]:
+    token_set = GoogleOAuthTokenExchanger().exchange_authorization_code(code, settings)
+    stored_token = stored_google_oauth_token(
+        owner_id="local-admin",
+        access_token=token_set.access_token,
+        refresh_token=token_set.refresh_token,
+        token_type=token_set.token_type,
+        scopes=token_set.scopes,
+        expires_in=token_set.expires_in,
+        id_token=token_set.id_token,
+        now=token_set.received_at,
+    )
+    EncryptedLocalTokenStore(settings.token_store_path, settings.token_encryption_key).save(stored_token)
+    return stored_token.public_summary()
 
 
 def _render_login_html(message: str = "") -> str:
@@ -349,7 +482,11 @@ def _render_login_html(message: str = "") -> str:
 </html>"""
 
 
-def _render_admin_html(readiness: GmailOAuthReadiness, token_storage: TokenStorageReadiness) -> str:
+def _render_admin_html(
+    readiness: GmailOAuthReadiness,
+    token_storage: TokenStorageReadiness,
+    authorization_url: str | None,
+) -> str:
     category_flow = _admin_category_flow()
     oauth_status = "Ready" if readiness.configured else "Needs config"
     missing_items = "".join(f"<li>{html.escape(item)}</li>" for item in readiness.missing)
@@ -367,9 +504,14 @@ def _render_admin_html(readiness: GmailOAuthReadiness, token_storage: TokenStora
     token_missing_html = (
         f"<ul>{token_missing_items}</ul>"
         if token_missing_items
-        else "<p>Token storage config is present. Token exchange is still not enabled.</p>"
+        else "<p>Token storage config is present. Token exchange can run from the signed OAuth callback.</p>"
     )
     token_readiness_json_link = "/admin/gmail/token-storage/readiness"
+    connect_html = (
+        f'<a class="button" href="{html.escape(authorization_url, quote=True)}">Connect Read-Only Gmail</a>'
+        if authorization_url
+        else "<p>Connect is hidden until OAuth and token-storage config are both ready.</p>"
+    )
     template = """<!doctype html>
 <html lang="en">
 <head>
@@ -796,6 +938,7 @@ def _render_admin_html(readiness: GmailOAuthReadiness, token_storage: TokenStora
         <h2>OAuth Readiness</h2>
         __MISSING_HTML__
         <div class="actions">
+          __CONNECT_HTML__
           <a class="button secondary" href="__READINESS_JSON_LINK__">View OAuth Readiness JSON</a>
         </div>
       </section>
@@ -815,7 +958,7 @@ def _render_admin_html(readiness: GmailOAuthReadiness, token_storage: TokenStora
       <section>
         <h2>OAuth Callback Shell</h2>
         <p>The callback route is registered at <code>http://127.0.0.1:8000/oauth/google/callback</code></p>
-        <p>Authorization codes are not stored until token exchange and encrypted storage are implemented.</p>
+        <p>Authorization codes are exchanged only after admin-session state validation and complete encrypted-storage config.</p>
       </section>
       <section id="commands">
         <h2>Local Preserve Command</h2>
@@ -833,6 +976,7 @@ def _render_admin_html(readiness: GmailOAuthReadiness, token_storage: TokenStora
         template.replace("__OAUTH_STATUS__", html.escape(oauth_status))
         .replace("__TOKEN_STATUS__", html.escape(token_status))
         .replace("__MISSING_HTML__", missing_html)
+        .replace("__CONNECT_HTML__", connect_html)
         .replace("__READINESS_JSON_LINK__", readiness_json_link)
         .replace("__SCOPE_HTML__", scope_html)
         .replace("__MUTATION_COPY__", html.escape(mutation_copy))
@@ -875,32 +1019,37 @@ def _admin_category_flow() -> dict[str, str]:
 
 def _render_oauth_callback_html(
     *,
-    error: str,
+    exchange_result: OAuthCallbackExchangeResult,
     code_present: bool,
     state_present: bool,
     oauth_readiness: GmailOAuthReadiness,
     token_storage_readiness: TokenStorageReadiness,
 ) -> str:
-    if error:
-        title = "OAuth Callback Error"
-        detail = f"Google returned an OAuth error: {html.escape(error)}."
-    elif code_present:
-        title = "OAuth Callback Received"
-        detail = "Authorization code was received and deliberately discarded because token exchange is not enabled yet."
-    else:
-        title = "OAuth Callback Ready"
-        detail = "Callback route is reachable. No authorization code was supplied."
-
     checks = (
         ("OAuth config", oauth_readiness.configured),
         ("Token storage config", token_storage_readiness.configured),
         ("State parameter present", state_present),
         ("Authorization code present", code_present),
+        ("Encrypted token stored", exchange_result.status == "stored"),
     )
     check_rows = "".join(
         f"<li>{html.escape(label)}: {'yes' if value else 'no'}</li>"
         for label, value in checks
     )
+    summary_html = ""
+    if exchange_result.token_summary:
+        scopes = exchange_result.token_summary.get("scopes", [])
+        scope_items = "".join(f"<li>{html.escape(str(scope))}</li>" for scope in scopes)
+        summary_html = f"""
+      <h2>Stored Token Summary</h2>
+      <ul>
+        <li>Provider: {html.escape(str(exchange_result.token_summary.get("provider", "")))}</li>
+        <li>Owner: {html.escape(str(exchange_result.token_summary.get("owner_id", "")))}</li>
+        <li>Refresh token present: {'yes' if exchange_result.token_summary.get("has_refresh_token") else 'no'}</li>
+        <li>Expires at: {html.escape(str(exchange_result.token_summary.get("expires_at", "")))}</li>
+      </ul>
+      <h2>Stored Scopes</h2>
+      <ul>{scope_items}</ul>"""
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -930,9 +1079,10 @@ def _render_oauth_callback_html(
 <body>
   <main>
     <section>
-      <h1>{html.escape(title)}</h1>
-      <p>{detail}</p>
+      <h1>{html.escape(exchange_result.title)}</h1>
+      <p>{html.escape(exchange_result.detail)}</p>
       <ul>{check_rows}</ul>
+      {summary_html}
       <a class="button" href="/admin">Back To Admin</a>
     </section>
   </main>

@@ -75,10 +75,10 @@ EMAIL_VAULT_TOKEN_STORE_PATH=.local/email-vault-token-store.json
 EMAIL_VAULT_TOKEN_ENCRYPTION_KEY=<long-private-local-key>
 ```
 
-The readiness panel checks configuration only. It does not exchange tokens,
-read Gmail, request cleanup scopes, or mutate Gmail. The token-storage readiness
-panel checks only that a private encrypted-store path and key are configured;
-it does not store plaintext tokens.
+The readiness panel checks configuration only. It does not read Gmail, request
+cleanup scopes, or mutate Gmail. The token-storage readiness panel checks only
+that a private encrypted-store path and key are configured; it does not store
+plaintext tokens.
 
 Add-on request signing is off by default for local development. Configure a
 private shared secret only when testing the add-on-to-backend boundary:
@@ -319,8 +319,9 @@ http://127.0.0.1:8000/oauth/google/callback
 ```
 
 It can receive Google callback query parameters while you are logged in as
-admin, but it discards authorization codes until token exchange and encrypted
-storage are implemented.
+admin. When OAuth and token-storage config are ready, it validates the signed
+OAuth state, exchanges authorization codes, and stores Google token material in
+encrypted local token storage.
 
 ## Current Limits
 
@@ -335,7 +336,7 @@ absolute package paths. The `synthetic-demo` shortcut runs the canonical public
 demo fixtures with fewer flags. The local web demo is a read-only synthetic
 preview, and `/login` plus `/admin` now separate public-safe demo access from a
 private owner console shell. The admin shell now reports read-only Gmail OAuth
-readiness and token-storage readiness, but it still does not connect Gmail,
-store OAuth tokens, write files, or mutate Gmail. None of these paths labels
-Gmail, marks messages read, archives Gmail, trashes Gmail, or deletes Gmail
-messages.
+readiness and token-storage readiness, and it can store encrypted OAuth tokens
+after signed-state callback validation. It still does not list Gmail messages,
+write files, or mutate Gmail. None of these paths labels Gmail, marks messages
+read, archives Gmail, trashes Gmail, or deletes Gmail messages.

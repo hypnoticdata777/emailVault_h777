@@ -174,21 +174,24 @@ Done:
 - Admin-only token-storage readiness panel and OAuth callback shell so the
   private read-only Gmail connection can be wired without storing plaintext
   tokens or authorization codes.
+- Signed-state Google OAuth callback handling that exchanges authorization
+  codes only after OAuth config, token-storage config, and admin-session state
+  checks pass.
+- Encrypted local OAuth token storage for Google access/refresh token material,
+  with public summaries that never expose token values.
 
 Next:
 
-1. Implement real OAuth token exchange into encrypted local storage after the
-   callback shell and token-storage readiness are configured.
-2. Wire read-only Gmail import/listing behind `/admin` before any cleanup
+1. Wire read-only Gmail import/listing behind `/admin` before any cleanup
    controls.
-3. Expand the local web demo from read-only synthetic preview into a small
+2. Expand the local web demo from read-only synthetic preview into a small
    workflow surface only if it remains useful after screenshots.
-4. Add optional synthetic screenshots for the public portfolio walkthrough.
-5. Validate the signed add-on archive/finalization flow against a real HTTPS API
+3. Add optional synthetic screenshots for the public portfolio walkthrough.
+4. Validate the signed add-on archive/finalization flow against a real HTTPS API
    and Google OAuth client in a private environment.
-6. Decide and document the Gmail mutation permission step for label, mark-read,
+5. Decide and document the Gmail mutation permission step for label, mark-read,
    archive, delete/trash queue, and callback success behavior.
-7. Keep Free Space Mode trash/delete behavior deferred until review, warning,
+6. Keep Free Space Mode trash/delete behavior deferred until review, warning,
    and reversibility protections are privately validated.
 
 ## Architecture At A Glance
@@ -277,9 +280,11 @@ $env:EMAIL_VAULT_TOKEN_ENCRYPTION_KEY = "replace-with-a-long-private-local-key"
 
 The admin console and `/admin/gmail/oauth/readiness` will report whether those
 private values are ready. `/admin/gmail/token-storage/readiness` reports the
-token-storage side. The callback route exists at
-`/oauth/google/callback`, but token exchange and real Gmail reading are still
-the next private implementation steps.
+token-storage side. When both sides are configured, `/admin` exposes a
+read-only Gmail OAuth connection link. The callback route at
+`/oauth/google/callback` validates the signed admin-session state, exchanges the
+authorization code, and writes encrypted local token storage. Real Gmail inbox
+listing is still the next private implementation step.
 
 Run the local Preserve Mode CLI against a synthetic no-attachment fixture:
 

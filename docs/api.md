@@ -99,8 +99,9 @@ present. The current page shows the safe live-work status and links back to the
 synthetic demo/CLI commands. It also shows private Gmail OAuth readiness:
 missing environment variables, configured scopes, and whether mutation-capable
 scopes are present. It also shows token-storage readiness for the future
-encrypted local token store. It does not connect Gmail, store OAuth tokens, or
-execute Gmail cleanup.
+encrypted local token store. When OAuth and token-storage config are both
+ready, it shows a read-only Gmail connection link with a signed state value. It
+does not list Gmail messages or execute Gmail cleanup.
 
 ## `GET /admin/gmail/oauth/readiness`
 
@@ -121,7 +122,7 @@ https://www.googleapis.com/auth/gmail.readonly
 ```
 
 The endpoint flags mutation-capable Gmail scopes if they are configured, but it
-does not start OAuth, exchange tokens, read Gmail, or mutate Gmail.
+does not read Gmail or mutate Gmail.
 
 ## `GET /admin/gmail/token-storage/readiness`
 
@@ -134,7 +135,7 @@ Current readiness checks:
 - `EMAIL_VAULT_TOKEN_ENCRYPTION_KEY` is present outside Git.
 - plaintext token storage remains disabled.
 
-The endpoint does not store, encrypt, decrypt, or return OAuth token material.
+The endpoint does not return OAuth token material.
 
 ## `GET /oauth/google/callback`
 
@@ -145,9 +146,13 @@ Current behavior:
 
 - reports whether an OAuth error was returned;
 - detects whether `code` and `state` query parameters are present;
-- deliberately discards the authorization code;
-- does not exchange the code for tokens;
-- does not store tokens;
+- blocks token exchange until OAuth and token-storage config are complete;
+- validates the signed admin-session OAuth state;
+- exchanges the authorization code with Google when configured and state is
+  valid;
+- stores Google token material in encrypted local token storage;
+- renders only public token summaries and never renders token values or the
+  authorization code;
 - does not read or mutate Gmail.
 
 ## `POST /logout`
@@ -345,5 +350,6 @@ unexpected internal errors.
 
 - Google Marketplace packaging and live add-on authentication.
 - Live add-on-to-backend validation against a deployed HTTPS API.
+- Read-only Gmail inbox listing from stored OAuth tokens.
 - Private-environment validation against a real Google OAuth project.
 - Gmail Workspace Add-on label, mark-read, archive, or undo behavior.

@@ -294,3 +294,19 @@ easy to follow alongside Git commits.
   category signal and shows how categories feed review gates.
 - Kept the new polish inside the real admin tool surface without claiming live
   Gmail access or cleanup behavior.
+
+## 2026-09-09 - OAuth Token Exchange And Encrypted Storage
+
+- Added a Google OAuth token exchange boundary that posts authorization codes
+  to Google's token endpoint only after private OAuth config is ready.
+- Added encrypted local token storage using Fernet with a PBKDF2-derived key
+  from `EMAIL_VAULT_TOKEN_ENCRYPTION_KEY`.
+- Updated the admin OAuth callback so authorization codes are exchanged only
+  after signed admin-session state validation passes.
+- Added a Connect Read-Only Gmail action in `/admin` when OAuth and token
+  storage readiness are both configured.
+- Kept Gmail reading and Gmail mutation disabled; the next blocker is read-only
+  Gmail inbox listing from the encrypted token store.
+- Validation: `python -m unittest discover -s tests` passed locally with 193
+  tests and 33 skips because optional API/crypto dependencies are not installed
+  in this local shell. `python -m compileall services tests` also passed.

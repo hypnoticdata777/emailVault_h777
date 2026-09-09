@@ -238,7 +238,7 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(response.status_code, 303)
         self.assertEqual(response.headers["location"], "/login")
 
-    def test_oauth_callback_discards_authorization_code_until_token_exchange_exists(self) -> None:
+    def test_oauth_callback_rejects_authorization_code_with_invalid_state(self) -> None:
         with patch.dict(
             "os.environ",
             {
@@ -253,10 +253,52 @@ class ApiTests(unittest.TestCase):
             response = self.client.get("/oauth/google/callback?code=secret-code&state=state-123")
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn("OAuth Callback Received", response.text)
-        self.assertIn("Authorization code was received and deliberately discarded", response.text)
+        self.assertIn("OAuth State Rejected", response.text)
+        self.assertIn("OAuth state parameter did not match this admin session", response.text)
         self.assertIn("Authorization code present: yes", response.text)
         self.assertNotIn("secret-code", response.text)
+
+    def test_oauth_callback_exchanges_code_and_stores_encrypted_token_after_state_check(self) -> None:
+        from services.api.app.api import web
+        from services.api.app.core.settings import load_settings
+
+        with patch.dict(
+            "os.environ",
+            {
+                "EMAIL_VAULT_ADMIN_PASSWORD": "owner-pass",
+                "EMAIL_VAULT_WEB_SESSION_SECRET": "test-session-secret",
+                "GOOGLE_OAUTH_CLIENT_ID": "client-id.apps.googleusercontent.com",
+                "GOOGLE_OAUTH_CLIENT_SECRET": "client-secret",
+                "EMAIL_VAULT_OAUTH_REDIRECT_URI": "http://127.0.0.1:8000/oauth/google/callback",
+                "EMAIL_VAULT_GMAIL_OAUTH_SCOPES": "https://www.googleapis.com/auth/gmail.readonly",
+                "EMAIL_VAULT_TOKEN_STORE_PATH": ".local/email-vault-token-store.json",
+                "EMAIL_VAULT_TOKEN_ENCRYPTION_KEY": "local-development-key",
+            },
+        ):
+            self.client.post("/login/admin", data={"password": "owner-pass"}, follow_redirects=False)
+            state = web._build_oauth_state(load_settings())
+            with patch(
+                "services.api.app.api.web._exchange_and_store_google_tokens",
+                return_value={
+                    "provider": "google",
+                    "owner_id": "local-admin",
+                    "token_type": "Bearer",
+                    "scopes": ["https://www.googleapis.com/auth/gmail.readonly"],
+                    "has_refresh_token": True,
+                    "expires_at": 4600,
+                    "created_at": 1000,
+                    "updated_at": 1000,
+                },
+            ) as exchange:
+                response = self.client.get(f"/oauth/google/callback?code=secret-code&state={state}")
+
+        self.assertEqual(response.status_code, 200)
+        exchange.assert_called_once()
+        self.assertIn("Gmail Token Stored", response.text)
+        self.assertIn("Encrypted token stored: yes", response.text)
+        self.assertIn("Refresh token present: yes", response.text)
+        self.assertNotIn("secret-code", response.text)
+        self.assertNotIn("access-token", response.text)
 
     def test_archive_requires_bearer_identity(self) -> None:
         response = self.client.post("/archive/thread", json=self._fixture("plain_text"))
