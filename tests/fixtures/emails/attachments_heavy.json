@@ -1,0 +1,52 @@
+{
+  "request_id": "req-attachments-heavy-001",
+  "client_context": {"add_on_version": "0.2.0", "locale": "en-US", "timezone": "UTC"},
+  "preferences": {"category": "Attachments", "mark_read_after_preserve": false, "archive_after_preserve": false},
+  "confirmed_at": "2026-07-27T14:20:00+00:00",
+  "thread": {
+    "thread_id": "thread-attachments-heavy-001",
+    "gmail_thread_id": "gmail-thread-attachments-heavy-001",
+    "subject": "Synthetic packet with several attachments",
+    "date_range_start": "2026-07-27T14:18:00+00:00",
+    "date_range_end": "2026-07-27T14:18:00+00:00",
+    "messages": [{
+      "message_id": "msg-attachments-heavy-001",
+      "gmail_message_id": "gmail-msg-attachments-heavy-001",
+      "sent_at": "2026-07-27T14:18:00+00:00",
+      "from": {"email": "files@example.com", "display_name": "Example Files"},
+      "to": [{"email": "owner@example.com", "display_name": "Owner Example"}],
+      "labels": ["INBOX", "CATEGORY_UPDATES"],
+      "is_read": false,
+      "headers": [
+        {"name": "X-EmailVault-Synthetic-Type", "value": "attachments_heavy"}
+      ],
+      "bodies": [{
+        "mime_type": "text/plain",
+        "content": "Synthetic attachment-heavy message for export package and classifier tests."
+      }],
+      "attachments": [
+        {
+          "attachment_id": "att-heavy-001",
+          "original_filename": "synthetic-report.pdf",
+          "mime_type": "application/pdf",
+          "size_bytes": 2048,
+          "content_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        {
+          "attachment_id": "att-heavy-002",
+          "original_filename": "synthetic-notes.txt",
+          "mime_type": "text/plain",
+          "size_bytes": 512,
+          "content_sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+        },
+        {
+          "attachment_id": "att-heavy-003",
+          "original_filename": "synthetic-data.csv",
+          "mime_type": "text/csv",
+          "size_bytes": 768,
+          "content_sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+        }
+      ]
+    }]
+  }
+}

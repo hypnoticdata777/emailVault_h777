@@ -1,0 +1,31 @@
+{
+  "request_id": "req-plain-001",
+  "client_context": {"add_on_version": "0.1.0", "locale": "en-US", "timezone": "UTC"},
+  "preferences": {"category": "Receipts", "mark_read_after_preserve": true, "archive_after_preserve": false},
+  "confirmed_at": "2026-07-12T18:00:00+00:00",
+  "thread": {
+    "thread_id": "thread-plain-001",
+    "gmail_thread_id": "gmail-thread-plain-001",
+    "subject": "Example receipt",
+    "date_range_start": "2026-07-12T17:55:00+00:00",
+    "date_range_end": "2026-07-12T17:55:00+00:00",
+    "messages": [{
+      "message_id": "msg-plain-001",
+      "gmail_message_id": "gmail-msg-plain-001",
+      "sent_at": "2026-07-12T17:55:00+00:00",
+      "from": {"email": "sender@example.com", "display_name": "Example Sender"},
+      "to": [{"email": "recipient@example.com", "display_name": "Example Recipient"}],
+      "labels": ["INBOX"],
+      "is_read": false,
+      "bodies": [{"mime_type": "text/plain", "content": "Plain synthetic message for Email Vault."}],
+      "attachments": [{
+        "attachment_id": "att-plain-001",
+        "original_filename": "receipt.pdf",
+        "mime_type": "application/pdf",
+        "size_bytes": 1024,
+        "content_sha256": "0f343b0931126a20f133d67c2b018a3b"
+      }]
+    }]
+  }
+}
+

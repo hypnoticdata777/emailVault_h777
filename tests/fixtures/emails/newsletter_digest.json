@@ -1,0 +1,31 @@
+{
+  "request_id": "req-newsletter-001",
+  "client_context": {"add_on_version": "0.2.0", "locale": "en-US", "timezone": "UTC"},
+  "preferences": {"category": "Newsletters", "mark_read_after_preserve": false, "archive_after_preserve": true},
+  "confirmed_at": "2026-07-27T14:00:00+00:00",
+  "thread": {
+    "thread_id": "thread-newsletter-001",
+    "gmail_thread_id": "gmail-thread-newsletter-001",
+    "subject": "Example Daily Briefing",
+    "date_range_start": "2026-07-27T13:55:00+00:00",
+    "date_range_end": "2026-07-27T13:55:00+00:00",
+    "messages": [{
+      "message_id": "msg-newsletter-001",
+      "gmail_message_id": "gmail-msg-newsletter-001",
+      "sent_at": "2026-07-27T13:55:00+00:00",
+      "from": {"email": "newsletter@example.com", "display_name": "Example Daily Briefing"},
+      "to": [{"email": "owner@example.com", "display_name": "Owner Example"}],
+      "labels": ["INBOX", "CATEGORY_PROMOTIONS"],
+      "is_read": false,
+      "headers": [
+        {"name": "List-ID", "value": "Example Daily Briefing <briefing.example.com>"},
+        {"name": "List-Unsubscribe", "value": "<https://example.com/unsubscribe/synthetic>"}
+      ],
+      "bodies": [{
+        "mime_type": "text/html",
+        "content": "<h1>Example Daily Briefing</h1><p>Three synthetic articles to read later.</p>"
+      }],
+      "attachments": []
+    }]
+  }
+}

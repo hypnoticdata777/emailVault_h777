@@ -1,0 +1,23 @@
+{
+  "request_id": "req-duplicate-001",
+  "client_context": {"add_on_version": "0.1.0", "locale": "en-US", "timezone": "UTC"},
+  "preferences": {"category": "Receipts", "mark_read_after_preserve": false, "archive_after_preserve": false},
+  "confirmed_at": "2026-07-12T18:10:00+00:00",
+  "thread": {
+    "thread_id": "thread-duplicate-001",
+    "gmail_thread_id": "gmail-thread-duplicate-001",
+    "subject": "Duplicate example",
+    "date_range_start": "2026-07-12T18:09:00+00:00",
+    "date_range_end": "2026-07-12T18:09:00+00:00",
+    "messages": [{
+      "message_id": "msg-duplicate-001",
+      "gmail_message_id": "gmail-msg-duplicate-001",
+      "sent_at": "2026-07-12T18:09:00+00:00",
+      "from": {"email": "duplicate@example.com"},
+      "to": [{"email": "recipient@example.com"}],
+      "bodies": [{"mime_type": "text/plain", "content": "Duplicate synthetic snapshot."}],
+      "attachments": []
+    }]
+  }
+}
+

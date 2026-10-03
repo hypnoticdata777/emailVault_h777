@@ -1,0 +1,140 @@
+# Implementation Plan
+
+## P0 Complete
+
+- Audit the repository.
+- Freeze the POC scope.
+- Record transaction boundary and initial architecture decisions.
+
+## P1 Complete
+
+- Define canonical contracts, state enum, and controlled error categories.
+- Add typed settings and `.env.example`.
+- Add synthetic fixtures and fixture policy.
+- Add foundational invariant tests.
+
+## P2 In Progress
+
+- Add FastAPI and Pydantic v2 request/response models.
+- Add Google ID token verification interface and test doubles.
+- Add repository interfaces and SQLite-backed revision/audit persistence.
+
+Current P2 scope adds the API app, Pydantic schemas, identity verifier boundary,
+repository protocol boundary, SQLite persistence, and API/repository tests.
+
+The P2 orchestration layer now uses verified identity, validation, fingerprinting,
+repository duplicate lookup, and controlled errors without invoking any renderer,
+storage provider, durable write, or Gmail finalization.
+
+The route now uses the configured SQLite repository by default, and local setup
+has a minimal bootstrap command: `python -m services.api.app.cli init-db`.
+Companion docs now cover local development, current API behavior, and the core
+data model.
+
+The safe revision planner now prepares duplicate or new-revision decisions
+without writing completed records. It reuses the existing vault thread for
+updated Gmail threads and generates server-owned IDs for new vault threads.
+
+The first explicit storage provider boundary now stages generated artifacts and
+verifies checksums in local development without marking revisions completed.
+
+Security and privacy boundaries are documented for public-ready development.
+
+P3 has started with dependency-light HTML sanitization, remote image-source
+blocking, script/style content removal, plain-text fallback, normalized
+sanitized body output, renderer-safe snapshot preparation, coverage for
+table-heavy plus attachment-adjacent HTML, and artifact manifest planning for
+future generated outputs. The PDF renderer boundary is now recorded in ADR
+0003 before renderer implementation begins. The first renderer scaffold now
+uses an adapter boundary so tests can verify sanitized input, disabled
+JavaScript, blocked network policy, PDF artifact bytes, and temporary workspace
+cleanup. The Playwright/Chromium adapter boundary is wired behind that scaffold
+with tests for JavaScript-disabled contexts, route abortion, PDF options, and
+browser resource cleanup. An opt-in browser-backed smoke test path now verifies
+local Chromium PDF rendering when renderer dependencies are installed and
+`EMAIL_VAULT_RUN_RENDERER_SMOKE=1` is set. Rendered PDF output can now be
+staged through the storage provider and checksum verified without recording a
+completed revision. The coordinator can now create the planned revision after
+verified storage and append `RENDERED`, `STAGED`, and `VERIFIED` audit events
+without enabling Gmail finalization. It can also append `COMPLETED` after the
+verified storage state transition, still without enabling Gmail finalization.
+The coordinator can now request Gmail finalization only from a completed
+owner-scoped record and record callback success or failure only after
+`GMAIL_FINALIZATION_PENDING`. GitHub Actions CI now runs the stable Python 3.12
+test suite with API/test dependencies on push and pull request while keeping the
+browser-backed renderer smoke test opt-in. The identity boundary now supports
+selectable local synthetic verification or Google ID-token verification for a
+configured OAuth client ID, with tests covering the verifier without calling
+Google. The first Gmail Workspace Add-on shell now exists as Apps Script files
+with tests for the contextual trigger, minimal current-message scopes, expected
+entry points, trusted attachment-byte payload building, configured signed
+backend archive calls, and absence of Gmail mutation.
+Docker runtime packaging now exists for the API, with CI building the image to
+keep the runtime boundary from drifting.
+The archive route now calls the completed backend preservation path for
+generated PDF, metadata JSON, and manifest JSON output and returns `PRESERVED`
+after verified storage plus `COMPLETED`, while Gmail finalization remains
+disabled. Trusted permitted attachment copy now exists behind an injectable
+content provider; signed add-on requests can now supply Gmail attachment bytes
+as base64 plus SHA-256 for backend verification and copying. The API can now
+verify add-on HMAC request signatures when `EMAIL_VAULT_ADDON_SIGNING_SECRET`
+is set, and the add-on can execute signed `/archive/thread` requests when
+backend script properties are configured. The API now exposes the
+post-completion Gmail finalization request and callback routes, and the add-on
+has signed helpers for both endpoints while Gmail mutation remains disabled
+pending the permission/deployment review.
+The public portfolio readiness pass has started: the README now explains what
+the POC proves, what it intentionally does not do, and how the archive flow is
+separated from Gmail mutation. Open product/deployment decisions are now split
+between answered local POC defaults and private live-demo blockers.
+The product has now been rescoped from a one-thread preservation POC into a
+Gmail offloader and inbox-cleaner direction. The existing preservation path is
+the verified export unit for that broader product.
+ADR 0005 records the local-first decision: v0.2 should target one user's Gmail
+and a user-selected filesystem root first, while keeping boundaries clean enough
+for a later hosted subscription SaaS.
+
+## v0.2 Complete
+
+The first local-first implementation wave is complete. It added export package
+contracts, sender/category route planning, synthetic classifier fixtures,
+deterministic classifier rules, dry-run review planning, the local export
+package writer, Preserve Mode coordinator wiring, and Clean Inbox intent records
+while Gmail mutation remains disabled.
+
+The first user-facing CLI wave now exposes local Preserve Mode package writing,
+Clean Inbox dry-run review, post-preservation Clean Inbox intent recording, and
+a one-command local batch workflow that preserves several synthetic requests,
+reviews them, records intent for lower-risk approvable items only, and can
+write a public-safe Markdown report. The canonical `synthetic-demo` shortcut
+now runs that public walkthrough with fewer flags and can be rerun safely. The
+first read-only local web demo now exposes the same synthetic review story at
+`/demo`. A local access split now adds `/login`, demo access, and an
+HMAC-signed owner-only `/admin` console shell. The admin shell is the bridge
+toward private live Gmail use, but it still does not connect Gmail, store OAuth
+tokens, or mutate Gmail. The admin shell now reports read-only Gmail OAuth
+readiness and exposes the same status through an admin-only JSON endpoint. The
+admin shell now also reports token-storage readiness, and the local OAuth
+callback shell can receive but discard authorization codes until token exchange
+is implemented. The next implementation should focus on real token exchange
+into encrypted storage before read-only Gmail import/listing.
+
+## Later Phases
+
+- Public-readiness polish: screenshots or a short synthetic walkthrough, final
+  README/doc alignment, and a secrets/artifact sweep before broad sharing.
+- v0.2 local-first closeout and next wave:
+  `docs/v0.2-closeout-and-next-wave.md`.
+- Next surface decision: write-capable local web workflow, desktop UI, or
+  add-on-triggered local API.
+- Private admin live path: OAuth token exchange into encrypted storage,
+  read-only Gmail import/listing, and owner controls wired behind `/admin`.
+- Portfolio capture: optional synthetic screenshots from the local web demo.
+- Free Space Mode: reviewed trash/delete queue after verified export, with
+  warning copy and reversibility checks.
+- Portable AI/data port: folder and JSON/text outputs that downstream tools can
+  consume without direct Gmail access.
+- P7: HTTPS deployment choice, real signed archive/finalization validation, and
+  private OAuth validation.
+- P8: Gmail mutation permission decision for label, mark-read, archive, and
+  callback success behavior.
