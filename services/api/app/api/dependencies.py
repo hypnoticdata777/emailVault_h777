@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import lru_cache
 from typing import Annotated
 
 from fastapi import Depends, Header, HTTPException, status
@@ -31,15 +32,18 @@ def get_identity_verifier() -> IdentityVerifier:
     )
 
 
+@lru_cache(maxsize=1)
 def get_revision_repository() -> RevisionRepository:
     settings = load_settings()
     return SqliteRevisionRepository(sqlite_path_from_database_url(settings.database_url))
 
 
+@lru_cache(maxsize=1)
 def get_pdf_renderer_adapter() -> PdfRendererAdapter:
     return PlaywrightPdfRendererAdapter()
 
 
+@lru_cache(maxsize=1)
 def get_storage_provider() -> StorageProvider:
     settings = load_settings()
     return LocalFilesystemStorageProvider(settings.storage_root)
