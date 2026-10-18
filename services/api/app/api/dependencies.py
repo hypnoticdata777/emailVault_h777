@@ -82,6 +82,13 @@ async def require_addon_request_signature(
     x_email_vault_signature: Annotated[str | None, Header()] = None,
     verifier: AddonRequestSignatureVerifier = Depends(get_addon_request_signature_verifier),
 ) -> None:
+    # Important: do not read the request body unless signature verification is enabled.
+    # Reading the body consumes the request stream and will prevent FastAPI/Pydantic
+    # from parsing the body afterwards.
+    if not verifier.enabled:
+        return
+
+    # Only read the raw body when verification is enabled.
     body = await request.body()
     verifier.verify(
         request.method,
