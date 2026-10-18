@@ -26,17 +26,19 @@ class AddonRequestSignatureVerifier:
 
     def __init__(
         self,
-        secret: str,
+        secret: str | None,
         max_age_seconds: int = 300,
         now_factory: Callable[[], float] | None = None,
     ) -> None:
-        self.secret = secret
+        # Coerce None to empty string and strip once to avoid AttributeError on None.
+        self.secret = (secret or "").strip()
         self.max_age_seconds = max_age_seconds
         self._now_factory = now_factory or time.time
 
     @property
     def enabled(self) -> bool:
-        return bool(self.secret.strip())
+        # True only when a non-empty secret is configured.
+        return bool(self.secret)
 
     def verify(self, method: str, path: str, body: bytes, timestamp: str | None, signature: str | None) -> None:
         if not self.enabled:
